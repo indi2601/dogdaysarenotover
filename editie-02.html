@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dog Days Are Not Over – Editie 02</title>
+    <title>Editie 02</title>
     <style>
         @font-face {
             font-family: 'Neue Haas Grotesk';
@@ -25,7 +25,7 @@
             overflow: hidden;
             background: #faf8f7;
             font-family: 'Neue Haas Grotesk', sans-serif;
-            color: #6b4423;
+            color: #5c3925;
         }
 
         body {
@@ -43,22 +43,14 @@
             z-index: 2;
         }
 
-        .editie-badge {
-            font-size: 0.9rem;
-            font-weight: 400;
-            color: #6b4423;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
-        }
-
+        .editie-badge,
         .site-name {
             font-size: 0.9rem;
             font-weight: 400;
-            color: #6b4423;
+            color: #5c3925;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
+            letter-spacing: 0.12em;
+            line-height: 1;
         }
 
         main {
@@ -74,11 +66,11 @@
             width: 100%;
             height: calc(100% - 2rem);
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(4, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-rows: repeat(4, minmax(0, 1fr));
             gap: 0.6rem;
-            max-width: 90vw;
-            max-height: 90vh;
+            max-width: 92vw;
+            max-height: 88vh;
         }
 
         .photo {
@@ -87,9 +79,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            border-radius: 2px;
-            box-shadow: none;
-            border: none;
+            border-radius: 0;
             overflow: hidden;
         }
 
@@ -103,15 +93,11 @@
         .nav a {
             color: #ff1493;
             text-decoration: none;
-            font-size: 0.9rem;
-            letter-spacing: 0.08em;
+            font-size: 0.8rem;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
             font-weight: 400;
-            margin-right: 2rem;
-        }
-
-        .nav a:last-child {
-            margin-right: 0;
+            margin-right: 1.8rem;
         }
 
         @media (max-width: 640px) {
@@ -125,21 +111,19 @@
                 gap: 0.4rem;
             }
 
-            .editie-badge, .site-name {
+            .editie-badge,
+            .site-name {
                 font-size: 0.72rem;
                 letter-spacing: 0.08em;
             }
 
-            main {
-                padding-top: 1.5rem;
-            }
-
             .gallery {
-                grid-template-columns: repeat(4, 1fr);
-                grid-template-rows: repeat(2, 1fr);
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                grid-template-rows: repeat(2, minmax(0, 1fr));
                 gap: 0.4rem;
                 max-width: 100%;
                 max-height: 100%;
+                margin-top: 1.4rem;
             }
 
             .nav {
@@ -148,8 +132,8 @@
             }
 
             .nav a {
-                font-size: 0.75rem;
-                margin-right: 1.5rem;
+                font-size: 0.72rem;
+                margin-right: 1.2rem;
             }
         }
     </style>
@@ -162,14 +146,14 @@
 
     <main>
         <div class="gallery">
-            <div class="photo" style="background-image: url('https://images.githubusercontent.com/user-attachments/assets/a0b0e0a0-0b0b-0c0c-0d0d-0e0e0f0f0g0g');"></div>
-            <div class="photo" style="background-image: url('https://images.githubusercontent.com/user-attachments/assets/b1b1b1b1-1c1c-1d1d-1e1e-1f1f1g1g1h1h');"></div>
-            <div class="photo" style="background-image: url('https://images.githubusercontent.com/user-attachments/assets/c2c2c2c2-2d2d-2e2e-2f2f-2g2g2h2h2i2i');"></div>
-            <div class="photo" style="background-image: url('https://images.githubusercontent.com/user-attachments/assets/d3d3d3d3-3e3e-3f3f-3g3g-3h3h3i3i3j3j');"></div>
-            <div class="photo" style="background-image: url('https://images.githubusercontent.com/user-attachments/assets/a0b0e0a0-0b0b-0c0c-0d0d-0e0e0f0f0g0g');"></div>
-            <div class="photo" style="background-image: url('https://images.githubusercontent.com/user-attachments/assets/b1b1b1b1-1c1c-1d1d-1e1e-1f1f1g1g1h1h');"></div>
-            <div class="photo" style="background-image: url('https://images.githubusercontent.com/user-attachments/assets/c2c2c2c2-2d2d-2e2e-2f2f-2g2g2h2h2i2i');"></div>
-            <div class="photo" style="background-image: url('https://images.githubusercontent.com/user-attachments/assets/d3d3d3d3-3e3e-3f3f-3g3g-3h3h3i3i3j3j');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
         </div>
     </main>
 
