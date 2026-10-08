@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog Days Are Not Over – Editie 01</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -32,14 +34,14 @@
             color: #5a4a47;
             
             padding: clamp(1rem, 5vw, 3rem);
-            font-family: 'Poppins', sans-serif;
+            font-family: 'IBM Plex Sans', sans-serif;
         }
 
         header {
             position: absolute;
             top: clamp(1rem, 3vw, 2rem);
             left: clamp(1rem, 3vw, 2rem);
-            font-family: 'Playfair Display', serif;
+            font-family: 'IBM Plex Sans', sans-serif;
             font-size: clamp(1.2rem, 3vw, 1.8rem);
             font-weight: 700;
             letter-spacing: 0.05em;
@@ -47,7 +49,7 @@
         }
 
         .editie-badge {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'IBM Plex Sans', sans-serif;
             font-size: clamp(0.7rem, 1.5vw, 0.9rem);
             font-weight: 600;
             color: #ff1493;
@@ -67,85 +69,76 @@
             text-align: center;
         }
 
-        h1 {
-            font-family: 'Playfair Display', serif;
-            /* Responsive lettergrootte */
-            font-size: clamp(2.5rem, 9vw, 6rem);
-            
-            /* Regelafstand die meegroeit */
-            line-height: clamp(1.1, 10vw, 1.2);
-            
-            margin-bottom: clamp(1.5rem, 5vw, 3rem);
-            color: #5a4a47;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-
-        .breeds-grid {
-            /* Responsive grid layout */
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(clamp(120px, 25vw, 200px), 1fr));
-            gap: clamp(1rem, 3vw, 2.5rem);
+        .breeds-list {
+            /* Responsive layout */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(1.5rem, 4vw, 3rem);
             
             width: 100%;
             max-width: 85vw;
         }
 
         .breed {
-            /* Responsive lettergrootte */
-            font-size: clamp(1rem, 3vw, 1.8rem);
-            font-weight: 600;
+            /* Responsive lettergrootte met afwisseling */
+            font-size: clamp(1.2rem, 3.5vw, 2.2rem);
             line-height: clamp(1.3, 4vw, 1.6);
             
-            padding: clamp(0.8rem, 2vw, 1.5rem);
-            
-            /* Licht bruine achtergrond voor contrast */
-            background-color: rgba(255, 255, 255, 0.3);
-            border: 2px solid transparent;
-            border-radius: clamp(0.5rem, 1vw, 1rem);
-            
-            transition: all 0.3s ease;
-            cursor: pointer;
-            
             color: #5a4a47;
+            white-space: nowrap;
+            cursor: default;
         }
 
-        .breed:hover {
-            /* Neon roze accentkleur bij hover */
-            border-color: #ff1493;
-            color: #ff1493;
-            transform: scale(1.05);
-            background-color: rgba(255, 20, 147, 0.05);
+        /* Afwisseling tussen bold, regular en light */
+        .breed:nth-child(1) { 
+            font-weight: 700; /* Bold */
+        }
+        .breed:nth-child(2) { 
+            font-weight: 300; /* Light */
+        }
+        .breed:nth-child(3) { 
+            font-weight: 600; /* Semi-bold */
+        }
+        .breed:nth-child(4) { 
+            font-weight: 400; /* Regular */
+        }
+        .breed:nth-child(5) { 
+            font-weight: 700; /* Bold */
+        }
+        .breed:nth-child(6) { 
+            font-weight: 300; /* Light */
+        }
+        .breed:nth-child(7) { 
+            font-weight: 600; /* Semi-bold */
+        }
+        .breed:nth-child(8) { 
+            font-weight: 400; /* Regular */
         }
 
         /* Subtle animation bij laden */
-        @keyframes slideUp {
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
             }
         }
 
-        h1 {
-            animation: slideUp 0.6s ease-out 0.1s backwards;
-        }
-
         .breed {
-            animation: slideUp 0.6s ease-out backwards;
+            animation: fadeIn 0.6s ease-out backwards;
         }
 
-        .breed:nth-child(1) { animation-delay: 0.2s; }
-        .breed:nth-child(2) { animation-delay: 0.3s; }
-        .breed:nth-child(3) { animation-delay: 0.4s; }
-        .breed:nth-child(4) { animation-delay: 0.5s; }
-        .breed:nth-child(5) { animation-delay: 0.6s; }
-        .breed:nth-child(6) { animation-delay: 0.7s; }
-        .breed:nth-child(7) { animation-delay: 0.8s; }
-        .breed:nth-child(8) { animation-delay: 0.9s; }
+        .breed:nth-child(1) { animation-delay: 0.1s; }
+        .breed:nth-child(2) { animation-delay: 0.2s; }
+        .breed:nth-child(3) { animation-delay: 0.3s; }
+        .breed:nth-child(4) { animation-delay: 0.4s; }
+        .breed:nth-child(5) { animation-delay: 0.5s; }
+        .breed:nth-child(6) { animation-delay: 0.6s; }
+        .breed:nth-child(7) { animation-delay: 0.7s; }
+        .breed:nth-child(8) { animation-delay: 0.8s; }
 
         footer {
             position: absolute;
@@ -171,6 +164,13 @@
         .nav-link:hover {
             opacity: 0.7;
         }
+
+        /* Op mobiel: zorg dat rassen op meerdere lijnen kunnen */
+        @media (max-width: 768px) {
+            .breed {
+                white-space: normal;
+            }
+        }
     </style>
 </head>
 <body>
@@ -180,17 +180,15 @@
     </header>
 
     <main>
-        <h1>Honden op Straat</h1>
-        
-        <div class="breeds-grid">
-            <div class="breed">Boomer</div>
-            <div class="breed">Chihuahua</div>
-            <div class="breed">Pomeranian</div>
-            <div class="breed">Cocker Spaniel</div>
-            <div class="breed">Labradoodle</div>
-            <div class="breed">Pug</div>
-            <div class="breed">Coton de Tuléar</div>
-            <div class="breed">Bearded Collie</div>
+        <div class="breeds-list">
+            <span class="breed">Bearded Collie</span>
+            <span class="breed">Boomer</span>
+            <span class="breed">Chihuahua</span>
+            <span class="breed">Cocker Spaniel</span>
+            <span class="breed">Coton de Tuléar</span>
+            <span class="breed">Labradoodle</span>
+            <span class="breed">Pomeranian</span>
+            <span class="breed">Pug</span>
         </div>
     </main>
 
@@ -199,20 +197,5 @@
     </footer>
 
     <a href="editie-02.html" class="nav-link">→ Editie 02</a>
-
-    <script>
-        // Interactie: breed naam tonen op hover
-        const breeds = document.querySelectorAll('.breed');
-        
-        breeds.forEach(breed => {
-            breed.addEventListener('mouseenter', function() {
-                this.style.transform = 'scale(1.08) rotate(1deg)';
-            });
-            
-            breed.addEventListener('mouseleave', function() {
-                this.style.transform = 'scale(1) rotate(0deg)';
-            });
-        });
-    </script>
 </body>
 </html>
