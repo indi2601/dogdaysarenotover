@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editie 03</title>
+    <style>
+        @font-face {
+            font-family: 'Neue Haas Grotesk';
+            src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #faf8f7;
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            color: #5c3925;
+        }
+
+        body {
+            position: relative;
+            padding: 1.2rem;
+        }
+
+        header {
+            position: absolute;
+            top: 1.2rem;
+            left: 1.2rem;
+            z-index: 2;
+            display: flex;
+            gap: 0.8rem;
+            align-items: baseline;
+        }
+
+        .editie-badge,
+        .site-name {
+            font-size: 0.9rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #5c3925;
+        }
+
+        .content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.5rem, 5vw, 4rem);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .nav {
+            position: absolute;
+            left: 1.2rem;
+            bottom: 1.2rem;
+        }
+
+        .nav a {
+            color: #ff1493;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="editie-badge">Editie 03</div>
+        <div class="site-name">Dog Days Are Not Over</div>
+    </header>
+
+    <div class="content">Volgende editie</div>
+
+    <div class="nav">
+        <a href="editie-02.html">← Editie 02</a>
+    </div>
+</body>
+</html>
