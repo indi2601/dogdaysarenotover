@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editie 02</title>
+    <title>Dog Days Are Not Over – Editie 02</title>
     <style>
         @font-face {
             font-family: 'Neue Haas Grotesk';
@@ -19,38 +19,41 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #faf8f7;
-            font-family: 'Neue Haas Grotesk', sans-serif;
-            color: #5c3925;
-        }
-
         body {
-            position: relative;
-            padding: 1.2rem;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #faf8f7;
+            color: #6b4423;
+            padding: clamp(0.8rem, 3vw, 2rem);
+            font-family: 'Neue Haas Grotesk', sans-serif;
         }
 
         header {
             position: absolute;
-            top: 1.2rem;
-            left: 1.2rem;
+            top: clamp(0.8rem, 2vw, 1.5rem);
+            left: clamp(0.8rem, 2vw, 1.5rem);
             display: flex;
             align-items: baseline;
-            gap: 0.8rem;
-            z-index: 2;
+            gap: clamp(0.5rem, 1vw, 1rem);
+            z-index: 10;
         }
 
-        .editie-badge,
-        .site-name {
-            font-size: 0.9rem;
+        .editie-badge {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
             font-weight: 400;
-            color: #5c3925;
+            color: #6b4423;
             text-transform: uppercase;
-            letter-spacing: 0.12em;
-            line-height: 1;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .title-text {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            font-weight: 400;
+            color: #6b4423;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
         }
 
         main {
@@ -59,18 +62,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding-top: 2rem;
+            padding-top: 3rem;
         }
 
         .gallery {
             width: 100%;
-            height: calc(100% - 2rem);
+            max-width: 90vw;
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            grid-template-rows: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 1fr);
             gap: 0.6rem;
-            max-width: 92vw;
-            max-height: 88vh;
+            aspect-ratio: 1 / 2;
+            max-height: 70vh;
         }
 
         .photo {
@@ -79,61 +82,47 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            border-radius: 0;
+            border-radius: 2px;
             overflow: hidden;
+            display: block;
         }
 
-        .nav {
+        .nav-link {
             position: absolute;
-            left: 1.2rem;
-            bottom: 1.2rem;
-            z-index: 2;
-        }
-
-        .nav a {
+            bottom: clamp(0.8rem, 2vw, 1.5rem);
+            left: clamp(0.8rem, 2vw, 1.5rem);
+            font-size: clamp(0.7rem, 1.5vw, 1rem);
+            font-weight: 400;
             color: #ff1493;
             text-decoration: none;
-            font-size: 0.8rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            font-weight: 400;
-            margin-right: 1.8rem;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            margin-right: 2rem;
         }
 
-        @media (max-width: 640px) {
-            body {
-                padding: 0.8rem;
-            }
+        .nav-link:hover {
+            opacity: 0.7;
+        }
 
-            header {
-                top: 0.8rem;
-                left: 0.8rem;
-                gap: 0.4rem;
-            }
+        footer {
+            position: absolute;
+            bottom: clamp(0.8rem, 2vw, 1.5rem);
+            right: clamp(0.8rem, 2vw, 1.5rem);
+            font-size: clamp(0.6rem, 1.2vw, 0.85rem);
+            color: #6b4423;
+            opacity: 0.6;
+        }
 
-            .editie-badge,
-            .site-name {
-                font-size: 0.72rem;
-                letter-spacing: 0.08em;
-            }
-
+        @media (max-width: 500px) {
             .gallery {
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-                grid-template-rows: repeat(2, minmax(0, 1fr));
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(2, 1fr);
                 gap: 0.4rem;
-                max-width: 100%;
-                max-height: 100%;
-                margin-top: 1.4rem;
+                aspect-ratio: 2 / 1;
             }
 
-            .nav {
-                left: 0.8rem;
-                bottom: 0.8rem;
-            }
-
-            .nav a {
-                font-size: 0.72rem;
-                margin-right: 1.2rem;
+            main {
+                padding-top: 2rem;
             }
         }
     </style>
@@ -141,25 +130,27 @@
 <body>
     <header>
         <div class="editie-badge">Editie 02</div>
-        <div class="site-name">Dog Days Are Not Over</div>
+        <div class="title-text">Dog Days Are Not Over</div>
     </header>
 
     <main>
         <div class="gallery">
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image: linear-gradient(135deg, #e8a8a8 0%, #d48888 100%);"></div>
+            <div class="photo" style="background-image: linear-gradient(135deg, #d9b5b5 0%, #c99595 100%);"></div>
+            <div class="photo" style="background-image: linear-gradient(135deg, #e8a8a8 0%, #d48888 100%);"></div>
+            <div class="photo" style="background-image: linear-gradient(135deg, #d9b5b5 0%, #c99595 100%);"></div>
+            <div class="photo" style="background-image: linear-gradient(135deg, #d9b5b5 0%, #c99595 100%);"></div>
+            <div class="photo" style="background-image: linear-gradient(135deg, #e8a8a8 0%, #d48888 100%);"></div>
+            <div class="photo" style="background-image: linear-gradient(135deg, #d9b5b5 0%, #c99595 100%);"></div>
+            <div class="photo" style="background-image: linear-gradient(135deg, #e8a8a8 0%, #d48888 100%);"></div>
         </div>
     </main>
 
-    <div class="nav">
-        <a href="editie-01.html">← Editie 01</a>
-        <a href="editie-03.html">Editie 03 →</a>
-    </div>
+    <footer>
+        Editie 02/2026
+    </footer>
+
+    <a href="editie-01.html" class="nav-link">← Editie 01</a>
+    <a href="editie-03.html" class="nav-link" style="left: auto; right: clamp(0.8rem, 2vw, 1.5rem);">Editie 03 →</a>
 </body>
 </html>
