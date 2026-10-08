@@ -6,7 +6,7 @@
     <title>Dog Days Are Not Over – Editie 01</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap');
-        
+
         * {
             margin: 0;
             padding: 0;
@@ -22,11 +22,15 @@
             font-display: swap;
         }
 
+        :root {
+            --brown: #6b4423;
+        }
+
         body {
             height: 100vh;
             overflow: hidden;
             background-color: #faf8f7;
-            color: #6b4423;
+            color: var(--brown);
             padding: clamp(0.8rem, 3vw, 2rem);
             font-family: 'Neue Haas Grotesk', sans-serif;
             display: flex;
@@ -44,19 +48,11 @@
             gap: clamp(0.5rem, 1vw, 1rem);
         }
 
-        .editie-badge {
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            font-weight: 400;
-            color: #6b4423;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
-        }
-
+        .editie-badge,
         .title-text {
             font-size: clamp(0.9rem, 2vw, 1.2rem);
             font-weight: 400;
-            color: #6b4423;
+            color: var(--brown);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             white-space: nowrap;
@@ -74,7 +70,7 @@
         .breeds-list {
             display: flex;
             flex-direction: column;
-            gap: clamp(1.4rem, 3.5vw, 2.4rem);
+            gap: clamp(1.2rem, 3vw, 2.2rem);
             width: 100%;
             max-width: 95vw;
         }
@@ -87,26 +83,22 @@
         }
 
         .breed {
-            font-size: clamp(1.6rem, 4.6vw, 3rem);
+            font-size: clamp(2rem, 5.6vw, 4rem);
             line-height: 1.2;
-            color: #6b4423;
+            color: var(--brown);
             cursor: default;
             font-weight: 400;
             text-transform: none;
             letter-spacing: 0;
             display: inline-block;
             padding: clamp(0.5rem, 1.2vw, 1rem) clamp(0.8rem, 1.6vw, 1.4rem);
-            border: 1px solid #d4a5a5;
-            border-radius: clamp(0.3rem, 0.8vw, 0.6rem);
+            border: 2px solid var(--brown);
+            border-radius: 4px;
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to   { opacity: 1; }
         }
 
         .breed {
@@ -117,18 +109,21 @@
         .breed:nth-child(2) { animation-delay: 0.15s; }
         .breed:nth-child(3) { animation-delay: 0.2s; }
         .breed:nth-child(4) { animation-delay: 0.25s; }
-        .breed:nth-child(5) { animation-delay: 0.3s; }
-        .breed:nth-child(6) { animation-delay: 0.35s; }
-        .breed:nth-child(7) { animation-delay: 0.4s; }
-        .breed:nth-child(8) { animation-delay: 0.45s; }
 
-        footer {
-            position: absolute;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            right: clamp(0.8rem, 2vw, 1.5rem);
-            font-size: clamp(0.6rem, 1.2vw, 0.85rem);
-            color: #6b4423;
-            opacity: 0.6;
+        /* Blafgeluid onder de rassen: ruimte is gereserveerd, dus er verspringt niets */
+        .bark {
+            margin-top: clamp(1.4rem, 3.5vw, 2.6rem);
+            min-height: 1.3em;
+            font-size: clamp(1.4rem, 3.6vw, 2.8rem);
+            line-height: 1.3;
+            color: var(--brown);
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .bark.visible {
+            opacity: 1;
         }
 
         .nav-link {
@@ -149,11 +144,15 @@
 
         @media (max-width: 500px) {
             .breed {
-                font-size: clamp(1.2rem, 5vw, 1.8rem);
+                font-size: clamp(1.5rem, 6.5vw, 2.2rem);
             }
 
             .breeds-list {
                 gap: clamp(1rem, 2.5vw, 1.6rem);
+            }
+
+            .bark {
+                font-size: clamp(1.2rem, 5.5vw, 1.8rem);
             }
         }
     </style>
@@ -167,24 +166,45 @@
     <main>
         <div class="breeds-list">
             <div class="breed-group">
-                <span class="breed">bearded collie</span>
-                <span class="breed">boomer</span>
-                <span class="breed">chihuahua</span>
-                <span class="breed">cocker spaniel</span>
+                <span class="breed" tabindex="0" data-bark="WAF! WAF-waf!">bearded collie</span>
+                <span class="breed" tabindex="0" data-bark="Waf! Waf! Waf-waf!">boomer</span>
+                <span class="breed" tabindex="0" data-bark="WAF! WAF! WAF! Waf-waf-waf!">chihuahua</span>
+                <span class="breed" tabindex="0" data-bark="Waf-waf! WOOF!">cocker spaniel</span>
             </div>
             <div class="breed-group">
-                <span class="breed">coton de tuléar</span>
-                <span class="breed">labradoodle</span>
-                <span class="breed">pomeranian</span>
-                <span class="breed">pug</span>
+                <span class="breed" tabindex="0" data-bark="Waf! Waf-waf!">coton de tuléar</span>
+                <span class="breed" tabindex="0" data-bark="WOOF! Waf! WOOF!">labradoodle</span>
+                <span class="breed" tabindex="0" data-bark="WAF-WAF-WAF-WAF!">pomeranian</span>
+                <span class="breed" tabindex="0" data-bark="Waf! Woef! Hrr-waf!">pug</span>
             </div>
         </div>
+
+        <div class="bark" id="bark" aria-live="polite"></div>
     </main>
 
-    <footer>
-        Editie 01/2026
-    </footer>
-
     <a href="editie-02.html" class="nav-link">→ Editie 02</a>
+
+    <script>
+        (function () {
+            var bark = document.getElementById('bark');
+            var breeds = document.querySelectorAll('.breed');
+
+            function show(el) {
+                bark.textContent = el.getAttribute('data-bark');
+                bark.classList.add('visible');
+            }
+
+            function hide() {
+                bark.classList.remove('visible');
+            }
+
+            breeds.forEach(function (el) {
+                el.addEventListener('mouseenter', function () { show(el); });
+                el.addEventListener('mouseleave', hide);
+                el.addEventListener('focus', function () { show(el); });
+                el.addEventListener('blur', hide);
+            });
+        })();
+    </script>
 </body>
 </html>
