@@ -7,7 +7,8 @@
     <style>
         @font-face {
             font-family: 'Neue Haas Grotesk';
-            src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2');
+            src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff') format('woff');
             font-weight: 400;
             font-style: normal;
             font-display: swap;
@@ -32,15 +33,25 @@
             position: absolute;
             top: clamp(1rem, 3vw, 2rem);
             left: clamp(1rem, 3vw, 2rem);
+            font-family: 'Neue Haas Grotesk', sans-serif;
             display: flex;
             align-items: baseline;
             gap: clamp(0.5rem, 1vw, 1rem);
             z-index: 10;
-            font-family: 'Neue Haas Grotesk', sans-serif;
         }
 
-        .editie-badge,
-        .title-text {
+        .editie-badge {
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+            font-weight: 400;
+            color: #ff1493;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .site-name {
             font-family: 'Neue Haas Grotesk', sans-serif;
             font-size: clamp(0.7rem, 1.5vw, 0.9rem);
             font-weight: 400;
@@ -51,17 +62,13 @@
             white-space: nowrap;
         }
 
-        .title-text {
-            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-        }
-
         main {
             width: 100%;
             height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding-top: 1.5rem;
+            padding-top: 2.5rem;
         }
 
         .gallery {
@@ -84,13 +91,18 @@
             border-radius: 0;
             overflow: hidden;
             display: block;
-            filter: saturate(0.96) contrast(1.02);
         }
 
-        .nav-link {
+        .nav {
             position: absolute;
             bottom: clamp(1rem, 3vw, 2rem);
             left: clamp(1rem, 3vw, 2rem);
+            display: flex;
+            gap: clamp(1.2rem, 3vw, 2rem);
+            z-index: 10;
+        }
+
+        .nav a {
             font-size: clamp(0.85rem, 1.8vw, 1.1rem);
             font-weight: 400;
             color: #ff1493;
@@ -98,16 +110,11 @@
             cursor: pointer;
             transition: opacity 0.3s ease;
             font-family: 'Neue Haas Grotesk', sans-serif;
-            display: inline-block;
+            white-space: nowrap;
         }
 
-        .nav-link:hover {
+        .nav a:hover {
             opacity: 0.7;
-        }
-
-        .nav-link.right {
-            left: auto;
-            right: clamp(1rem, 3vw, 2rem);
         }
 
         footer {
@@ -120,9 +127,25 @@
             font-family: 'Neue Haas Grotesk', sans-serif;
         }
 
-        @media (max-width: 500px) {
+        @media (max-width: 768px) {
             body {
-                padding: 0.8rem;
+                padding: clamp(0.8rem, 3vw, 1.5rem);
+            }
+
+            header {
+                top: clamp(0.8rem, 2vw, 1.5rem);
+                left: clamp(0.8rem, 2vw, 1.5rem);
+                gap: clamp(0.3rem, 0.8vw, 0.8rem);
+            }
+
+            .editie-badge,
+            .site-name {
+                font-size: clamp(0.65rem, 1.8vw, 0.85rem);
+                letter-spacing: 0.08em;
+            }
+
+            main {
+                padding-top: 2rem;
             }
 
             .gallery {
@@ -133,12 +156,20 @@
                 max-height: 70vh;
             }
 
-            main {
-                padding-top: 1.5rem;
+            .nav {
+                left: clamp(0.8rem, 2vw, 1.5rem);
+                bottom: clamp(0.8rem, 2vw, 1.5rem);
+                gap: clamp(0.8rem, 2vw, 1.5rem);
             }
 
-            .nav-link {
-                font-size: clamp(0.72rem, 2vw, 1rem);
+            .nav a {
+                font-size: clamp(0.72rem, 1.5vw, 0.95rem);
+            }
+
+            footer {
+                right: clamp(0.8rem, 2vw, 1.5rem);
+                bottom: clamp(0.8rem, 2vw, 1.5rem);
+                font-size: clamp(0.65rem, 1.2vw, 0.85rem);
             }
         }
     </style>
@@ -146,19 +177,19 @@
 <body>
     <header>
         <div class="editie-badge">Editie 02</div>
-        <div class="title-text">Dog Days Are Not Over</div>
+        <div class="site-name">Dog Days Are Not Over</div>
     </header>
 
     <main>
         <div class="gallery">
-            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
         </div>
     </main>
 
@@ -166,7 +197,9 @@
         Editie 02/2026
     </footer>
 
-    <a href="editie-01.html" class="nav-link">← Editie 01</a>
-    <a href="editie-03.html" class="nav-link right">Editie 03 →</a>
+    <div class="nav">
+        <a href="editie-01.html">← Editie 01</a>
+        <a href="editie-03.html">Editie 03 →</a>
+    </div>
 </body>
 </html>
