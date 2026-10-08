@@ -24,36 +24,35 @@
             overflow: hidden;
             background-color: #faf8f7;
             color: #6b4423;
-            padding: clamp(0.8rem, 3vw, 2rem);
+            padding: clamp(1rem, 5vw, 3rem);
             font-family: 'Neue Haas Grotesk', sans-serif;
         }
 
         header {
             position: absolute;
-            top: clamp(0.8rem, 2vw, 1.5rem);
-            left: clamp(0.8rem, 2vw, 1.5rem);
+            top: clamp(1rem, 3vw, 2rem);
+            left: clamp(1rem, 3vw, 2rem);
             display: flex;
             align-items: baseline;
             gap: clamp(0.5rem, 1vw, 1rem);
             z-index: 10;
+            font-family: 'Neue Haas Grotesk', sans-serif;
         }
 
-        .editie-badge {
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
+        .editie-badge,
+        .title-text {
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
             font-weight: 400;
             color: #6b4423;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
+            line-height: 1;
             white-space: nowrap;
         }
 
         .title-text {
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            font-weight: 400;
-            color: #6b4423;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
+            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
         }
 
         main {
@@ -62,18 +61,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding-top: 3rem;
+            padding-top: 1.5rem;
         }
 
         .gallery {
             width: 100%;
             max-width: 90vw;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(4, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-rows: repeat(4, minmax(0, 1fr));
             gap: 0.6rem;
             aspect-ratio: 1 / 2;
-            max-height: 70vh;
+            max-height: 75vh;
         }
 
         .photo {
@@ -82,47 +81,64 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            border-radius: 2px;
+            border-radius: 0;
             overflow: hidden;
             display: block;
+            filter: saturate(0.96) contrast(1.02);
         }
 
         .nav-link {
             position: absolute;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            left: clamp(0.8rem, 2vw, 1.5rem);
-            font-size: clamp(0.7rem, 1.5vw, 1rem);
+            bottom: clamp(1rem, 3vw, 2rem);
+            left: clamp(1rem, 3vw, 2rem);
+            font-size: clamp(0.85rem, 1.8vw, 1.1rem);
             font-weight: 400;
             color: #ff1493;
             text-decoration: none;
             cursor: pointer;
             transition: opacity 0.3s ease;
-            margin-right: 2rem;
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            display: inline-block;
         }
 
         .nav-link:hover {
             opacity: 0.7;
         }
 
+        .nav-link.right {
+            left: auto;
+            right: clamp(1rem, 3vw, 2rem);
+        }
+
         footer {
             position: absolute;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            right: clamp(0.8rem, 2vw, 1.5rem);
-            font-size: clamp(0.6rem, 1.2vw, 0.85rem);
+            bottom: clamp(1rem, 3vw, 2rem);
+            right: clamp(1rem, 3vw, 2rem);
+            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
             color: #6b4423;
             opacity: 0.6;
+            font-family: 'Neue Haas Grotesk', sans-serif;
         }
 
         @media (max-width: 500px) {
+            body {
+                padding: 0.8rem;
+            }
+
             .gallery {
-                grid-template-columns: repeat(4, 1fr);
-                grid-template-rows: repeat(2, 1fr);
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                grid-template-rows: repeat(2, minmax(0, 1fr));
                 gap: 0.4rem;
                 aspect-ratio: 2 / 1;
+                max-height: 70vh;
             }
 
             main {
-                padding-top: 2rem;
+                padding-top: 1.5rem;
+            }
+
+            .nav-link {
+                font-size: clamp(0.72rem, 2vw, 1rem);
             }
         }
     </style>
@@ -135,14 +151,14 @@
 
     <main>
         <div class="gallery">
-            <div class="photo" style="background-image: linear-gradient(135deg, #e8a8a8 0%, #d48888 100%);"></div>
-            <div class="photo" style="background-image: linear-gradient(135deg, #d9b5b5 0%, #c99595 100%);"></div>
-            <div class="photo" style="background-image: linear-gradient(135deg, #e8a8a8 0%, #d48888 100%);"></div>
-            <div class="photo" style="background-image: linear-gradient(135deg, #d9b5b5 0%, #c99595 100%);"></div>
-            <div class="photo" style="background-image: linear-gradient(135deg, #d9b5b5 0%, #c99595 100%);"></div>
-            <div class="photo" style="background-image: linear-gradient(135deg, #e8a8a8 0%, #d48888 100%);"></div>
-            <div class="photo" style="background-image: linear-gradient(135deg, #d9b5b5 0%, #c99595 100%);"></div>
-            <div class="photo" style="background-image: linear-gradient(135deg, #e8a8a8 0%, #d48888 100%);"></div>
+            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image: url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
         </div>
     </main>
 
@@ -151,6 +167,6 @@
     </footer>
 
     <a href="editie-01.html" class="nav-link">← Editie 01</a>
-    <a href="editie-03.html" class="nav-link" style="left: auto; right: clamp(0.8rem, 2vw, 1.5rem);">Editie 03 →</a>
+    <a href="editie-03.html" class="nav-link right">Editie 03 →</a>
 </body>
 </html>
