@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editie 01 - Honden</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* Eén scherm hoog: 100vh zorgt dat de body precies één schermhoogte is */
+            height: 100vh;
+            
+            /* Voorkomt scrollen */
+            overflow: hidden;
+            
+            /* Flexbox voor centrering en spacing */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            
+            /* Witruimte en achtergrond */
+            padding: clamp(1rem, 5vw, 3rem);
+            background-color: #fafafa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        main {
+            /* Zorg dat de inhoud ook niet groter wordt dan het scherm */
+            width: 100%;
+            max-width: 90vw;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        h1 {
+            /* Responsive lettergrootte tussen 2rem (klein) en 5rem (groot) */
+            /* clamp(minimum, preferred, maximum) */
+            font-size: clamp(2rem, 8vw, 5rem);
+            
+            /* Regelafstand die meegroeit */
+            line-height: clamp(1.1, 10vw, 1.2);
+            
+            margin-bottom: clamp(1rem, 3vw, 2rem);
+            color: #1a1a1a;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .content {
+            /* Responsive breedte en witruimte */
+            width: 100%;
+            max-width: 80vw;
+            
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            line-height: clamp(1.4, 4vw, 1.8);
+            color: #333;
+            
+            /* Witruimte tussen alinea's */
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 2vw, 1.5rem);
+        }
+
+        .dog-entry {
+            /* Een hond per regel, responsive spacing */
+            padding: clamp(0.5rem, 1vw, 1rem) 0;
+            border-bottom: 1px solid #e0e0e0;
+            transition: color 0.2s ease;
+        }
+
+        .dog-entry:last-child {
+            border-bottom: none;
+        }
+
+        /* Interactie: hover effect */
+        .dog-entry:hover {
+            color: #0066cc;
+            cursor: pointer;
+        }
+
+        .day {
+            /* Kleinere lettergrootte voor de dag */
+            font-size: clamp(0.8rem, 1.8vw, 1rem);
+            color: #666;
+        }
+
+        /* Optioneel: subtiele animatie bij laden */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Honden van Deze Week</h1>
+        
+        <div class="content">
+            <div class="dog-entry">
+                <span class="day">Maandag</span>
+                <p>Gouden retriever bij het park – vriendelijk, speelde met kinderen</p>
+            </div>
+            
+            <div class="dog-entry">
+                <span class="day">Dinsdag</span>
+                <p>Kleine terriër op Prinsengracht – snel, rende achter een duif aan</p>
+            </div>
+            
+            <div class="dog-entry">
+                <span class="day">Woensdag</span>
+                <p>Duitse herder bij het station – alert, wachtte op zijn baasje</p>
+            </div>
+            
+            <div class="dog-entry">
+                <span class="day">Donderdag</span>
+                <p>Oude labrador in de Vondelpark – rustig, lag in het gras</p>
+            </div>
+            
+            <div class="dog-entry">
+                <span class="day">Vrijdag</span>
+                <p>Drie puppy's in de buurt – energiek, speelden samen</p>
+            </div>
+            
+            <div class="dog-entry">
+                <span class="day">Zaterdag</span>
+                <p>Zwarte poedel op de markt – elegant, rustig aan de lijn</p>
+            </div>
+            
+            <div class="dog-entry">
+                <span class="day">Zondag</span>
+                <p>Slapende teckel op een terras – lui, genoot van een zonnige dag</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Optioneel: tekstinteractie met muis
+        const entries = document.querySelectorAll('.dog-entry');
+        
+        entries.forEach(entry => {
+            entry.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.02)';
+            });
+            
+            entry.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
