@@ -1,6 +1,3 @@
-Hier is de complete code die je in `editie-02.html` kunt plakken. De layout volgt exact het gevoel van Editie 01, maar met 8 vierkante foto-blokken in plaats van tekst.
-
-```html
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -9,7 +6,7 @@ Hier is de complete code die je in `editie-02.html` kunt plakken. De layout volg
     <title>Dog Days Are Not Over – Editie 02</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap');
-
+        
         * {
             margin: 0;
             padding: 0;
@@ -28,76 +25,72 @@ Hier is de complete code die je in `editie-02.html` kunt plakken. De layout volg
         body {
             height: 100vh;
             overflow: hidden;
-            background-color: #f5e6e8;
+            background-color: #faf8f7;
             color: #6b4423;
-            padding: clamp(1rem, 5vw, 3rem);
+            padding: clamp(0.8rem, 3vw, 2rem);
             font-family: 'Neue Haas Grotesk', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
             position: relative;
         }
 
         header {
             position: absolute;
-            top: clamp(1rem, 3vw, 2rem);
-            left: clamp(1rem, 3vw, 2rem);
-            font-family: 'Neue Haas Grotesk', sans-serif;
-            font-size: clamp(1.2rem, 3vw, 1.8rem);
-            font-weight: 400;
-            letter-spacing: 0.05em;
-            color: #6b4423;
+            top: clamp(0.8rem, 2vw, 1.5rem);
+            left: clamp(0.8rem, 2vw, 1.5rem);
             display: flex;
             align-items: baseline;
             gap: clamp(0.5rem, 1vw, 1rem);
         }
 
         .editie-badge {
-            font-family: 'Neue Haas Grotesk', sans-serif;
-            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
             font-weight: 400;
-            color: #ff1493;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: clamp(0.5rem, 1vw, 0.8rem);
-            line-height: 1;
-        }
-
-        .site-name {
-            font-family: 'Neue Haas Grotesk', sans-serif;
-            font-size: clamp(0.8rem, 2vw, 1.1rem);
-            font-weight: 400;
-            letter-spacing: 0.05em;
             color: #6b4423;
             text-transform: uppercase;
-            line-height: 1;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .title-text {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            font-weight: 400;
+            color: #6b4423;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
         }
 
         main {
             width: 100%;
             height: 100%;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
         }
 
         .photo-grid {
-            width: 100%;
-            max-width: 90vw;
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            grid-template-rows: repeat(4, minmax(0, 1fr));
-            gap: clamp(0.6rem, 1.5vw, 1rem);
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: clamp(0.8rem, 2vw, 1.5rem);
+            width: 90vw;
+            max-width: 600px;
+            height: auto;
             aspect-ratio: 1 / 2;
-            max-height: 75vh;
         }
 
         .photo {
-            width: 100%;
-            height: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, rgba(255, 20, 147, 0.1) 0%, rgba(255, 20, 147, 0.05) 100%);
+            border: 2px solid #d4a5a5;
+            border-radius: clamp(0.5rem, 1vw, 1rem);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            border: 1px solid rgba(107, 68, 35, 0.25);
-            display: block;
             overflow: hidden;
         }
 
@@ -125,24 +118,25 @@ Hier is de complete code die je in `editie-02.html` kunt plakken. De layout volg
 
         footer {
             position: absolute;
-            bottom: clamp(1rem, 3vw, 2rem);
-            right: clamp(1rem, 3vw, 2rem);
-            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+            bottom: clamp(0.8rem, 2vw, 1.5rem);
+            right: clamp(0.8rem, 2vw, 1.5rem);
+            font-size: clamp(0.6rem, 1.2vw, 0.85rem);
             color: #6b4423;
             opacity: 0.6;
         }
 
         .nav-link {
             position: absolute;
-            bottom: clamp(1rem, 3vw, 2rem);
-            left: clamp(1rem, 3vw, 2rem);
-            font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+            bottom: clamp(0.8rem, 2vw, 1.5rem);
+            left: clamp(0.8rem, 2vw, 1.5rem);
+            font-size: clamp(0.7rem, 1.5vw, 1rem);
             font-weight: 400;
             color: #ff1493;
             text-decoration: none;
             cursor: pointer;
             transition: opacity 0.3s ease;
-            font-family: 'Neue Haas Grotesk', sans-serif;
+            display: inline-block;
+            margin-right: clamp(1.5rem, 3vw, 2rem);
         }
 
         .nav-link:hover {
@@ -151,24 +145,21 @@ Hier is de complete code die je in `editie-02.html` kunt plakken. De layout volg
 
         .nav-link.right {
             left: auto;
-            right: clamp(1rem, 3vw, 2rem);
+            right: clamp(0.8rem, 2vw, 1.5rem);
+            margin-right: 0;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 500px) {
             .photo-grid {
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-                grid-template-rows: repeat(2, minmax(0, 1fr));
-                max-width: 92vw;
-                gap: clamp(0.35rem, 1vw, 0.8rem);
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(2, 1fr);
                 aspect-ratio: 2 / 1;
+                gap: clamp(0.5rem, 1vw, 1rem);
+                width: 95vw;
             }
 
-            .site-name {
-                font-size: clamp(0.7rem, 2vw, 0.9rem);
-            }
-
-            .nav-link {
-                font-size: clamp(0.7rem, 1.5vw, 1rem);
+            .photo {
+                aspect-ratio: 1;
             }
         }
     </style>
@@ -176,19 +167,19 @@ Hier is de complete code die je in `editie-02.html` kunt plakken. De layout volg
 <body>
     <header>
         <div class="editie-badge">Editie 02</div>
-        <div class="site-name">Dog Days Are Not Over</div>
+        <div class="title-text">Dog Days Are Not Over</div>
     </header>
 
     <main>
         <div class="photo-grid">
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo"></div>
+            <div class="photo"></div>
+            <div class="photo"></div>
+            <div class="photo"></div>
+            <div class="photo"></div>
+            <div class="photo"></div>
+            <div class="photo"></div>
+            <div class="photo"></div>
         </div>
     </main>
 
@@ -198,176 +189,5 @@ Hier is de complete code die je in `editie-02.html` kunt plakken. De layout volg
 
     <a href="editie-01.html" class="nav-link">← Editie 01</a>
     <a href="editie-03.html" class="nav-link right">Editie 03 →</a>
-</body>
-</html>
-```
-
-Als je wilt, kan ik hierna ook meteen de exacte versie voor `editie-03.html` maken, zodat de reeks consistent blijft.            display: flex;
-            align-items: baseline;
-            gap: clamp(0.5rem, 1vw, 1rem);
-            z-index: 10;
-        }
-
-        .editie-badge {
-            font-family: 'Neue Haas Grotesk', sans-serif;
-            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-            font-weight: 400;
-            color: #ff1493;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            line-height: 1;
-            white-space: nowrap;
-        }
-
-        .site-name {
-            font-family: 'Neue Haas Grotesk', sans-serif;
-            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-            font-weight: 400;
-            color: #6b4423;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            line-height: 1;
-            white-space: nowrap;
-        }
-
-        main {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding-top: 2.5rem;
-        }
-
-        .gallery {
-            width: 100%;
-            max-width: 90vw;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            grid-template-rows: repeat(4, minmax(0, 1fr));
-            gap: 0.6rem;
-            aspect-ratio: 1 / 2;
-            max-height: 75vh;
-        }
-
-        .photo {
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            border-radius: 0;
-            overflow: hidden;
-            display: block;
-        }
-
-        .nav {
-            position: absolute;
-            bottom: clamp(1rem, 3vw, 2rem);
-            left: clamp(1rem, 3vw, 2rem);
-            display: flex;
-            gap: clamp(1.2rem, 3vw, 2rem);
-            z-index: 10;
-        }
-
-        .nav a {
-            font-size: clamp(0.85rem, 1.8vw, 1.1rem);
-            font-weight: 400;
-            color: #ff1493;
-            text-decoration: none;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-            font-family: 'Neue Haas Grotesk', sans-serif;
-            white-space: nowrap;
-        }
-
-        .nav a:hover {
-            opacity: 0.7;
-        }
-
-        footer {
-            position: absolute;
-            bottom: clamp(1rem, 3vw, 2rem);
-            right: clamp(1rem, 3vw, 2rem);
-            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
-            color: #6b4423;
-            opacity: 0.6;
-            font-family: 'Neue Haas Grotesk', sans-serif;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: clamp(0.8rem, 3vw, 1.5rem);
-            }
-
-            header {
-                top: clamp(0.8rem, 2vw, 1.5rem);
-                left: clamp(0.8rem, 2vw, 1.5rem);
-                gap: clamp(0.3rem, 0.8vw, 0.8rem);
-            }
-
-            .editie-badge,
-            .site-name {
-                font-size: clamp(0.65rem, 1.8vw, 0.85rem);
-                letter-spacing: 0.08em;
-            }
-
-            main {
-                padding-top: 2rem;
-            }
-
-            .gallery {
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-                grid-template-rows: repeat(2, minmax(0, 1fr));
-                gap: 0.4rem;
-                aspect-ratio: 2 / 1;
-                max-height: 70vh;
-            }
-
-            .nav {
-                left: clamp(0.8rem, 2vw, 1.5rem);
-                bottom: clamp(0.8rem, 2vw, 1.5rem);
-                gap: clamp(0.8rem, 2vw, 1.5rem);
-            }
-
-            .nav a {
-                font-size: clamp(0.72rem, 1.5vw, 0.95rem);
-            }
-
-            footer {
-                right: clamp(0.8rem, 2vw, 1.5rem);
-                bottom: clamp(0.8rem, 2vw, 1.5rem);
-                font-size: clamp(0.65rem, 1.2vw, 0.85rem);
-            }
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <div class="editie-badge">Editie 02</div>
-        <div class="site-name">Dog Days Are Not Over</div>
-    </header>
-
-    <main>
-        <div class="gallery">
-            <div class="photo" style="background-image:url('https://indi2601.github.io/dogdaysarenotover/IMG_8804.HEIC');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
-            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
-        </div>
-    </main>
-
-    <footer>
-        Editie 02/2026
-    </footer>
-
-    <div class="nav">
-        <a href="editie-01.html">← Editie 01</a>
-        <a href="editie-03.html">Editie 03 →</a>
-    </div>
 </body>
 </html>
