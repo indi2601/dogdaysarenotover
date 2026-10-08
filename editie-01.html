@@ -74,7 +74,7 @@
         .breeds-list {
             display: flex;
             flex-direction: column;
-            gap: clamp(1.2rem, 3vw, 2rem);
+            gap: clamp(1.4rem, 3.5vw, 2.4rem);
             width: 100%;
             max-width: 95vw;
         }
@@ -87,13 +87,15 @@
         }
 
         .breed {
-            font-size: clamp(1rem, 2.8vw, 1.8rem);
+            font-size: clamp(1.6rem, 4.6vw, 3rem);
             line-height: 1.2;
             color: #6b4423;
             cursor: default;
             font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
             display: inline-block;
-            padding: clamp(0.4rem, 1vw, 0.8rem) clamp(0.6rem, 1.2vw, 1rem);
+            padding: clamp(0.5rem, 1.2vw, 1rem) clamp(0.8rem, 1.6vw, 1.4rem);
             border: 1px solid #d4a5a5;
             border-radius: clamp(0.3rem, 0.8vw, 0.6rem);
         }
@@ -147,11 +149,11 @@
 
         @media (max-width: 500px) {
             .breed {
-                font-size: clamp(0.85rem, 2.2vw, 1.4rem);
+                font-size: clamp(1.2rem, 5vw, 1.8rem);
             }
 
             .breeds-list {
-                gap: clamp(0.8rem, 2vw, 1.4rem);
+                gap: clamp(1rem, 2.5vw, 1.6rem);
             }
         }
     </style>
