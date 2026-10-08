@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Days Are Not Over – Editie 02</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @font-face {
+            font-family: 'Neue Haas Grotesk';
+            src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        body {
+            height: 100vh;
+            overflow: hidden;
+            background-color: #f5e6e8;
+            color: #6b4423;
+            padding: clamp(1rem, 3vw, 2rem);
+            font-family: 'Neue Haas Grotesk', sans-serif;
+        }
+
+        header {
+            position: absolute;
+            top: clamp(1rem, 3vw, 2rem);
+            left: clamp(1rem, 3vw, 2rem);
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: #6b4423;
+        }
+
+        .editie-badge {
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+            font-weight: 400;
+            color: #ff1493;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: clamp(0.5rem, 1vw, 0.8rem);
+        }
+
+        main {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            font-size: clamp(2rem, 7vw, 5rem);
+            line-height: clamp(1.1, 10vw, 1.2);
+            margin-bottom: clamp(2rem, 5vw, 3.5rem);
+            color: #6b4423;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(100px, 20vw, 250px), 1fr));
+            gap: clamp(0.8rem, 2vw, 1.5rem);
+            width: 100%;
+            max-width: 90vw;
+            padding: 0 clamp(1rem, 3vw, 2rem);
+        }
+
+        .photo-placeholder {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, rgba(255, 20, 147, 0.1) 0%, rgba(255, 20, 147, 0.05) 100%);
+            border: 2px solid #d4a5a5;
+            border-radius: clamp(0.5rem, 1vw, 1rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            font-size: clamp(0.8rem, 2vw, 1.1rem);
+            color: #6b4423;
+            font-weight: 400;
+            text-align: center;
+            padding: clamp(0.5rem, 1vw, 1rem);
+            
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Neue Haas Grotesk', sans-serif;
+        }
+
+        .photo-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255, 20, 147, 0.2) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .photo-placeholder:hover {
+            border-color: #ff1493;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.2);
+            transform: scale(1.05);
+            background: linear-gradient(135deg, rgba(255, 20, 147, 0.15) 0%, rgba(255, 20, 147, 0.08) 100%);
+        }
+
+        .photo-placeholder:hover::before {
+            opacity: 1;
+        }
+
+        .photo-number {
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: 400;
+        }
+
+        .photo-text {
+            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+            color: #6b4423;
+            opacity: 0.7;
+            margin-top: 0.3em;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            animation: slideUp 0.6s ease-out 0.1s backwards;
+        }
+
+        .photo-placeholder {
+            animation: slideUp 0.6s ease-out backwards;
+        }
+
+        .photo-placeholder:nth-child(1) { animation-delay: 0.2s; }
+        .photo-placeholder:nth-child(2) { animation-delay: 0.25s; }
+        .photo-placeholder:nth-child(3) { animation-delay: 0.3s; }
+        .photo-placeholder:nth-child(4) { animation-delay: 0.35s; }
+        .photo-placeholder:nth-child(5) { animation-delay: 0.4s; }
+        .photo-placeholder:nth-child(6) { animation-delay: 0.45s; }
+        .photo-placeholder:nth-child(7) { animation-delay: 0.5s; }
+        .photo-placeholder:nth-child(8) { animation-delay: 0.55s; }
+
+        footer {
+            position: absolute;
+            bottom: clamp(1rem, 3vw, 2rem);
+            right: clamp(1rem, 3vw, 2rem);
+            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+            color: #6b4423;
+            opacity: 0.6;
+        }
+
+        .nav-links {
+            position: absolute;
+            bottom: clamp(1rem, 3vw, 2rem);
+            left: clamp(1rem, 3vw, 2rem);
+            display: flex;
+            gap: clamp(1rem, 2vw, 1.5rem);
+        }
+
+        .nav-link {
+            font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+            font-weight: 400;
+            color: #ff1493;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            font-family: 'Neue Haas Grotesk', sans-serif;
+        }
+
+        .nav-link:hover {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="editie-badge">Editie 02</div>
+        <div>Dog Days Are Not Over</div>
+    </header>
+
+    <main>
+        <h1>Hondenfoto's</h1>
+        
+        <div class="gallery">
+            <div class="photo-placeholder">
+                <div>
+                    <div class="photo-number">01</div>
+                    <div class="photo-text">Foto toevoegen</div>
+                </div>
+            </div>
+            <div class="photo-placeholder">
+                <div>
+                    <div class="photo-number">02</div>
+                    <div class="photo-text">Foto toevoegen</div>
+                </div>
+            </div>
+            <div class="photo-placeholder">
+                <div>
+                    <div class="photo-number">03</div>
+                    <div class="photo-text">Foto toevoegen</div>
+                </div>
+            </div>
+            <div class="photo-placeholder">
+                <div>
+                    <div class="photo-number">04</div>
+                    <div class="photo-text">Foto toevoegen</div>
+                </div>
+            </div>
+            <div class="photo-placeholder">
+                <div>
+                    <div class="photo-number">05</div>
+                    <div class="photo-text">Foto toevoegen</div>
+                </div>
+            </div>
+            <div class="photo-placeholder">
+                <div>
+                    <div class="photo-number">06</div>
+                    <div class="photo-text">Foto toevoegen</div>
+                </div>
+            </div>
+            <div class="photo-placeholder">
+                <div>
+                    <div class="photo-number">07</div>
+                    <div class="photo-text">Foto toevoegen</div>
+                </div>
+            </div>
+            <div class="photo-placeholder">
+                <div>
+                    <div class="photo-number">08</div>
+                    <div class="photo-text">Foto toevoegen</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        Editie 02/2026
+    </footer>
+
+    <div class="nav-links">
+        <a href="editie-01.html" class="nav-link">← Editie 01</a>
+        <a href="editie-03.html" class="nav-link">Editie 03 →</a>
+    </div>
+</body>
+</html>
