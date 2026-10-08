@@ -25,10 +25,10 @@
         :root {
             --gap: clamp(0.8rem, 1.5vw, 1.5rem);
             --brown: #6b4423;
-            /* Formaat van één vierkante foto: past altijd in breedte én hoogte van het venster */
-            --size: max(120px, min(
-                calc((94vw - 3 * var(--gap)) / 4),
-                calc((100vh - 10rem - var(--gap)) / 2)
+            /* Formaat van één vierkante foto: past altijd in breedte én hoogte van het venster, zonder scrollen */
+            --size: max(60px, min(
+                calc((88vw - 3 * var(--gap)) / 4),
+                calc((100vh - 13rem - var(--gap)) / 2)
             ));
         }
 
@@ -62,14 +62,25 @@
 
         main {
             width: 100%;
-            min-height: calc(100vh - 2 * clamp(0.8rem, 3vw, 2rem));
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 4rem 0;
         }
 
-        /* Desktop: 2 rijen van 4 foto's */
+        /* Desktop: 2 rijen van 4 foto's, geen scroll */
+        @media (min-width: 701px) {
+            html,
+            body {
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            main {
+                height: 100%;
+                padding: 5rem 0;
+            }
+        }
+
         .photo-grid {
             display: flex;
             flex-direction: column;
@@ -144,7 +155,7 @@
             opacity: 0.7;
         }
 
-        /* Mobiel: alle foto's als vierkantjes onder elkaar */
+        /* Mobiel: alle foto's als vierkantjes onder elkaar, pagina scrolt */
         @media (max-width: 700px) {
             main {
                 align-items: flex-start;
