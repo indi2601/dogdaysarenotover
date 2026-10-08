@@ -1,3 +1,6 @@
+Hier is de complete code die je in `editie-02.html` kunt plakken. De layout volgt exact het gevoel van Editie 01, maar met 8 vierkante foto-blokken in plaats van tekst.
+
+```html
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -5,6 +8,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog Days Are Not Over – Editie 02</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         @font-face {
             font-family: 'Neue Haas Grotesk';
             src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2'),
@@ -14,19 +25,14 @@
             font-display: swap;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             height: 100vh;
             overflow: hidden;
-            background-color: #faf8f7;
+            background-color: #f5e6e8;
             color: #6b4423;
             padding: clamp(1rem, 5vw, 3rem);
             font-family: 'Neue Haas Grotesk', sans-serif;
+            position: relative;
         }
 
         header {
@@ -34,7 +40,169 @@
             top: clamp(1rem, 3vw, 2rem);
             left: clamp(1rem, 3vw, 2rem);
             font-family: 'Neue Haas Grotesk', sans-serif;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: #6b4423;
             display: flex;
+            align-items: baseline;
+            gap: clamp(0.5rem, 1vw, 1rem);
+        }
+
+        .editie-badge {
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+            font-weight: 400;
+            color: #ff1493;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: clamp(0.5rem, 1vw, 0.8rem);
+            line-height: 1;
+        }
+
+        .site-name {
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            font-size: clamp(0.8rem, 2vw, 1.1rem);
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: #6b4423;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        main {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .photo-grid {
+            width: 100%;
+            max-width: 90vw;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-rows: repeat(4, minmax(0, 1fr));
+            gap: clamp(0.6rem, 1.5vw, 1rem);
+            aspect-ratio: 1 / 2;
+            max-height: 75vh;
+        }
+
+        .photo {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 1px solid rgba(107, 68, 35, 0.25);
+            display: block;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .photo {
+            animation: fadeIn 0.6s ease-out backwards;
+        }
+
+        .photo:nth-child(1) { animation-delay: 0.1s; }
+        .photo:nth-child(2) { animation-delay: 0.15s; }
+        .photo:nth-child(3) { animation-delay: 0.2s; }
+        .photo:nth-child(4) { animation-delay: 0.25s; }
+        .photo:nth-child(5) { animation-delay: 0.3s; }
+        .photo:nth-child(6) { animation-delay: 0.35s; }
+        .photo:nth-child(7) { animation-delay: 0.4s; }
+        .photo:nth-child(8) { animation-delay: 0.45s; }
+
+        footer {
+            position: absolute;
+            bottom: clamp(1rem, 3vw, 2rem);
+            right: clamp(1rem, 3vw, 2rem);
+            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+            color: #6b4423;
+            opacity: 0.6;
+        }
+
+        .nav-link {
+            position: absolute;
+            bottom: clamp(1rem, 3vw, 2rem);
+            left: clamp(1rem, 3vw, 2rem);
+            font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+            font-weight: 400;
+            color: #ff1493;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            font-family: 'Neue Haas Grotesk', sans-serif;
+        }
+
+        .nav-link:hover {
+            opacity: 0.7;
+        }
+
+        .nav-link.right {
+            left: auto;
+            right: clamp(1rem, 3vw, 2rem);
+        }
+
+        @media (max-width: 768px) {
+            .photo-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                grid-template-rows: repeat(2, minmax(0, 1fr));
+                max-width: 92vw;
+                gap: clamp(0.35rem, 1vw, 0.8rem);
+                aspect-ratio: 2 / 1;
+            }
+
+            .site-name {
+                font-size: clamp(0.7rem, 2vw, 0.9rem);
+            }
+
+            .nav-link {
+                font-size: clamp(0.7rem, 1.5vw, 1rem);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="editie-badge">Editie 02</div>
+        <div class="site-name">Dog Days Are Not Over</div>
+    </header>
+
+    <main>
+        <div class="photo-grid">
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80');"></div>
+            <div class="photo" style="background-image:url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80');"></div>
+        </div>
+    </main>
+
+    <footer>
+        Editie 02/2026
+    </footer>
+
+    <a href="editie-01.html" class="nav-link">← Editie 01</a>
+    <a href="editie-03.html" class="nav-link right">Editie 03 →</a>
+</body>
+</html>
+```
+
+Als je wilt, kan ik hierna ook meteen de exacte versie voor `editie-03.html` maken, zodat de reeks consistent blijft.            display: flex;
             align-items: baseline;
             gap: clamp(0.5rem, 1vw, 1rem);
             z-index: 10;
