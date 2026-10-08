@@ -24,6 +24,7 @@
 
         :root {
             --brown: #6b4423;
+            --neon: #ff2fa8;
         }
 
         body {
@@ -94,6 +95,7 @@
             padding: clamp(0.5rem, 1.2vw, 1rem) clamp(0.8rem, 1.6vw, 1.4rem);
             border: 2px solid var(--brown);
             border-radius: 4px;
+            outline: none;
         }
 
         @keyframes fadeIn {
@@ -110,20 +112,42 @@
         .breed:nth-child(3) { animation-delay: 0.2s; }
         .breed:nth-child(4) { animation-delay: 0.25s; }
 
-        /* Blafgeluid onder de rassen: ruimte is gereserveerd, dus er verspringt niets */
-        .bark {
-            margin-top: clamp(1.4rem, 3.5vw, 2.6rem);
-            min-height: 1.3em;
-            font-size: clamp(1.4rem, 3.6vw, 2.8rem);
-            line-height: 1.3;
-            color: var(--brown);
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.2s ease;
+        /* Laag waarin de blafjes op de plek van de cursor verschijnen */
+        .barks-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 10;
         }
 
-        .bark.visible {
-            opacity: 1;
+        .woof {
+            position: absolute;
+            transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+            font-size: clamp(0.9rem, 1.8vw, 1.4rem);
+            line-height: 1.2;
+            color: var(--neon);
+            white-space: nowrap;
+            text-shadow:
+                0 0 4px rgba(255, 47, 168, 0.9),
+                0 0 12px rgba(255, 47, 168, 0.6);
+            animation: woofIn 0.25s ease-out backwards;
+            transition: opacity 0.4s ease;
+        }
+
+        .woof.out {
+            opacity: 0;
+        }
+
+        @keyframes woofIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.6);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1);
+            }
         }
 
         .nav-link {
@@ -151,8 +175,8 @@
                 gap: clamp(1rem, 2.5vw, 1.6rem);
             }
 
-            .bark {
-                font-size: clamp(1.2rem, 5.5vw, 1.8rem);
+            .woof {
+                font-size: 0.95rem;
             }
         }
     </style>
@@ -178,31 +202,82 @@
                 <span class="breed" tabindex="0" data-bark="Waf! Woef! Hrr-waf!">pug</span>
             </div>
         </div>
-
-        <div class="bark" id="bark" aria-live="polite"></div>
     </main>
+
+    <div class="barks-layer" id="barks" aria-hidden="true"></div>
 
     <a href="editie-02.html" class="nav-link">→ Editie 02</a>
 
     <script>
         (function () {
-            var bark = document.getElementById('bark');
+            var layer = document.getElementById('barks');
             var breeds = document.querySelectorAll('.breed');
 
-            function show(el) {
-                bark.textContent = el.getAttribute('data-bark');
-                bark.classList.add('visible');
+            var MAX_BARKS = 30;      // maximaal aantal blafjes tegelijk
+            var STEP = 55;           // pixels bewegen voordat er een nieuw blafje bijkomt
+
+            var active = [];
+            var lastX = 0;
+            var lastY = 0;
+
+            function spawn(text, x, y) {
+                var el = document.createElement('div');
+                el.className = 'woof';
+                el.textContent = text;
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.setProperty('--rot', (Math.random() * 16 - 8).toFixed(1) + 'deg');
+                layer.appendChild(el);
+                active.push(el);
+
+                if (active.length > MAX_BARKS) {
+                    removeNow(active.shift());
+                }
+                lastX = x;
+                lastY = y;
             }
 
-            function hide() {
-                bark.classList.remove('visible');
+            function removeNow(el) {
+                if (el && el.parentNode) el.parentNode.removeChild(el);
+            }
+
+            function clearNow() {
+                active.forEach(removeNow);
+                active = [];
+            }
+
+            function fadeAll() {
+                var old = active;
+                active = [];
+                old.forEach(function (el) { el.classList.add('out'); });
+                setTimeout(function () { old.forEach(removeNow); }, 450);
             }
 
             breeds.forEach(function (el) {
-                el.addEventListener('mouseenter', function () { show(el); });
-                el.addEventListener('mouseleave', hide);
-                el.addEventListener('focus', function () { show(el); });
-                el.addEventListener('blur', hide);
+                var text = el.getAttribute('data-bark');
+
+                el.addEventListener('pointerenter', function (e) {
+                    clearNow();
+                    spawn(text, e.clientX, e.clientY);
+                });
+
+                el.addEventListener('pointermove', function (e) {
+                    var dx = e.clientX - lastX;
+                    var dy = e.clientY - lastY;
+                    if (Math.sqrt(dx * dx + dy * dy) >= STEP) {
+                        spawn(text, e.clientX, e.clientY);
+                    }
+                });
+
+                el.addEventListener('pointerleave', fadeAll);
+
+                // Toetsenbord: blafje midden op het ras
+                el.addEventListener('focus', function () {
+                    var r = el.getBoundingClientRect();
+                    clearNow();
+                    spawn(text, r.left + r.width / 2, r.top + r.height / 2);
+                });
+                el.addEventListener('blur', fadeAll);
             });
         })();
     </script>
