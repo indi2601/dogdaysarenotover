@@ -24,8 +24,9 @@
 
         :root {
             --brown: #6b4423;
-            /* Formaat van een hartje in rust */
-            --heart: clamp(110px, 20vmin, 230px);
+            --neon: #ff2fa8;
+            /* Formaat van een pootje in rust */
+            --paw: clamp(120px, 23vmin, 260px);
         }
 
         body {
@@ -57,58 +58,35 @@
             white-space: nowrap;
         }
 
-        /* Onzichtbare SVG met de hartvorm (clip-path) */
+        /* Onzichtbare SVG met de pootvorm */
         .defs {
             position: absolute;
             width: 0;
             height: 0;
         }
 
-        /* Desktop: hartjes kriskras over het scherm, geen scroll */
-        @media (min-width: 701px) {
-            html,
-            body {
-                height: 100vh;
-                overflow: hidden;
-            }
-
-            .hearts {
-                position: absolute;
-                top: 4rem;
-                bottom: 3.5rem;
-                left: 2vw;
-                right: 2vw;
-            }
-
-            .heart {
-                position: absolute;
-                left: var(--x);
-                top: var(--y);
-                transform: rotate(var(--r)) scale(1);
-            }
-
-            @media (hover: hover) {
-                .heart:hover {
-                    transform: rotate(0deg) scale(2.3);
-                    z-index: 10;
-                }
-            }
-        }
-
-        .heart {
-            width: var(--heart);
-            aspect-ratio: 102 / 94;
-            clip-path: url(#heart-clip);
-            background: rgba(255, 20, 147, 0.12);
+        .paw {
+            width: var(--paw);
+            height: var(--paw);
+            overflow: visible;
+            pointer-events: none;
             transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             animation: fadeIn 0.6s ease-out backwards;
         }
 
-        .heart img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+        /* Alleen de pootvorm zelf reageert op de muis */
+        .paw image {
+            pointer-events: auto;
+        }
+
+        .paw .outline {
+            fill: none;
+            stroke: var(--neon);
+            stroke-width: 3.5;
+            stroke-linejoin: round;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
         }
 
         @keyframes fadeIn {
@@ -116,14 +94,49 @@
             to   { opacity: 1; }
         }
 
-        .heart:nth-child(1) { animation-delay: 0.1s; }
-        .heart:nth-child(2) { animation-delay: 0.15s; }
-        .heart:nth-child(3) { animation-delay: 0.2s; }
-        .heart:nth-child(4) { animation-delay: 0.25s; }
-        .heart:nth-child(5) { animation-delay: 0.3s; }
-        .heart:nth-child(6) { animation-delay: 0.35s; }
-        .heart:nth-child(7) { animation-delay: 0.4s; }
-        .heart:nth-child(8) { animation-delay: 0.45s; }
+        .paw:nth-child(1) { animation-delay: 0.1s; }
+        .paw:nth-child(2) { animation-delay: 0.15s; }
+        .paw:nth-child(3) { animation-delay: 0.2s; }
+        .paw:nth-child(4) { animation-delay: 0.25s; }
+        .paw:nth-child(5) { animation-delay: 0.3s; }
+        .paw:nth-child(6) { animation-delay: 0.35s; }
+        .paw:nth-child(7) { animation-delay: 0.4s; }
+        .paw:nth-child(8) { animation-delay: 0.45s; }
+
+        /* Desktop: pootjes kriskras over het scherm, geen scroll */
+        @media (min-width: 701px) {
+            html,
+            body {
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .paws {
+                position: absolute;
+                top: 4rem;
+                bottom: 3.5rem;
+                left: 2vw;
+                right: 2vw;
+            }
+
+            .paw {
+                position: absolute;
+                left: var(--x);
+                top: var(--y);
+                transform: rotate(var(--r)) scale(1);
+            }
+
+            @media (hover: hover) {
+                .paw:hover {
+                    transform: rotate(0deg) scale(2.3);
+                    z-index: 10;
+                }
+
+                .paw:hover .outline {
+                    opacity: 1;
+                }
+            }
+        }
 
         .nav-links {
             position: absolute;
@@ -149,18 +162,19 @@
             opacity: 0.7;
         }
 
-        /* Mobiel: hartjes onder elkaar, pagina scrolt */
+        /* Mobiel: pootjes onder elkaar, pagina scrolt */
         @media (max-width: 700px) {
-            .hearts {
+            .paws {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 1.2rem;
+                gap: 1rem;
                 padding: 3.5rem 0 4rem;
             }
 
-            .heart {
-                width: 78vw;
+            .paw {
+                width: 80vw;
+                height: 80vw;
                 transform: rotate(calc(var(--r) / 2));
             }
 
@@ -178,10 +192,23 @@
 <body>
     <svg class="defs" aria-hidden="true" focusable="false">
         <defs>
-            <clipPath id="heart-clip" clipPathUnits="objectBoundingBox">
-                <path transform="scale(0.009804 0.010638) translate(1 1)"
-                      d="M50 92 L8 50 A29.7 29.7 0 0 1 50 8 A29.7 29.7 0 0 1 92 50 Z"/>
+            <!-- Pootvorm om foto's mee uit te knippen -->
+            <clipPath id="paw-clip">
+                <path d="M50 46 C33 46 21 60 21 73 C21 84 30 90 40 88 C46 87 54 87 60 88 C70 90 79 84 79 73 C79 60 67 46 50 46 Z"/>
+                <ellipse cx="14" cy="46" rx="9" ry="13" transform="rotate(-28 14 46)"/>
+                <ellipse cx="36" cy="20" rx="10" ry="14" transform="rotate(-9 36 20)"/>
+                <ellipse cx="64" cy="20" rx="10" ry="14" transform="rotate(9 64 20)"/>
+                <ellipse cx="86" cy="46" rx="9" ry="13" transform="rotate(28 86 46)"/>
             </clipPath>
+
+            <!-- Zelfde vorm voor de outline -->
+            <g id="paw-shape">
+                <path d="M50 46 C33 46 21 60 21 73 C21 84 30 90 40 88 C46 87 54 87 60 88 C70 90 79 84 79 73 C79 60 67 46 50 46 Z"/>
+                <ellipse cx="14" cy="46" rx="9" ry="13" transform="rotate(-28 14 46)"/>
+                <ellipse cx="36" cy="20" rx="10" ry="14" transform="rotate(-9 36 20)"/>
+                <ellipse cx="64" cy="20" rx="10" ry="14" transform="rotate(9 64 20)"/>
+                <ellipse cx="86" cy="46" rx="9" ry="13" transform="rotate(28 86 46)"/>
+            </g>
         </defs>
     </svg>
 
@@ -190,15 +217,39 @@
         <div class="title-text">Dog Days Are Not Over</div>
     </header>
 
-    <main class="hearts">
-        <div class="heart" style="--x:5%;  --y:16%; --r:-14deg;"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8804.jpeg" alt="Dog 1" loading="lazy"></div>
-        <div class="heart" style="--x:24%; --y:48%; --r:10deg;"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8806.jpeg" alt="Dog 2" loading="lazy"></div>
-        <div class="heart" style="--x:42%; --y:12%; --r:8deg;"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8817.jpeg" alt="Dog 3" loading="lazy"></div>
-        <div class="heart" style="--x:60%; --y:50%; --r:-12deg;"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8818.jpeg" alt="Dog 4" loading="lazy"></div>
-        <div class="heart" style="--x:78%; --y:14%; --r:15deg;"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8821.jpeg" alt="Dog 5" loading="lazy"></div>
-        <div class="heart" style="--x:8%;  --y:64%; --r:12deg;"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8822.jpeg" alt="Dog 6" loading="lazy"></div>
-        <div class="heart" style="--x:42%; --y:66%; --r:-8deg;"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8879.jpeg" alt="Dog 7" loading="lazy"></div>
-        <div class="heart" style="--x:80%; --y:62%; --r:-10deg;"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8819.jpeg" alt="Dog 8" loading="lazy"></div>
+    <main class="paws">
+        <svg class="paw" viewBox="-6 -6 112 112" style="--x:5%;  --y:14%; --r:-14deg;" role="img" aria-label="Dog 1">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8804.jpeg" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" clip-path="url(#paw-clip)"/>
+            <use href="#paw-shape" class="outline"/>
+        </svg>
+        <svg class="paw" viewBox="-6 -6 112 112" style="--x:24%; --y:48%; --r:10deg;" role="img" aria-label="Dog 2">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8806.jpeg" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" clip-path="url(#paw-clip)"/>
+            <use href="#paw-shape" class="outline"/>
+        </svg>
+        <svg class="paw" viewBox="-6 -6 112 112" style="--x:42%; --y:10%; --r:8deg;" role="img" aria-label="Dog 3">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8817.jpeg" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" clip-path="url(#paw-clip)"/>
+            <use href="#paw-shape" class="outline"/>
+        </svg>
+        <svg class="paw" viewBox="-6 -6 112 112" style="--x:60%; --y:48%; --r:-12deg;" role="img" aria-label="Dog 4">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8818.jpeg" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" clip-path="url(#paw-clip)"/>
+            <use href="#paw-shape" class="outline"/>
+        </svg>
+        <svg class="paw" viewBox="-6 -6 112 112" style="--x:78%; --y:12%; --r:15deg;" role="img" aria-label="Dog 5">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8821.jpeg" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" clip-path="url(#paw-clip)"/>
+            <use href="#paw-shape" class="outline"/>
+        </svg>
+        <svg class="paw" viewBox="-6 -6 112 112" style="--x:6%;  --y:60%; --r:12deg;" role="img" aria-label="Dog 6">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8822.jpeg" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" clip-path="url(#paw-clip)"/>
+            <use href="#paw-shape" class="outline"/>
+        </svg>
+        <svg class="paw" viewBox="-6 -6 112 112" style="--x:42%; --y:62%; --r:-8deg;" role="img" aria-label="Dog 7">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8879.jpeg" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" clip-path="url(#paw-clip)"/>
+            <use href="#paw-shape" class="outline"/>
+        </svg>
+        <svg class="paw" viewBox="-6 -6 112 112" style="--x:78%; --y:60%; --r:-10deg;" role="img" aria-label="Dog 8">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8819.jpeg" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice" clip-path="url(#paw-clip)"/>
+            <use href="#paw-shape" class="outline"/>
+        </svg>
     </main>
 
     <nav class="nav-links">
