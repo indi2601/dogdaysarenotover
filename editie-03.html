@@ -1,70 +1,361 @@
-<div class="desktop-map">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dog Days Are Not Over – Edition 03</title>
 
-    <aside class="legend-left">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-        <h1>DOG<br>MAP<br>GHENT</h1>
+<style>
+
+@font-face {
+    font-family:'Neue Haas Grotesk';
+    src:url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2');
+}
+
+:root{
+    --brown:#6b4423;
+    --pink:#ff1493;
+    --bg:#faf8f7;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Neue Haas Grotesk',sans-serif;
+    background:var(--bg);
+    color:var(--brown);
+}
+
+/* HEADER */
+
+header{
+    position:fixed;
+    top:1rem;
+    left:1rem;
+    display:flex;
+    gap:1rem;
+    z-index:9999;
+}
+
+.editie-badge,
+.title-text{
+    font-size:clamp(.9rem,2vw,1.2rem);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+}
+
+/* DESKTOP */
+
+.desktop-layout{
+    height:100vh;
+    display:grid;
+    grid-template-columns:240px 1fr 280px;
+}
+
+.left-panel{
+    background:var(--pink);
+    color:white;
+    padding:2rem;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.left-panel h1{
+    font-size:4rem;
+    line-height:.9;
+    font-weight:400;
+}
+
+.left-panel p{
+    font-size:.9rem;
+    max-width:170px;
+}
+
+#map{
+    height:100vh;
+    width:100%;
+}
+
+.right-panel{
+    background:var(--brown);
+    color:white;
+    padding:2rem;
+    overflow:auto;
+}
+
+.right-panel h2{
+    color:var(--pink);
+    margin-bottom:2rem;
+    font-weight:400;
+}
+
+.stop{
+    margin-bottom:1.5rem;
+}
+
+.stop-number{
+    color:var(--pink);
+    display:block;
+    margin-bottom:.25rem;
+}
+
+.stop-title{
+    font-size:1rem;
+}
+
+/* MOBILE */
+
+.mobile-route{
+    display:none;
+}
+
+@media (max-width:700px){
+
+.desktop-layout{
+    display:none;
+}
+
+.mobile-route{
+    display:block;
+}
+
+.mobile-stop{
+    min-height:100vh;
+    padding:2rem;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    border-bottom:1px solid rgba(107,68,35,.15);
+}
+
+.mobile-stop span{
+    color:var(--pink);
+    letter-spacing:.1em;
+    margin-bottom:1rem;
+}
+
+.mobile-stop h2{
+    font-size:3rem;
+    font-weight:400;
+}
+
+.mobile-stop p{
+    margin-top:1rem;
+    max-width:300px;
+    line-height:1.5;
+}
+
+}
+
+.nav-link{
+    position:fixed;
+    bottom:1rem;
+    left:1rem;
+    color:var(--pink);
+    text-decoration:none;
+    z-index:9999;
+}
+
+.leaflet-popup-content-wrapper{
+    border-radius:0;
+}
+
+.leaflet-popup-content{
+    font-family:'Neue Haas Grotesk',sans-serif;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="editie-badge">Edition 03</div>
+    <div class="title-text">Dog Days Are Not Over</div>
+</header>
+
+<!-- DESKTOP -->
+
+<div class="desktop-layout">
+
+    <aside class="left-panel">
+
+        <div>
+            <h1>
+                DOG<br>
+                MAP<br>
+                GHENT
+            </h1>
+        </div>
 
         <p>
-            A speculative map of places where dogs
-            play, wander, sniff and stop.
+            A canine reading of Ghent.
+            Off-leash areas, swimming spots
+            and spaces temporarily occupied
+            by dogs.
         </p>
-
-        <div class="key">
-
-            <div><span class="dot pink"></span> Off-leash area</div>
-            <div><span class="dot brown"></span> Swim zone</div>
-            <div><span class="dot outline"></span> Dog route</div>
-
-        </div>
 
     </aside>
 
-    <section class="map">
+    <main id="map"></main>
 
-        <!-- abstract Gent map image -->
+    <aside class="right-panel">
 
-        <div class="point" style="top:38%; left:42%;">1</div>
-        <div class="point" style="top:52%; left:60%;">2</div>
-        <div class="point" style="top:44%; left:68%;">3</div>
-        <div class="point" style="top:63%; left:49%;">4</div>
-        <div class="point" style="top:33%; left:57%;">5</div>
-        <div class="point" style="top:56%; left:72%;">6</div>
+        <h2>Legend</h2>
 
-    </section>
-
-    <aside class="legend-right">
-
-        <div class="location">
-            <strong>1</strong>
-            Molenaarsstraat
+        <div class="stop">
+            <span class="stop-number">01</span>
+            <div class="stop-title">Molenaarsstraat</div>
         </div>
 
-        <div class="location">
-            <strong>2</strong>
-            Rozebroeken
+        <div class="stop">
+            <span class="stop-number">02</span>
+            <div class="stop-title">Rozebroeken</div>
         </div>
 
-        <div class="location">
-            <strong>3</strong>
-            Morekstraat
+        <div class="stop">
+            <span class="stop-number">03</span>
+            <div class="stop-title">Morekstraat</div>
         </div>
 
-        <div class="location">
-            <strong>4</strong>
-            Europalaan
+        <div class="stop">
+            <span class="stop-number">04</span>
+            <div class="stop-title">Europalaan</div>
         </div>
 
-        <div class="location">
-            <strong>5</strong>
-            Normandiëlaan
+        <div class="stop">
+            <span class="stop-number">05</span>
+            <div class="stop-title">Normandiëlaan</div>
         </div>
 
-        <div class="location">
-            <strong>6</strong>
-            Yachtdreef
+        <div class="stop">
+            <span class="stop-number">06</span>
+            <div class="stop-title">Yachtdreef</div>
         </div>
 
     </aside>
 
 </div>
-``
+
+<!-- MOBILE -->
+
+<div class="mobile-route">
+
+    <section class="mobile-stop">
+        <span>STOP 01</span>
+        <h2>Molenaarsstraat</h2>
+        <p>Off-leash area.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <span>STOP 02</span>
+        <h2>Rozebroeken</h2>
+        <p>Off-leash area.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <span>STOP 03</span>
+        <h2>Morekstraat</h2>
+        <p>Off-leash area.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <span>STOP 04</span>
+        <h2>Europalaan</h2>
+        <p>Off-leash area.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <span>STOP 05</span>
+        <h2>Normandiëlaan</h2>
+        <p>Off-leash area.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <span>STOP 06</span>
+        <h2>Yachtdreef</h2>
+        <p>Dog swimming zone.</p>
+    </section>
+
+</div>
+
+<a href="editie-02.html" class="nav-link">← Edition 02</a>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+if(window.innerWidth > 700){
+
+const map = L.map('map',{
+    zoomControl:false
+}).setView([51.0543,3.7174],12);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+attribution:'© OpenStreetMap'
+}
+).addTo(map);
+
+const stops = [
+
+{
+title:'01 Molenaarsstraat',
+coords:[51.0638,3.7178]
+},
+
+{
+title:'02 Rozebroeken',
+coords:[51.0585,3.7565]
+},
+
+{
+title:'03 Morekstraat',
+coords:[51.0763,3.7156]
+},
+
+{
+title:'04 Europalaan',
+coords:[51.0470,3.7060]
+},
+
+{
+title:'05 Normandiëlaan',
+coords:[51.0800,3.6800]
+},
+
+{
+title:'06 Yachtdreef',
+coords:[51.0400,3.6900]
+}
+
+];
+
+stops.forEach(stop => {
+
+L.circleMarker(stop.coords,{
+radius:10,
+color:'#ff1493',
+fillColor:'#ff1493',
+fillOpacity:1,
+weight:0
+})
+.addTo(map)
+.bindPopup(stop.title);
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
