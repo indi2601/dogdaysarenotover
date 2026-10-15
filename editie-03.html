@@ -2,344 +2,778 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dog Days Are Not Over – Edition 01</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dog Days Are Not Over – Edition 03</title>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap');
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+@font-face {
+    font-family: 'Neue Haas Grotesk';
+    src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
 
-        @font-face {
-            font-family: 'Neue Haas Grotesk';
-            src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2'),
-                 url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff') format('woff');
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
+:root {
+    --brown: #6b4423;
+    --turquoise: #50F6D8;
+    --bg: #FFFFFF;
+    --border: rgba(107, 68, 35, .18);
+}
 
-        :root {
-            --brown: #6b4423;
-            --turquoise: #50F6D8;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        body {
-            height: 100vh;
-            overflow: hidden;
-            background-color: #FFFFFF;
-            color: var(--brown);
-            padding: clamp(0.8rem, 3vw, 2rem);
-            font-family: 'Neue Haas Grotesk', sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
-        }
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
 
-        header {
-            position: absolute;
-            top: clamp(0.8rem, 2vw, 1.5rem);
-            left: clamp(0.8rem, 2vw, 1.5rem);
-            display: flex;
-            align-items: baseline;
-            gap: clamp(0.5rem, 1vw, 1rem);
-        }
+body {
+    background: var(--bg);
+    color: var(--brown);
+    font-family: 'Neue Haas Grotesk', sans-serif;
+}
 
-        .editie-badge,
-        .title-text {
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            font-weight: 400;
-            color: var(--brown);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
-        }
+button,
+a {
+    font: inherit;
+}
 
-        main {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+/* HEADER */
 
-        .breeds-list {
-            display: flex;
-            flex-direction: column;
-            gap: clamp(0.8rem, 2.5vh, 2rem);
-            width: 100%;
-            max-width: 96vw;
-        }
+header {
+    position: fixed;
+    top: clamp(.8rem, 2vw, 1.5rem);
+    left: clamp(.8rem, 2vw, 1.5rem);
+    display: flex;
+    align-items: baseline;
+    gap: clamp(.5rem, 1vw, 1rem);
+    z-index: 10000;
+}
 
-        .breed-group {
-            display: flex;
-            gap: clamp(0.2rem, 1.2vw, 1.2rem);
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+.editie-badge,
+.title-text {
+    font-size: clamp(.7rem, 1.3vw, .95rem);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    white-space: nowrap;
+}
 
-        .breed {
-            font-size: clamp(2.2rem, min(7.2vw, 11vh), 6.5rem);
-            line-height: 1.15;
-            color: var(--turquoise);
-            cursor: default;
-            font-weight: 400;
-            text-transform: none;
-            letter-spacing: 0;
-            display: inline-block;
-            padding: clamp(0.3rem, 0.8vw, 0.8rem) clamp(0.6rem, 1.4vw, 1.2rem);
-            border: none;
-            outline: none;
-            animation: fadeIn 0.6s ease-out backwards;
-        }
+/* DESKTOP LAYOUT */
 
-        .breed:nth-child(1) { animation-delay: 0.1s; }
-        .breed:nth-child(2) { animation-delay: 0.15s; }
-        .breed:nth-child(3) { animation-delay: 0.2s; }
-        .breed:nth-child(4) { animation-delay: 0.25s; }
+.desktop-layout {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(190px, 27%) minmax(0, 1fr) minmax(220px, 25%);
+    overflow: hidden;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
+.left-panel {
+    min-width: 0;
+    min-height: 0;
+    padding: clamp(5rem, 14vh, 8rem) 1.5rem 4.5rem clamp(1rem, 3vw, 3rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
 
-        /* Layer for the barks */
+.left-panel h1 {
+    font-size: clamp(3rem, 6.2vw, 7.5rem);
+    line-height: .8;
+    font-weight: 400;
+    letter-spacing: -.06em;
+}
 
-        .barks-layer {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: 10;
-        }
+.left-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
 
-        .woof {
-            position: absolute;
-            transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
-            font-size: max(0.75rem, calc(var(--v) * var(--k, 1) * 1vw));
-            line-height: 1;
-            color: var(--brown);
-            text-align: center;
-            width: max-content;
-            max-width: 80vw;
-            animation: woofIn 0.25s ease-out backwards;
-            transition: opacity 0.4s ease;
-        }
+.eyebrow {
+    color: var(--turquoise);
+    font-size: .75rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
 
-        .woof.out {
-            opacity: 0;
-        }
+.location-count {
+    font-size: .9rem;
+}
 
-        @keyframes woofIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.6);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1);
-            }
-        }
+.map-wrapper {
+    min-width: 0;
+    min-height: 0;
+    padding: clamp(5rem, 11vh, 6.5rem) .75rem 4.5rem;
+}
 
-        /* Navigation */
+#map {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+}
 
-        .nav-link {
-            position: absolute;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            left: clamp(0.8rem, 2vw, 1.5rem);
-            font-size: clamp(0.7rem, 1.5vw, 1rem);
-            font-weight: 400;
-            color: var(--turquoise);
-            text-decoration: none;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-        }
+/* LIGHT MAP STYLE */
 
-        .nav-link:hover {
-            opacity: 0.7;
-        }
+.leaflet-container {
+    background: #FFFFFF;
+    font-family: 'Neue Haas Grotesk', sans-serif;
+}
 
-        @media (max-width: 500px) {
-            .breed {
-                font-size: clamp(1.8rem, 9vw, 2.8rem);
-            }
+.leaflet-control-attribution {
+    font-size: 9px !important;
+    background: rgba(255,255,255,.85) !important;
+}
 
-            .breeds-list {
-                gap: clamp(0.8rem, 2vh, 1.4rem);
-            }
+/* LOCATION PANEL */
 
-            .woof {
-                --k: 1.1;
-                max-width: 90vw;
-            }
-        }
-    </style>
+.right-panel {
+    min-width: 0;
+    min-height: 0;
+    padding: clamp(5rem, 12vh, 7rem) clamp(1rem, 2.5vw, 2.5rem) 4.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.location-type {
+    color: var(--turquoise);
+    font-size: .75rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 1rem;
+}
+
+.location-number {
+    color: var(--turquoise);
+    font-size: clamp(3.5rem, 6vw, 6rem);
+    line-height: .95;
+    margin-bottom: 1rem;
+    font-weight: 400;
+}
+
+.location-name {
+    font-size: clamp(1.8rem, 3vw, 3.5rem);
+    line-height: .95;
+    font-weight: 400;
+    letter-spacing: -.04em;
+    overflow-wrap: anywhere;
+}
+
+.location-description {
+    margin-top: 1rem;
+    font-size: .85rem;
+    line-height: 1.5;
+    opacity: .8;
+}
+
+/* LOCATION ARROWS */
+
+.location-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+}
+
+.arrow-button {
+    width: 2.8rem;
+    height: 2.8rem;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid var(--turquoise);
+    border-radius: 50%;
+    color: var(--brown);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: background .2s, color .2s, border-color .2s;
+}
+
+.arrow-button:hover,
+.arrow-button:focus-visible {
+    background: var(--turquoise);
+    border-color: var(--turquoise);
+    color: #FFFFFF;
+    outline: none;
+}
+
+.arrow-button:disabled {
+    opacity: .25;
+    cursor: default;
+}
+
+.control-counter {
+    font-size: .8rem;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* MAP MARKERS
+   Default: white fill, turquoise border and number.
+   Hover/active: turquoise fill, white number.
+*/
+
+.dog-marker {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFFFFF;
+    border: 2px solid var(--turquoise);
+    color: var(--turquoise);
+    font-family: 'Neue Haas Grotesk', sans-serif;
+    font-size: .75rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background .2s, color .2s, transform .2s;
+}
+
+.dog-marker:hover,
+.dog-marker.active {
+    background: var(--turquoise);
+    border-color: var(--turquoise);
+    color: #FFFFFF;
+    transform: scale(1.15);
+}
+
+/* EDITION NAVIGATION */
+
+.nav-link {
+    position: fixed;
+    bottom: clamp(.8rem, 2vw, 1.5rem);
+    color: var(--turquoise);
+    font-size: clamp(.7rem, 1.3vw, .95rem);
+    text-decoration: none;
+    z-index: 10001;
+    white-space: nowrap;
+    transition: opacity .2s;
+}
+
+.nav-link:hover {
+    opacity: .65;
+}
+
+.nav-prev {
+    left: clamp(.8rem, 2vw, 1.5rem);
+}
+
+.nav-next {
+    right: clamp(.8rem, 2vw, 1.5rem);
+}
+
+/* MOBILE: ONE LOCATION AT A TIME */
+
+.mobile-route {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .desktop-layout {
+        display: none;
+    }
+
+    .mobile-route {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    .mobile-stop {
+        display: none;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        padding: 5.5rem clamp(1.25rem, 7vw, 2.5rem) 8rem;
+        flex-direction: column;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .mobile-stop.active {
+        display: flex;
+    }
+
+    .mobile-number {
+        color: var(--turquoise);
+        font-size: clamp(4rem, 14vw, 6rem);
+        line-height: .9;
+        margin-bottom: 1.5rem;
+    }
+
+    .mobile-type {
+        color: var(--turquoise);
+        font-size: .75rem;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+
+    .mobile-stop h2 {
+        font-size: clamp(2.5rem, 10vw, 5.5rem);
+        line-height: .9;
+        letter-spacing: -.05em;
+        font-weight: 400;
+        overflow-wrap: anywhere;
+    }
+
+    .mobile-description {
+        font-size: .85rem;
+        line-height: 1.5;
+        margin-top: 1.2rem;
+        max-width: 25rem;
+        opacity: .8;
+    }
+
+    .mobile-controls {
+        position: fixed;
+        left: 1.25rem;
+        right: 1.25rem;
+        bottom: 4.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        z-index: 5;
+    }
+
+    .mobile-controls .arrow-button {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .mobile-controls .control-counter {
+        font-size: .85rem;
+    }
+}
+
+/* SHORT DESKTOP WINDOWS */
+
+@media (min-width: 901px) and (max-height: 600px) {
+    .left-panel {
+        padding-top: 4.5rem;
+        padding-bottom: 3.5rem;
+    }
+
+    .left-panel h1 {
+        font-size: clamp(2.8rem, 5vw, 4.5rem);
+    }
+
+    .map-wrapper {
+        padding-top: 4.5rem;
+        padding-bottom: 3.5rem;
+    }
+
+    .right-panel {
+        padding-top: 4.5rem;
+        padding-bottom: 3.5rem;
+    }
+
+    .location-number {
+        font-size: 3.5rem;
+        margin-bottom: .6rem;
+    }
+
+    .location-name {
+        font-size: clamp(1.6rem, 2.4vw, 2.5rem);
+    }
+
+    .location-description {
+        margin-top: .6rem;
+        font-size: .75rem;
+    }
+
+    .location-controls {
+        padding-top: .7rem;
+    }
+
+    .arrow-button {
+        width: 2.3rem;
+        height: 2.3rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+    }
+}
+</style>
 </head>
 
 <body>
 
-    <header>
-        <div class="editie-badge">Edition 01</div>
-        <div class="title-text">Dog Days Are Not Over</div>
-    </header>
+<header>
+    <div class="editie-badge">Edition 03</div>
+    <div class="title-text">Dog Days Are Not Over</div>
+</header>
 
-    <main>
-        <div class="breeds-list">
+<!-- DESKTOP -->
 
-            <div class="breed-group">
-                <span class="breed" tabindex="0"
-                      data-loud="5"
-                      data-bark="WAF! WAF-waf!">bearded collie</span>
+<div class="desktop-layout">
 
-                <span class="breed" tabindex="0"
-                      data-loud="2"
-                      data-bark="Waf! Waf! Waf-waf!">boomer</span>
+    <aside class="left-panel">
+        <h1>DOG<br>MAP<br>GHENT</h1>
 
-                <span class="breed" tabindex="0"
-                      data-loud="7"
-                      data-bark="WAF! WAF! WAF! Waf-waf-waf!">chihuahua</span>
-
-                <span class="breed" tabindex="0"
-                      data-loud="4"
-                      data-bark="Waf-waf! WOOF!">cocker spaniel</span>
-            </div>
-
-            <div class="breed-group">
-                <span class="breed" tabindex="0"
-                      data-loud="1"
-                      data-bark="Waf! Waf-waf!">coton de tuléar</span>
-
-                <span class="breed" tabindex="0"
-                      data-loud="6"
-                      data-bark="WOOF! Waf! WOOF!">labradoodle</span>
-
-                <span class="breed" tabindex="0"
-                      data-loud="8"
-                      data-bark="WAF-WAF-WAF-WAF!">pomeranian</span>
-
-                <span class="breed" tabindex="0"
-                      data-loud="3"
-                      data-bark="Waf! Woef! Hrr-waf!">pug</span>
-            </div>
-
+        <div class="left-bottom">
+            <div class="eyebrow">Explore the city</div>
+            <div class="location-count">12 locations · Ghent, Belgium</div>
         </div>
-    </main>
+    </aside>
 
-    <div class="barks-layer" id="barks" aria-hidden="true"></div>
+    <div class="map-wrapper">
+        <div id="map"></div>
+    </div>
 
-    <a href="editie-02.html" class="nav-link">→ Edition 02</a>
+    <aside class="right-panel">
+        <div id="desktop-type" class="location-type"></div>
+        <div id="desktop-number" class="location-number">01</div>
+        <h2 id="desktop-name" class="location-name">Molenaarsstraat</h2>
+        <p id="desktop-description" class="location-description"></p>
 
-    <script>
-        (function () {
-            var layer = document.getElementById('barks');
-            var breeds = document.querySelectorAll('.breed');
+        <div class="location-controls">
+            <button class="arrow-button" id="desktop-prev"
+                    aria-label="Previous location">←</button>
+            <span class="control-counter" id="desktop-counter">01 / 12</span>
+            <button class="arrow-button" id="desktop-next"
+                    aria-label="Next location">→</button>
+        </div>
+    </aside>
 
-            var MAX_BARKS = 20;
+</div>
 
-            // Size in vw for each loudness level, from 1 to 8
-            var SIZES = [0.9, 1.3, 1.9, 2.8, 4.2, 6.5, 10, 15];
+<!-- MOBILE -->
 
-            var active = [];
-            var lastX = 0;
-            var lastY = 0;
-            var step = 70;
+<div class="mobile-route" id="mobile-route">
 
-            function spawn(text, level, x, y) {
-                var el = document.createElement('div');
+    <section class="mobile-stop active">
+        <div class="mobile-number">01</div>
+        <div class="mobile-type">Off-leash Area</div>
+        <h2>Molenaarsstraat</h2>
+        <p class="mobile-description">A designated area where dogs can be off leash.</p>
+    </section>
 
-                el.className = 'woof';
-                el.textContent = text;
-                el.style.left = x + 'px';
-                el.style.top = y + 'px';
-                el.style.setProperty('--v', SIZES[level - 1]);
-                el.style.setProperty(
-                    '--rot',
-                    (Math.random() * 16 - 8).toFixed(1) + 'deg'
-                );
+    <section class="mobile-stop">
+        <div class="mobile-number">02</div>
+        <div class="mobile-type">Off-leash Area</div>
+        <h2>Rozebroeken</h2>
+        <p class="mobile-description">A designated area where dogs can be off leash.</p>
+    </section>
 
-                layer.appendChild(el);
-                active.push(el);
+    <section class="mobile-stop">
+        <div class="mobile-number">03</div>
+        <div class="mobile-type">Off-leash Area</div>
+        <h2>Morekstraat</h2>
+        <p class="mobile-description">A designated area where dogs can be off leash.</p>
+    </section>
 
-                if (active.length > MAX_BARKS) {
-                    removeNow(active.shift());
-                }
+    <section class="mobile-stop">
+        <div class="mobile-number">04</div>
+        <div class="mobile-type">Off-leash Area</div>
+        <h2>Europalaan</h2>
+        <p class="mobile-description">A designated area where dogs can be off leash.</p>
+    </section>
 
-                lastX = x;
-                lastY = y;
+    <section class="mobile-stop">
+        <div class="mobile-number">05</div>
+        <div class="mobile-type">Off-leash Area</div>
+        <h2>Normandiëlaan</h2>
+        <p class="mobile-description">A designated area where dogs can be off leash.</p>
+    </section>
 
-                // Larger barks need more distance before the next one
-                step = Math.max(60, SIZES[level - 1] * 12);
+    <section class="mobile-stop">
+        <div class="mobile-number">06</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Blaarmeersen</h2>
+        <p class="mobile-description">Green space where dogs must remain on a leash.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">07</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Bourgoyen</h2>
+        <p class="mobile-description">Green space where dogs must remain on a leash.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">08</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Citadelpark</h2>
+        <p class="mobile-description">Green space where dogs must remain on a leash.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">09</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Keizerpark</h2>
+        <p class="mobile-description">Green space where dogs must remain on a leash.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">10</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Muinkpark</h2>
+        <p class="mobile-description">Green space where dogs must remain on a leash.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">11</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Parkbos</h2>
+        <p class="mobile-description">Green space where dogs must remain on a leash.</p>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">12</div>
+        <div class="mobile-type">Water</div>
+        <h2>Yachtdreef</h2>
+        <p class="mobile-description">A waterside destination for a walk with your dog.</p>
+    </section>
+
+    <div class="mobile-controls">
+        <button class="arrow-button" id="mobile-prev"
+                aria-label="Previous location">←</button>
+        <span class="control-counter" id="mobile-counter">01 / 12</span>
+        <button class="arrow-button" id="mobile-next"
+                aria-label="Next location">→</button>
+    </div>
+
+</div>
+
+<!-- EDITION NAVIGATION -->
+
+<a href="editie-02.html" class="nav-link nav-prev">← Edition 02</a>
+<a href="editie-04.html" class="nav-link nav-next">Edition 04 →</a>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+(function () {
+    const locations = [
+        {
+            name: "Molenaarsstraat",
+            type: "Off-leash Area",
+            coords: [51.0638, 3.7178],
+            description: "A designated area where dogs can be off leash."
+        },
+        {
+            name: "Rozebroeken",
+            type: "Off-leash Area",
+            coords: [51.0585, 3.7565],
+            description: "A designated area where dogs can be off leash."
+        },
+        {
+            name: "Morekstraat",
+            type: "Off-leash Area",
+            coords: [51.0763, 3.7156],
+            description: "A designated area where dogs can be off leash."
+        },
+        {
+            name: "Europalaan",
+            type: "Off-leash Area",
+            coords: [51.0470, 3.7060],
+            description: "A designated area where dogs can be off leash."
+        },
+        {
+            name: "Normandiëlaan",
+            type: "Off-leash Area",
+            coords: [51.0800, 3.6800],
+            description: "A designated area where dogs can be off leash."
+        },
+        {
+            name: "Blaarmeersen",
+            type: "Green Area · Leash Required",
+            coords: [51.0438, 3.6897],
+            description: "Green space where dogs must remain on a leash."
+        },
+        {
+            name: "Bourgoyen",
+            type: "Green Area · Leash Required",
+            coords: [51.0735, 3.6835],
+            description: "Green space where dogs must remain on a leash."
+        },
+        {
+            name: "Citadelpark",
+            type: "Green Area · Leash Required",
+            coords: [51.0418, 3.7248],
+            description: "Green space where dogs must remain on a leash."
+        },
+        {
+            name: "Keizerpark",
+            type: "Green Area · Leash Required",
+            coords: [51.0377, 3.7375],
+            description: "Green space where dogs must remain on a leash."
+        },
+        {
+            name: "Muinkpark",
+            type: "Green Area · Leash Required",
+            coords: [51.0464, 3.7306],
+            description: "Green space where dogs must remain on a leash."
+        },
+        {
+            name: "Parkbos",
+            type: "Green Area · Leash Required",
+            coords: [51.0060, 3.6870],
+            description: "Green space where dogs must remain on a leash."
+        },
+        {
+            name: "Yachtdreef",
+            type: "Water",
+            coords: [51.0420, 3.6940],
+            description: "A waterside destination for a walk with your dog."
+        }
+    ];
+
+    let current = 0;
+    let map = null;
+    const markers = [];
+
+    const $ = id => document.getElementById(id);
+    const twoDigits = n => String(n).padStart(2, "0");
+
+    function updateLocation(index) {
+        current = Math.max(0, Math.min(locations.length - 1, index));
+
+        const place = locations[current];
+        const number = twoDigits(current + 1);
+        const counter = number + " / " + twoDigits(locations.length);
+
+        $("desktop-type").textContent = place.type;
+        $("desktop-number").textContent = number;
+        $("desktop-name").textContent = place.name;
+        $("desktop-description").textContent = place.description;
+        $("desktop-counter").textContent = counter;
+
+        $("desktop-prev").disabled = current === 0;
+        $("desktop-next").disabled = current === locations.length - 1;
+
+        document.querySelectorAll(".mobile-stop").forEach((section, i) => {
+            section.classList.toggle("active", i === current);
+            section.setAttribute(
+                "aria-hidden",
+                i === current ? "false" : "true"
+            );
+        });
+
+        $("mobile-counter").textContent = counter;
+        $("mobile-prev").disabled = current === 0;
+        $("mobile-next").disabled = current === locations.length - 1;
+
+        markers.forEach((marker, i) => {
+            const el = marker.getElement();
+            if (el) {
+                const dot = el.querySelector(".dog-marker");
+                if (dot) dot.classList.toggle("active", i === current);
             }
+        });
 
-            function removeNow(el) {
-                if (el && el.parentNode) {
-                    el.parentNode.removeChild(el);
-                }
-            }
-
-            function clearNow() {
-                active.forEach(removeNow);
-                active = [];
-            }
-
-            function fadeAll() {
-                var old = active;
-                active = [];
-
-                old.forEach(function (el) {
-                    el.classList.add('out');
-                });
-
-                setTimeout(function () {
-                    old.forEach(removeNow);
-                }, 450);
-            }
-
-            breeds.forEach(function (el) {
-                var text = el.getAttribute('data-bark');
-                var level = parseInt(el.getAttribute('data-loud'), 10) || 1;
-
-                el.addEventListener('pointerenter', function (e) {
-                    clearNow();
-                    spawn(text, level, e.clientX, e.clientY);
-                });
-
-                el.addEventListener('pointermove', function (e) {
-                    var dx = e.clientX - lastX;
-                    var dy = e.clientY - lastY;
-
-                    if (Math.sqrt(dx * dx + dy * dy) >= step) {
-                        spawn(text, level, e.clientX, e.clientY);
-                    }
-                });
-
-                el.addEventListener('pointerleave', fadeAll);
-
-                // Keyboard interaction
-                el.addEventListener('focus', function () {
-                    var r = el.getBoundingClientRect();
-
-                    clearNow();
-
-                    spawn(
-                        text,
-                        level,
-                        r.left + r.width / 2,
-                        r.top + r.height / 2
-                    );
-                });
-
-                el.addEventListener('blur', fadeAll);
+        if (map && markers[current]) {
+            map.panTo(place.coords, {
+                animate: true,
+                duration: 0.35
             });
-        })();
-    </script>
+        }
+    }
+
+    function previous() {
+        if (current > 0) updateLocation(current - 1);
+    }
+
+    function next() {
+        if (current < locations.length - 1) updateLocation(current + 1);
+    }
+
+    $("desktop-prev").addEventListener("click", previous);
+    $("desktop-next").addEventListener("click", next);
+    $("mobile-prev").addEventListener("click", previous);
+    $("mobile-next").addEventListener("click", next);
+
+    document.addEventListener("keydown", event => {
+        if (event.altKey || event.ctrlKey || event.metaKey) return;
+
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            next();
+        } else if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            previous();
+        }
+    });
+
+    if (window.matchMedia("(min-width: 901px)").matches) {
+        map = L.map("map", {
+            zoomControl: false,
+            scrollWheelZoom: false
+        }).setView([51.0543, 3.7174], 11.8);
+
+        // CARTO Positron: a clean, minimal light basemap.
+        // Map tiles are provided by CARTO; attribution includes OpenStreetMap.
+        L.tileLayer(
+            "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+            {
+                subdomains: "abcd",
+                maxZoom: 20,
+                attribution:
+                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            }
+        ).addTo(map);
+
+        locations.forEach((place, i) => {
+            const icon = L.divIcon({
+                className: "",
+                html:
+                    '<div class="dog-marker' +
+                    (i === 0 ? ' active' : '') +
+                    '">' + twoDigits(i + 1) + '</div>',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+            const marker = L.marker(place.coords, { icon }).addTo(map);
+
+            marker.on("click", () => updateLocation(i));
+            marker.bindTooltip(place.name);
+
+            markers.push(marker);
+        });
+
+        updateLocation(0);
+
+        window.addEventListener("resize", () => {
+            map.invalidateSize();
+        });
+    } else {
+        updateLocation(0);
+    }
+})();
+</script>
 
 </body>
 </html>
