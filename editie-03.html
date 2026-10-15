@@ -18,9 +18,12 @@
 
 :root {
     --brown: #6b4423;
+    --brown-light: #927455;
+    --brown-mid: #c4b19a;
+    --brown-pale: #e9dfd2;
     --turquoise: #50F6D8;
     --bg: #FFFFFF;
-    --border: rgba(107, 68, 35, .18);
+    --border: rgba(107, 68, 35, .22);
 }
 
 * {
@@ -97,23 +100,6 @@ header {
     letter-spacing: -.06em;
 }
 
-.left-bottom {
-    display: flex;
-    flex-direction: column;
-    gap: .6rem;
-}
-
-.eyebrow {
-    color: var(--turquoise);
-    font-size: .75rem;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-}
-
-.location-count {
-    font-size: .9rem;
-}
-
 .map-wrapper {
     min-width: 0;
     min-height: 0;
@@ -124,24 +110,33 @@ header {
     width: 100%;
     height: 100%;
     min-height: 0;
-    background: #FFFFFF;
+    overflow: hidden;
+    background: var(--brown-pale);
     border: 1px solid var(--border);
 }
 
-/* MAP */
+/* WARM BROWN MAP PALETTE
+   The tile filter warms the standard OSM map.
+   Markers remain unaffected by the tile filter.
+*/
 
 .leaflet-container {
-    background: #FFFFFF;
+    background: var(--brown-pale);
     font-family: 'Neue Haas Grotesk', sans-serif;
+}
+
+.leaflet-tile-pane {
+    filter: sepia(.42) saturate(.72) hue-rotate(340deg) brightness(1.02);
 }
 
 .leaflet-control-attribution {
     font-size: 9px !important;
-    background: rgba(255,255,255,.85) !important;
+    background: rgba(255,255,255,.9) !important;
+    color: var(--brown) !important;
 }
 
 .leaflet-control-attribution a {
-    color: var(--brown);
+    color: var(--brown) !important;
 }
 
 /* LOCATION PANEL */
@@ -153,15 +148,6 @@ header {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-}
-
-.location-type {
-    color: var(--brown);
-    font-size: .75rem;
-    line-height: 1.4;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-bottom: 1rem;
 }
 
 .location-number {
@@ -180,14 +166,23 @@ header {
     overflow-wrap: anywhere;
 }
 
-.location-description {
+.location-type {
+    color: var(--brown);
+    font-size: .75rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: .08em;
     margin-top: 1rem;
+}
+
+.location-description {
+    margin-top: .65rem;
     font-size: .85rem;
     line-height: 1.5;
     opacity: .8;
 }
 
-/* LOCATION ARROWS */
+/* LOCATION ARROWS — MATCH MAP MARKERS */
 
 .location-controls {
     display: flex;
@@ -206,12 +201,13 @@ header {
     justify-content: center;
     align-items: center;
     background: #FFFFFF;
-    border: 1px solid var(--turquoise);
+    border: 2px solid var(--turquoise);
     border-radius: 50%;
-    color: var(--brown);
+    color: var(--turquoise);
     font-size: 1.4rem;
+    font-weight: 400;
     cursor: pointer;
-    transition: background .2s, color .2s, border-color .2s;
+    transition: background .2s, color .2s, border-color .2s, transform .2s;
 }
 
 .arrow-button:hover,
@@ -219,12 +215,14 @@ header {
     background: var(--turquoise);
     border-color: var(--turquoise);
     color: #FFFFFF;
+    transform: scale(1.08);
     outline: none;
 }
 
 .arrow-button:disabled {
     opacity: .25;
     cursor: default;
+    transform: none;
 }
 
 .control-counter {
@@ -267,6 +265,9 @@ header {
     bottom: clamp(.8rem, 2vw, 1.5rem);
     color: var(--turquoise);
     font-size: clamp(.7rem, 1.3vw, .95rem);
+    font-weight: 400;
+    letter-spacing: .05em;
+    text-transform: uppercase;
     text-decoration: none;
     z-index: 10001;
     white-space: nowrap;
@@ -285,7 +286,7 @@ header {
     right: clamp(.8rem, 2vw, 1.5rem);
 }
 
-/* MOBILE */
+/* MOBILE: ONE LOCATION AT A TIME */
 
 .mobile-route {
     display: none;
@@ -327,14 +328,6 @@ header {
         margin-bottom: 1.5rem;
     }
 
-    .mobile-type {
-        color: var(--brown);
-        font-size: .75rem;
-        letter-spacing: .1em;
-        text-transform: uppercase;
-        margin-bottom: 1rem;
-    }
-
     .mobile-stop h2 {
         font-size: clamp(2.5rem, 10vw, 5.5rem);
         line-height: .9;
@@ -343,10 +336,19 @@ header {
         overflow-wrap: anywhere;
     }
 
+    .mobile-type {
+        color: var(--brown);
+        font-size: .75rem;
+        letter-spacing: .1em;
+        line-height: 1.4;
+        text-transform: uppercase;
+        margin-top: 1rem;
+    }
+
     .mobile-description {
         font-size: .85rem;
         line-height: 1.5;
-        margin-top: 1.2rem;
+        margin-top: .65rem;
         max-width: 25rem;
         opacity: .8;
     }
@@ -404,8 +406,12 @@ header {
         font-size: clamp(1.6rem, 2.4vw, 2.5rem);
     }
 
-    .location-description {
+    .location-type {
         margin-top: .6rem;
+    }
+
+    .location-description {
+        margin-top: .4rem;
         font-size: .75rem;
     }
 
@@ -449,9 +455,9 @@ header {
     </div>
 
     <aside class="right-panel">
-        <div id="desktop-type" class="location-type"></div>
         <div id="desktop-number" class="location-number">01</div>
         <h2 id="desktop-name" class="location-name">Molenaarsstraat</h2>
+        <div id="desktop-type" class="location-type">Off-leash Area</div>
         <p id="desktop-description" class="location-description"></p>
 
         <div class="location-controls">
@@ -471,74 +477,74 @@ header {
 
     <section class="mobile-stop active">
         <div class="mobile-number">01</div>
-        <div class="mobile-type">Off-leash Area</div>
         <h2>Molenaarsstraat</h2>
+        <div class="mobile-type">Off-leash Area</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">02</div>
-        <div class="mobile-type">Off-leash Area</div>
         <h2>Rozebroeken</h2>
+        <div class="mobile-type">Off-leash Area</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">03</div>
-        <div class="mobile-type">Off-leash Area</div>
         <h2>Morekstraat</h2>
+        <div class="mobile-type">Off-leash Area</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">04</div>
-        <div class="mobile-type">Off-leash Area</div>
         <h2>Europalaan</h2>
+        <div class="mobile-type">Off-leash Area</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">05</div>
-        <div class="mobile-type">Off-leash Area</div>
         <h2>Normandiëlaan</h2>
+        <div class="mobile-type">Off-leash Area</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">06</div>
-        <div class="mobile-type">Green Area · Leash Required</div>
         <h2>Blaarmeersen</h2>
+        <div class="mobile-type">Green Area · Leash Required</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">07</div>
-        <div class="mobile-type">Green Area · Leash Required</div>
         <h2>Bourgoyen</h2>
+        <div class="mobile-type">Green Area · Leash Required</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">08</div>
-        <div class="mobile-type">Green Area · Leash Required</div>
         <h2>Citadelpark</h2>
+        <div class="mobile-type">Green Area · Leash Required</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">09</div>
-        <div class="mobile-type">Green Area · Leash Required</div>
         <h2>Keizerpark</h2>
+        <div class="mobile-type">Green Area · Leash Required</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">10</div>
-        <div class="mobile-type">Green Area · Leash Required</div>
         <h2>Muinkpark</h2>
+        <div class="mobile-type">Green Area · Leash Required</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">11</div>
-        <div class="mobile-type">Green Area · Leash Required</div>
         <h2>Parkbos</h2>
+        <div class="mobile-type">Green Area · Leash Required</div>
     </section>
 
     <section class="mobile-stop">
         <div class="mobile-number">12</div>
-        <div class="mobile-type">Water</div>
         <h2>Yachtdreef</h2>
+        <div class="mobile-type">Water</div>
     </section>
 
     <div class="mobile-controls">
@@ -649,11 +655,12 @@ header {
         const number = twoDigits(current + 1);
         const counter = number + " / " + twoDigits(locations.length);
 
-        $("desktop-type").textContent = place.type;
         $("desktop-number").textContent = number;
         $("desktop-name").textContent = place.name;
+        $("desktop-type").textContent = place.type;
         $("desktop-description").textContent = place.description;
-        $("desktop-description").style.display = place.description ? "" : "none";
+        $("desktop-description").style.display =
+            place.description ? "" : "none";
         $("desktop-counter").textContent = counter;
 
         $("desktop-prev").disabled = current === 0;
