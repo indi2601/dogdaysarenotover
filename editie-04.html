@@ -1,1 +1,42 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dog Days Are Not Over — Edition 04</title>
+<style>
+@font-face {
+  font-family: "Neue Haas Grotesk";
+  src: url("https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2") format("woff2");
+}
+:root { --brown:#6b4423; --turquoise:#50F6D8; --white:#fff; --pad:clamp(14px,2vw,28px); }
+* { box-sizing:border-box; }
+html,body { width:100%; height:100%; margin:0; overflow:hidden; }
+body { background:var(--white); color:var(--brown); font-family:"Neue Haas Grotesk",sans-serif; }
+header,.nav { position:fixed; left:var(--pad); right:var(--pad); display:flex; justify-content:space-between; z-index:10; }
+header { top:var(--pad); justify-content:flex-start; gap:14px; }
+header p { margin:0; font-size:clamp(11px,1.3vw,16px); text-transform:uppercase; letter-spacing:.05em; }
+main { position:absolute; inset:0; display:grid; place-items:center; padding:15vw; }
+h1 { font-size:clamp(42px,10vw,140px); font-weight:400; letter-spacing:-.07em; line-height:.9; margin:0; }
+.subtitle { font-size:12px; margin-top:18px; }
+.nav { bottom:var(--pad); }
+.nav a { color:var(--turquoise); text-decoration:none; text-transform:uppercase; letter-spacing:.05em; font-size:clamp(11px,1.1vw,14px); }
+.nav a:hover { opacity:.7; }
+</style>
+</head>
+<body>
+<header><p>Edition 04</p><p>Dog Days Are Not Over</p></header>
+<main>
+  <div>
+    <h1>In<br>Between</h1>
+    <p class="subtitle">A new way of seeing the everyday.</p>
+  </div>
+</main>
+<nav class="nav">
+  <a href="editie-03.html">← Edition 03</a>
+  <a href="editie-05.html">Edition 05 →</a>
+</nav>
+</body>
+</html>
+
