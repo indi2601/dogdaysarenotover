@@ -1,147 +1,336 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dog Days Are Not Over – Editie 03</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dog Days Are Not Over – Edition 03</title>
 
-        @font-face {
-            font-family: 'Neue Haas Grotesk';
-            src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2'),
-                 url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff') format('woff');
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
+<style>
 
-        body {
-            height: 100vh;
-            overflow: hidden;
-            background-color: #faf8f7;
-            color: #6b4423;
-            padding: clamp(0.8rem, 3vw, 2rem);
-            font-family: 'Neue Haas Grotesk', sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
-        }
+@font-face {
+    font-family: 'Neue Haas Grotesk';
+    src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2');
+    font-weight: 400;
+}
 
-        header {
-            position: absolute;
-            top: clamp(0.8rem, 2vw, 1.5rem);
-            left: clamp(0.8rem, 2vw, 1.5rem);
-            display: flex;
-            align-items: baseline;
-            gap: clamp(0.5rem, 1vw, 1rem);
-        }
+:root{
+    --brown:#6b4423;
+    --pink:#ff1493;
+    --bg:#faf8f7;
+}
 
-        .editie-badge {
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            font-weight: 400;
-            color: #6b4423;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
-        }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-        .title-text {
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            font-weight: 400;
-            color: #6b4423;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
-        }
+body{
+    font-family:'Neue Haas Grotesk',sans-serif;
+    background:var(--bg);
+    color:var(--brown);
+}
 
-        main {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+/* HEADER */
 
-        .content {
-            font-size: clamp(1.2rem, 4vw, 2.5rem);
-            line-height: 1.4;
-            color: #6b4423;
-            font-weight: 400;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            opacity: 0.85;
-            max-width: 85vw;
-        }
+header{
+    position:fixed;
+    top:1rem;
+    left:1rem;
+    display:flex;
+    gap:1rem;
+    z-index:100;
+}
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
+.editie-badge,
+.title-text{
+    font-size:clamp(.9rem,2vw,1.2rem);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+}
 
-        .content {
-            animation: fadeIn 0.8s ease-out 0.2s backwards;
-        }
+/* DESKTOP */
 
-        footer {
-            position: absolute;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            right: clamp(0.8rem, 2vw, 1.5rem);
-            font-size: clamp(0.6rem, 1.2vw, 0.85rem);
-            color: #6b4423;
-            opacity: 0.6;
-        }
+.desktop-view{
+    display:block;
+    height:100vh;
+    width:100vw;
+    overflow:hidden;
+    position:relative;
+}
 
-        .nav-link {
-            position: absolute;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            left: clamp(0.8rem, 2vw, 1.5rem);
-            font-size: clamp(0.7rem, 1.5vw, 1rem);
-            font-weight: 400;
-            color: #ff1493;
-            text-decoration: none;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-        }
+.map-title{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:clamp(5rem,12vw,14rem);
+    opacity:.06;
+    pointer-events:none;
+    white-space:nowrap;
+}
 
-        .nav-link:hover {
-            opacity: 0.7;
-        }
+.sniff-lines{
+    position:absolute;
+    inset:0;
+}
 
-        @media (max-width: 500px) {
-            .content {
-                font-size: clamp(1rem, 3vw, 1.8rem);
-            }
-        }
-    </style>
+.sniff-lines path{
+    fill:none;
+    stroke:var(--pink);
+    stroke-width:4;
+    stroke-dasharray:10 14;
+    opacity:.5;
+}
+
+.dog{
+    position:absolute;
+    transform:translate(-50%,-50%);
+}
+
+.dog img{
+    width:110px;
+    height:110px;
+    object-fit:cover;
+    border-radius:50%;
+    transition:.4s ease;
+    cursor:pointer;
+}
+
+.dog span{
+    position:absolute;
+    top:120%;
+    left:50%;
+    transform:translateX(-50%);
+    white-space:nowrap;
+    opacity:0;
+    transition:.3s ease;
+}
+
+.dog:hover img{
+    transform:scale(1.25);
+}
+
+.dog:hover span{
+    opacity:1;
+}
+
+/* MOBILE */
+
+.mobile-view{
+    display:none;
+}
+
+.mobile-dog{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:2rem;
+    text-align:center;
+    position:relative;
+}
+
+.mobile-dog img{
+    width:85vw;
+    height:85vw;
+    object-fit:cover;
+}
+
+.mobile-dog h2{
+    margin-top:1rem;
+    font-size:2rem;
+    font-weight:400;
+}
+
+.mobile-dog p{
+    color:var(--pink);
+    margin-top:.5rem;
+    font-size:.9rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.mobile-dog::after{
+    content:"";
+    position:absolute;
+    bottom:0;
+    left:50%;
+    width:3px;
+    height:120px;
+    background:repeating-linear-gradient(
+        to bottom,
+        var(--pink) 0 12px,
+        transparent 12px 24px
+    );
+}
+
+.mobile-dog:last-child::after{
+    display:none;
+}
+
+/* NAV */
+
+.nav-links{
+    position:fixed;
+    bottom:1rem;
+    left:1rem;
+    z-index:100;
+}
+
+.nav-link{
+    color:var(--pink);
+    text-decoration:none;
+    font-size:.9rem;
+}
+
+.nav-link:hover{
+    opacity:.7;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:700px){
+
+    .desktop-view{
+        display:none;
+    }
+
+    .mobile-view{
+        display:block;
+    }
+
+    header{
+        position:absolute;
+    }
+}
+
+</style>
 </head>
+
 <body>
-    <header>
-        <div class="editie-badge">Editie 03</div>
-        <div class="title-text">Dog Days Are Not Over</div>
-    </header>
 
-    <main>
-        <div class="content">Volgende editie komt eraan</div>
-    </main>
+<header>
+    <div class="editie-badge">Edition 03</div>
+    <div class="title-text">Dog Days Are Not Over</div>
+</header>
 
-    <footer>
-        Editie 03/2026
-    </footer>
+<!-- DESKTOP -->
 
-    <a href="editie-02.html" class="nav-link">← Editie 02</a>
+<div class="desktop-view">
+
+    <div class="map-title">GENT</div>
+
+    <svg class="sniff-lines" viewBox="0 0 1000 600" preserveAspectRatio="none">
+
+        <path d="M90 420 C200 220 240 450 340 250"/>
+        <path d="M340 250 C420 150 520 440 590 260"/>
+        <path d="M590 260 C640 120 760 420 830 180"/>
+        <path d="M340 250 C200 520 620 520 740 430"/>
+        <path d="M740 430 C820 310 900 420 920 310"/>
+
+    </svg>
+
+    <div class="dog" style="left:9%; top:70%;">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8804.jpeg">
+        <span>Bearded Collie</span>
+    </div>
+
+    <div class="dog" style="left:22%; top:42%;">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8806.jpeg">
+        <span>Boomer</span>
+    </div>
+
+    <div class="dog" style="left:34%; top:54%;">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8817.jpeg">
+        <span>Chihuahua</span>
+    </div>
+
+    <div class="dog" style="left:48%; top:28%;">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8818.jpeg">
+        <span>Cocker Spaniel</span>
+    </div>
+
+    <div class="dog" style="left:59%; top:50%;">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8821.jpeg">
+        <span>Coton de Tuléar</span>
+    </div>
+
+    <div class="dog" style="left:74%; top:72%;">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8822.jpeg">
+        <span>Labradoodle</span>
+    </div>
+
+    <div class="dog" style="left:83%; top:30%;">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8879.jpeg">
+        <span>Pomeranian</span>
+    </div>
+
+    <div class="dog" style="left:92%; top:52%;">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8819.jpeg">
+        <span>Pug</span>
+    </div>
+
+</div>
+
+<!-- MOBILE -->
+
+<div class="mobile-view">
+
+    <section class="mobile-dog">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8804.jpeg">
+        <h2>Bearded Collie</h2>
+        <p>follow scent 01</p>
+    </section>
+
+    <section class="mobile-dog">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8806.jpeg">
+        <h2>Boomer</h2>
+        <p>follow scent 02</p>
+    </section>
+
+    <section class="mobile-dog">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8817.jpeg">
+        <h2>Chihuahua</h2>
+        <p>follow scent 03</p>
+    </section>
+
+    <section class="mobile-dog">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8818.jpeg">
+        <h2>Cocker Spaniel</h2>
+        <p>follow scent 04</p>
+    </section>
+
+    <section class="mobile-dog">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8821.jpeg">
+        <h2>Coton de Tuléar</h2>
+        <p>follow scent 05</p>
+    </section>
+
+    <section class="mobile-dog">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8822.jpeg">
+        <h2>Labradoodle</h2>
+        <p>follow scent 06</p>
+    </section>
+
+    <section class="mobile-dog">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8879.jpeg">
+        <h2>Pomeranian</h2>
+        <p>follow scent 07</p>
+    </section>
+
+    <section class="mobile-dog">
+        <img src="https://indi2601.github.io/dogdaysarenotover/IMG_8819.jpeg">
+        <h2>Pug</h2>
+        <p>follow scent 08</p>
+    </section>
+
+</div>
+
+<nav class="nav-links">
+    <a href="editie-02.html" class="nav-link">← Edition 02</a>
+</nav>
+
 </body>
 </html>
