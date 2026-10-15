@@ -93,8 +93,7 @@
             letter-spacing: 0;
             display: inline-block;
             padding: clamp(0.5rem, 1.2vw, 1rem) clamp(0.8rem, 1.6vw, 1.4rem);
-            border: 2px solid var(--brown);
-            border-radius: 4px;
+            border: none;
             outline: none;
         }
 
@@ -124,13 +123,13 @@
         .woof {
             position: absolute;
             transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
-            font-size: clamp(0.9rem, 1.8vw, 1.4rem);
-            line-height: 1.2;
+            /* --v = formaat in vw op basis van luidheid, --k = schaalfactor per schermtype */
+            font-size: max(0.75rem, calc(var(--v) * var(--k, 1) * 1vw));
+            line-height: 1.05;
             color: var(--neon);
-            white-space: nowrap;
-            text-shadow:
-                0 0 4px rgba(255, 47, 168, 0.9),
-                0 0 12px rgba(255, 47, 168, 0.6);
+            text-align: center;
+            width: max-content;
+            max-width: 45vw;
             animation: woofIn 0.25s ease-out backwards;
             transition: opacity 0.4s ease;
         }
@@ -176,7 +175,8 @@
             }
 
             .woof {
-                font-size: 0.95rem;
+                --k: 1.7;
+                max-width: 80vw;
             }
         }
     </style>
@@ -189,17 +189,18 @@
 
     <main>
         <div class="breeds-list">
+            <!-- data-loud: 1 = zachtste hond, 8 = luidste hond -->
             <div class="breed-group">
-                <span class="breed" tabindex="0" data-bark="WAF! WAF-waf!">bearded collie</span>
-                <span class="breed" tabindex="0" data-bark="Waf! Waf! Waf-waf!">boomer</span>
-                <span class="breed" tabindex="0" data-bark="WAF! WAF! WAF! Waf-waf-waf!">chihuahua</span>
-                <span class="breed" tabindex="0" data-bark="Waf-waf! WOOF!">cocker spaniel</span>
+                <span class="breed" tabindex="0" data-loud="5" data-bark="WAF! WAF-waf!">bearded collie</span>
+                <span class="breed" tabindex="0" data-loud="2" data-bark="Waf! Waf! Waf-waf!">boomer</span>
+                <span class="breed" tabindex="0" data-loud="7" data-bark="WAF! WAF! WAF! Waf-waf-waf!">chihuahua</span>
+                <span class="breed" tabindex="0" data-loud="4" data-bark="Waf-waf! WOOF!">cocker spaniel</span>
             </div>
             <div class="breed-group">
-                <span class="breed" tabindex="0" data-bark="Waf! Waf-waf!">coton de tuléar</span>
-                <span class="breed" tabindex="0" data-bark="WOOF! Waf! WOOF!">labradoodle</span>
-                <span class="breed" tabindex="0" data-bark="WAF-WAF-WAF-WAF!">pomeranian</span>
-                <span class="breed" tabindex="0" data-bark="Waf! Woef! Hrr-waf!">pug</span>
+                <span class="breed" tabindex="0" data-loud="1" data-bark="Waf! Waf-waf!">coton de tuléar</span>
+                <span class="breed" tabindex="0" data-loud="6" data-bark="WOOF! Waf! WOOF!">labradoodle</span>
+                <span class="breed" tabindex="0" data-loud="8" data-bark="WAF-WAF-WAF-WAF!">pomeranian</span>
+                <span class="breed" tabindex="0" data-loud="3" data-bark="Waf! Woef! Hrr-waf!">pug</span>
             </div>
         </div>
     </main>
@@ -214,18 +215,22 @@
             var breeds = document.querySelectorAll('.breed');
 
             var MAX_BARKS = 30;      // maximaal aantal blafjes tegelijk
-            var STEP = 55;           // pixels bewegen voordat er een nieuw blafje bijkomt
+            var STEP = 70;           // pixels bewegen voordat er een nieuw blafje bijkomt
+
+            // Formaat (in vw) per luidheidsniveau 1 t/m 8
+            var SIZES = [1.0, 1.4, 1.9, 2.5, 3.2, 4.0, 5.2, 7.0];
 
             var active = [];
             var lastX = 0;
             var lastY = 0;
 
-            function spawn(text, x, y) {
+            function spawn(text, level, x, y) {
                 var el = document.createElement('div');
                 el.className = 'woof';
                 el.textContent = text;
                 el.style.left = x + 'px';
                 el.style.top = y + 'px';
+                el.style.setProperty('--v', SIZES[level - 1]);
                 el.style.setProperty('--rot', (Math.random() * 16 - 8).toFixed(1) + 'deg');
                 layer.appendChild(el);
                 active.push(el);
@@ -255,17 +260,18 @@
 
             breeds.forEach(function (el) {
                 var text = el.getAttribute('data-bark');
+                var level = parseInt(el.getAttribute('data-loud'), 10) || 1;
 
                 el.addEventListener('pointerenter', function (e) {
                     clearNow();
-                    spawn(text, e.clientX, e.clientY);
+                    spawn(text, level, e.clientX, e.clientY);
                 });
 
                 el.addEventListener('pointermove', function (e) {
                     var dx = e.clientX - lastX;
                     var dy = e.clientY - lastY;
                     if (Math.sqrt(dx * dx + dy * dy) >= STEP) {
-                        spawn(text, e.clientX, e.clientY);
+                        spawn(text, level, e.clientX, e.clientY);
                     }
                 });
 
@@ -275,7 +281,7 @@
                 el.addEventListener('focus', function () {
                     var r = el.getBoundingClientRect();
                     clearNow();
-                    spawn(text, r.left + r.width / 2, r.top + r.height / 2);
+                    spawn(text, level, r.left + r.width / 2, r.top + r.height / 2);
                 });
                 el.addEventListener('blur', fadeAll);
             });
