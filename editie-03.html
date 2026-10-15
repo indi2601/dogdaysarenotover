@@ -1,1 +1,706 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dog Days Are Not Over — Edition 03</title>
+
+  <style>
+    @font-face {
+      font-family: "Neue Haas Grotesk";
+      src: url("https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2") format("woff2");
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    :root {
+      --brown: #6b4423;
+      --turquoise: #50F6D8;
+      --white: #ffffff;
+      --page-pad: clamp(14px, 2vw, 28px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    body {
+      position: relative;
+      background: var(--white);
+      color: var(--brown);
+      font-family: "Neue Haas Grotesk", sans-serif;
+    }
+
+    header {
+      position: fixed;
+      top: var(--page-pad);
+      left: var(--page-pad);
+      right: var(--page-pad);
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      z-index: 20;
+    }
+
+    .edition,
+    .site-title {
+      margin: 0;
+      font-size: clamp(11px, 1.3vw, 16px);
+      line-height: 1.2;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      white-space: nowrap;
+    }
+
+    .intro {
+      position: fixed;
+      top: clamp(60px, 10vh, 100px);
+      left: var(--page-pad);
+      z-index: 5;
+    }
+
+    .intro h1 {
+      margin: 0;
+      font-size: clamp(28px, 4.3vw, 62px);
+      line-height: .95;
+      font-weight: 400;
+      letter-spacing: -.055em;
+    }
+
+    .intro p {
+      margin: 12px 0 0;
+      max-width: 300px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .archive {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Pootvormen */
+    .paw {
+      position: absolute;
+      width: var(--size, 130px);
+      aspect-ratio: 1;
+      left: var(--x);
+      top: var(--y);
+      transform: rotate(var(--rotation, 0deg));
+      transition: transform .35s ease;
+      cursor: pointer;
+      outline: none;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      color: var(--brown);
+    }
+
+    .paw:focus,
+    .paw:focus-visible,
+    .paw:hover {
+      outline: none;
+    }
+
+    .paw svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .paw .pad {
+      fill: var(--turquoise);
+    }
+
+    .paw .toe {
+      fill: var(--turquoise);
+    }
+
+    .paw .paw-number {
+      fill: var(--brown);
+      font-family: "Neue Haas Grotesk", sans-serif;
+      font-size: 10px;
+      text-anchor: middle;
+    }
+
+    .paw .paw-caption {
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: max-content;
+      max-width: 160px;
+      transform: translateX(-50%);
+      margin-top: 5px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      text-align: center;
+    }
+
+    @media (hover: hover) and (min-width: 900px) {
+      .paw:hover {
+        transform: rotate(0deg) scale(1.12);
+        z-index: 10;
+      }
+    }
+
+    /* Navigatie */
+    .navigation {
+      position: fixed;
+      left: var(--page-pad);
+      right: var(--page-pad);
+      bottom: var(--page-pad);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 30;
+    }
+
+    .navigation a {
+      color: var(--turquoise);
+      font-size: clamp(11px, 1.1vw, 14px);
+      font-weight: 400;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      white-space: nowrap;
+    }
+
+    .navigation a:hover {
+      opacity: .7;
+    }
+
+    /* Desktop: archief in een vrij raster */
+    .mobile-view {
+      display: none;
+    }
+
+    @media (min-width: 900px) {
+      .intro {
+        top: 16vh;
+      }
+
+      .archive {
+        inset: 0;
+      }
+
+      .paw:nth-child(1) {
+        --x: 39%;
+        --y: 13%;
+        --size: 100px;
+        --rotation: -15deg;
+      }
+
+      .paw:nth-child(2) {
+        --x: 56%;
+        --y: 12%;
+        --size: 145px;
+        --rotation: 12deg;
+      }
+
+      .paw:nth-child(3) {
+        --x: 76%;
+        --y: 16%;
+        --size: 95px;
+        --rotation: 20deg;
+      }
+
+      .paw:nth-child(4) {
+        --x: 32%;
+        --y: 39%;
+        --size: 155px;
+        --rotation: 8deg;
+      }
+
+      .paw:nth-child(5) {
+        --x: 53%;
+        --y: 42%;
+        --size: 92px;
+        --rotation: -20deg;
+      }
+
+      .paw:nth-child(6) {
+        --x: 70%;
+        --y: 39%;
+        --size: 130px;
+        --rotation: 16deg;
+      }
+
+      .paw:nth-child(7) {
+        --x: 42%;
+        --y: 66%;
+        --size: 105px;
+        --rotation: -8deg;
+      }
+
+      .paw:nth-child(8) {
+        --x: 62%;
+        --y: 68%;
+        --size: 150px;
+        --rotation: 18deg;
+      }
+
+      .paw:nth-child(9) {
+        --x: 83%;
+        --y: 65%;
+        --size: 95px;
+        --rotation: -12deg;
+      }
+
+      .mobile-view {
+        display: none;
+      }
+    }
+
+    /* Mobiel: één pootafdruk per lezing */
+    @media (max-width: 899px) {
+      .intro {
+        top: 14vh;
+      }
+
+      .intro h1 {
+        font-size: clamp(32px, 10vw, 52px);
+      }
+
+      .intro p {
+        max-width: 240px;
+        font-size: 11px;
+      }
+
+      .archive {
+        display: none;
+      }
+
+      .mobile-view {
+        display: block;
+        position: absolute;
+        inset: 0;
+      }
+
+      .mobile-slide {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mobile-slide.active {
+        display: flex;
+      }
+
+      .mobile-paw {
+        width: min(66vw, 300px);
+        aspect-ratio: 1;
+        margin-top: 7vh;
+      }
+
+      .mobile-paw svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .mobile-paw .pad,
+      .mobile-paw .toe {
+        fill: var(--turquoise);
+      }
+
+      .mobile-caption {
+        position: absolute;
+        left: var(--page-pad);
+        right: var(--page-pad);
+        bottom: 17%;
+        text-align: center;
+      }
+
+      .mobile-caption .number {
+        font-size: 11px;
+        letter-spacing: .1em;
+      }
+
+      .mobile-caption h2 {
+        margin: 8px 0;
+        font-size: clamp(22px, 7vw, 32px);
+        font-weight: 400;
+        letter-spacing: -.03em;
+      }
+
+      .mobile-caption p {
+        margin: 0 auto;
+        max-width: 260px;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .mobile-controls {
+        position: absolute;
+        bottom: 9%;
+        left: var(--page-pad);
+        right: var(--page-pad);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .mobile-controls button {
+        border: 1px solid var(--turquoise);
+        border-radius: 50%;
+        background: white;
+        color: var(--turquoise);
+        width: 42px;
+        height: 42px;
+        font: inherit;
+        font-size: 20px;
+        cursor: pointer;
+        outline: none;
+      }
+
+      .mobile-controls button:hover,
+      .mobile-controls button:focus-visible {
+        background: var(--turquoise);
+        color: white;
+        outline: none;
+      }
+
+      .mobile-count {
+        font-size: 11px;
+        letter-spacing: .08em;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <p class="edition">Edition 03</p>
+    <p class="site-title">Dog Days Are Not Over</p>
+  </header>
+
+  <section class="intro">
+    <h1>Pawprint<br>Archive</h1>
+    <p>A collection of traces, encounters and small things noticed along the way.</p>
+  </section>
+
+  <main class="archive" aria-label="Pawprint archive">
+    <!-- Pootafdruk 01 -->
+    <button class="paw" style="--x:39%;--y:13%;--size:100px;--rotation:-15deg" aria-label="Pawprint 01">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="toe" cx="22" cy="29" rx="10" ry="13" transform="rotate(-25 22 29)"/>
+        <ellipse class="toe" cx="42" cy="17" rx="10" ry="14" transform="rotate(-8 42 17)"/>
+        <ellipse class="toe" cx="62" cy="17" rx="10" ry="14" transform="rotate(8 62 17)"/>
+        <ellipse class="toe" cx="81" cy="29" rx="10" ry="13" transform="rotate(25 81 29)"/>
+        <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+      </svg>
+      <span class="paw-caption">01 — Ground</span>
+    </button>
+
+    <button class="paw" style="--x:56%;--y:12%;--size:145px;--rotation:12deg" aria-label="Pawprint 02">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="toe" cx="22" cy="29" rx="10" ry="13" transform="rotate(-25 22 29)"/>
+        <ellipse class="toe" cx="42" cy="17" rx="10" ry="14" transform="rotate(-8 42 17)"/>
+        <ellipse class="toe" cx="62" cy="17" rx="10" ry="14" transform="rotate(8 62 17)"/>
+        <ellipse class="toe" cx="81" cy="29" rx="10" ry="13" transform="rotate(25 81 29)"/>
+        <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+      </svg>
+      <span class="paw-caption">02 — Shadows</span>
+    </button>
+
+    <button class="paw" style="--x:76%;--y:16%;--size:95px;--rotation:20deg" aria-label="Pawprint 03">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="toe" cx="22" cy="29" rx="10" ry="13" transform="rotate(-25 22 29)"/>
+        <ellipse class="toe" cx="42" cy="17" rx="10" ry="14" transform="rotate(-8 42 17)"/>
+        <ellipse class="toe" cx="62" cy="17" rx="10" ry="14" transform="rotate(8 62 17)"/>
+        <ellipse class="toe" cx="81" cy="29" rx="10" ry="13" transform="rotate(25 81 29)"/>
+        <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+      </svg>
+      <span class="paw-caption">03 — Grass</span>
+    </button>
+
+    <button class="paw" style="--x:32%;--y:39%;--size:155px;--rotation:8deg" aria-label="Pawprint 04">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="toe" cx="22" cy="29" rx="10" ry="13" transform="rotate(-25 22 29)"/>
+        <ellipse class="toe" cx="42" cy="17" rx="10" ry="14" transform="rotate(-8 42 17)"/>
+        <ellipse class="toe" cx="62" cy="17" rx="10" ry="14" transform="rotate(8 62 17)"/>
+        <ellipse class="toe" cx="81" cy="29" rx="10" ry="13" transform="rotate(25 81 29)"/>
+        <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+      </svg>
+      <span class="paw-caption">04 — Water</span>
+    </button>
+
+    <button class="paw" style="--x:53%;--y:42%;--size:92px;--rotation:-20deg" aria-label="Pawprint 05">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="toe" cx="22" cy="29" rx="10" ry="13" transform="rotate(-25 22 29)"/>
+        <ellipse class="toe" cx="42" cy="17" rx="10" ry="14" transform="rotate(-8 42 17)"/>
+        <ellipse class="toe" cx="62" cy="17" rx="10" ry="14" transform="rotate(8 62 17)"/>
+        <ellipse class="toe" cx="81" cy="29" rx="10" ry="13" transform="rotate(25 81 29)"/>
+        <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+      </svg>
+      <span class="paw-caption">05 — Stops</span>
+    </button>
+
+    <button class="paw" style="--x:70%;--y:39%;--size:130px;--rotation:16deg" aria-label="Pawprint 06">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="toe" cx="22" cy="29" rx="10" ry="13" transform="rotate(-25 22 29)"/>
+        <ellipse class="toe" cx="42" cy="17" rx="10" ry="14" transform="rotate(-8 42 17)"/>
+        <ellipse class="toe" cx="62" cy="17" rx="10" ry="14" transform="rotate(8 62 17)"/>
+        <ellipse class="toe" cx="81" cy="29" rx="10" ry="13" transform="rotate(25 81 29)"/>
+        <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+      </svg>
+      <span class="paw-caption">06 — Encounters</span>
+    </button>
+
+    <button class="paw" style="--x:42%;--y:66%;--size:105px;--rotation:-8deg" aria-label="Pawprint 07">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="toe" cx="22" cy="29" rx="10" ry="13" transform="rotate(-25 22 29)"/>
+        <ellipse class="toe" cx="42" cy="17" rx="10" ry="14" transform="rotate(-8 42 17)"/>
+        <ellipse class="toe" cx="62" cy="17" rx="10" ry="14" transform="rotate(8 62 17)"/>
+        <ellipse class="toe" cx="81" cy="29" rx="10" ry="13" transform="rotate(25 81 29)"/>
+        <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+      </svg>
+      <span class="paw-caption">07 — Pavement</span>
+    </button>
+
+    <button class="paw" style="--x:62%;--y:68%;--size:150px;--rotation:18deg" aria-label="Pawprint 08">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="toe" cx="22" cy="29" rx="10" ry="13" transform="rotate(-25 22 29)"/>
+        <ellipse class="toe" cx="42" cy="17" rx="10" ry="14" transform="rotate(-8 42 17)"/>
+        <ellipse class="toe" cx="62" cy="17" rx="10" ry="14" transform="rotate(8 62 17)"/>
+        <ellipse class="toe" cx="81" cy="29" rx="10" ry="13" transform="rotate(25 81 29)"/>
+        <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+      </svg>
+      <span class="paw-caption">08 — Leaves</span>
+    </button>
+
+    <button class="paw" style="--x:83%;--y:65%;--size:95px;--rotation:-12deg" aria-label="Pawprint 09">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <ellipse class="toe" cx="22" cy="29" rx="10" ry="13" transform="rotate(-25 22 29)"/>
+        <ellipse class="toe" cx="42" cy="17" rx="10" ry="14" transform="rotate(-8 42 17)"/>
+        <ellipse class="toe" cx="62" cy="17" rx="10" ry="14" transform="rotate(8 62 17)"/>
+        <ellipse class="toe" cx="81" cy="29" rx="10" ry="13" transform="rotate(25 81 29)"/>
+        <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+      </svg>
+      <span class="paw-caption">09 — Homeward</span>
+    </button>
+  </main>
+
+  <!-- Mobiele lezing: één pootafdruk per scherm -->
+  <section class="mobile-view" aria-label="Pawprint archive slideshow">
+    <article class="mobile-slide active">
+      <div class="mobile-paw">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <ellipse class="toe" cx="22" cy="29" rx="10" ry="13" transform="rotate(-25 22 29)"/>
+          <ellipse class="toe" cx="42" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="62" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="81" cy="29" rx="10" ry="13" transform="rotate(25 81 29)"/>
+          <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+        </svg>
+      </div>
+      <div class="mobile-caption">
+        <div class="number">01 / 09</div>
+        <h2>Ground</h2>
+        <p>The city begins with the things we almost overlook.</p>
+      </div>
+    </article>
+
+    <article class="mobile-slide">
+      <div class="mobile-paw">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <ellipse class="toe" cx="22" cy="29" rx="10" ry="13"/>
+          <ellipse class="toe" cx="42" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="62" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="81" cy="29" rx="10" ry="13"/>
+          <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+        </svg>
+      </div>
+      <div class="mobile-caption">
+        <div class="number">02 / 09</div>
+        <h2>Shadows</h2>
+        <p>Every street keeps a record of passing light.</p>
+      </div>
+    </article>
+
+    <article class="mobile-slide">
+      <div class="mobile-paw">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <ellipse class="toe" cx="22" cy="29" rx="10" ry="13"/>
+          <ellipse class="toe" cx="42" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="62" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="81" cy="29" rx="10" ry="13"/>
+          <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+        </svg>
+      </div>
+      <div class="mobile-caption">
+        <div class="number">03 / 09</div>
+        <h2>Grass</h2>
+        <p>A little wildness survives at the edge of the pavement.</p>
+      </div>
+    </article>
+
+    <article class="mobile-slide">
+      <div class="mobile-paw">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <ellipse class="toe" cx="22" cy="29" rx="10" ry="13"/>
+          <ellipse class="toe" cx="42" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="62" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="81" cy="29" rx="10" ry="13"/>
+          <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+        </svg>
+      </div>
+      <div class="mobile-caption">
+        <div class="number">04 / 09</div>
+        <h2>Water</h2>
+        <p>The smallest puddle can hold another city.</p>
+      </div>
+    </article>
+
+    <article class="mobile-slide">
+      <div class="mobile-paw">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <ellipse class="toe" cx="22" cy="29" rx="10" ry="13"/>
+          <ellipse class="toe" cx="42" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="62" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="81" cy="29" rx="10" ry="13"/>
+          <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+        </svg>
+      </div>
+      <div class="mobile-caption">
+        <div class="number">05 / 09</div>
+        <h2>Stops</h2>
+        <p>Some places ask us to pause a little longer.</p>
+      </div>
+    </article>
+
+    <article class="mobile-slide">
+      <div class="mobile-paw">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <ellipse class="toe" cx="22" cy="29" rx="10" ry="13"/>
+          <ellipse class="toe" cx="42" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="62" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="81" cy="29" rx="10" ry="13"/>
+          <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+        </svg>
+      </div>
+      <div class="mobile-caption">
+        <div class="number">06 / 09</div>
+        <h2>Encounters</h2>
+        <p>Another presence changes the shape of a walk.</p>
+      </div>
+    </article>
+
+    <article class="mobile-slide">
+      <div class="mobile-paw">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <ellipse class="toe" cx="22" cy="29" rx="10" ry="13"/>
+          <ellipse class="toe" cx="42" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="62" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="81" cy="29" rx="10" ry="13"/>
+          <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+        </svg>
+      </div>
+      <div class="mobile-caption">
+        <div class="number">07 / 09</div>
+        <h2>Pavement</h2>
+        <p>Every surface has its own texture and rhythm.</p>
+      </div>
+    </article>
+
+    <article class="mobile-slide">
+      <div class="mobile-paw">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <ellipse class="toe" cx="22" cy="29" rx="10" ry="13"/>
+          <ellipse class="toe" cx="42" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="62" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="81" cy="29" rx="10" ry="13"/>
+          <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+        </svg>
+      </div>
+      <div class="mobile-caption">
+        <div class="number">08 / 09</div>
+        <h2>Leaves</h2>
+        <p>A familiar path changes with every season.</p>
+      </div>
+    </article>
+
+    <article class="mobile-slide">
+      <div class="mobile-paw">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <ellipse class="toe" cx="22" cy="29" rx="10" ry="13"/>
+          <ellipse class="toe" cx="42" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="62" cy="17" rx="10" ry="14"/>
+          <ellipse class="toe" cx="81" cy="29" rx="10" ry="13"/>
+          <path class="pad" d="M50 40 C31 40 17 55 18 70 C19 83 32 87 43 83 C48 81 52 81 57 83 C68 87 81 83 82 70 C83 55 69 40 50 40Z"/>
+        </svg>
+      </div>
+      <div class="mobile-caption">
+        <div class="number">09 / 09</div>
+        <h2>Homeward</h2>
+        <p>Every walk leaves a trace, even when it disappears.</p>
+      </div>
+    </article>
+
+    <div class="mobile-controls">
+      <button type="button" id="previous" aria-label="Previous pawprint">←</button>
+      <span class="mobile-count" id="mobile-count">01 / 09</span>
+      <button type="button" id="next" aria-label="Next pawprint">→</button>
+    </div>
+  </section>
+
+  <nav class="navigation" aria-label="Edition navigation">
+    <a href="editie-02.html">← Edition 02</a>
+    <a href="editie-04.html">Edition 04 →</a>
+  </nav>
+
+  <script>
+    (() => {
+      const slides = [...document.querySelectorAll(".mobile-slide")];
+      const count = document.getElementById("mobile-count");
+      const previous = document.getElementById("previous");
+      const next = document.getElementById("next");
+      let activeIndex = 0;
+
+      function showSlide(index) {
+        activeIndex = (index + slides.length) % slides.length;
+
+        slides.forEach((slide, i) => {
+          slide.classList.toggle("active", i === activeIndex);
+        });
+
+        count.textContent =
+          String(activeIndex + 1).padStart(2, "0") +
+          " / " +
+          String(slides.length).padStart(2, "0");
+      }
+
+      previous.addEventListener("click", () => showSlide(activeIndex - 1));
+      next.addEventListener("click", () => showSlide(activeIndex + 1));
+
+      document.addEventListener("keydown", event => {
+        if (window.innerWidth >= 900) return;
+
+        if (event.key === "ArrowLeft") showSlide(activeIndex - 1);
+        if (event.key === "ArrowRight") showSlide(activeIndex + 1);
+      });
+    })();
+  </script>
+</body>
+</html>
+
