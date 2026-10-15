@@ -1,12 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog Days Are Not Over – Edition 02</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap');
 
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -24,21 +24,26 @@
 
         :root {
             --brown: #6b4423;
-            /* Formaat van een pootje in rust */
+            --blue: #50F6D8;
+            --background: #FFFFFF;
             --paw: clamp(90px, 15vmin, 190px);
         }
 
+        html,
         body {
-            min-height: 100vh;
-            background-color: #faf8f7;
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            background: var(--background);
             color: var(--brown);
-            padding: clamp(0.8rem, 3vw, 2rem);
             font-family: 'Neue Haas Grotesk', sans-serif;
             position: relative;
         }
 
         header {
-            position: absolute;
+            position: fixed;
             top: clamp(0.8rem, 2vw, 1.5rem);
             left: clamp(0.8rem, 2vw, 1.5rem);
             display: flex;
@@ -57,40 +62,40 @@
             white-space: nowrap;
         }
 
-        /* Onzichtbare SVG met de pootvormen */
         .defs {
             position: absolute;
             width: 0;
             height: 0;
+            overflow: hidden;
+        }
+
+        .paws {
+            position: relative;
         }
 
         .paw {
+            display: block;
             width: var(--paw);
             height: var(--paw);
             overflow: visible;
             pointer-events: none;
-            transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
             animation: fadeIn 0.6s ease-out backwards;
+            transform-origin: center;
+            transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        /* Alleen de pootvorm zelf reageert op de muis */
         .paw image,
         .paw .toes {
             pointer-events: auto;
         }
 
         .paw .toes {
-            fill: var(--brown);
+            fill: var(--blue);
         }
 
+        /* Geen outline bij hover */
         .paw .outline {
-            fill: none;
-            stroke: var(--brown);
-            stroke-width: 4;
-            stroke-linejoin: round;
-            opacity: 0;
-            transition: opacity 0.25s ease;
-            pointer-events: none;
+            display: none;
         }
 
         @keyframes fadeIn {
@@ -98,27 +103,30 @@
             to   { opacity: 1; }
         }
 
-        .paw:nth-child(1) { animation-delay: 0.1s; }
-        .paw:nth-child(2) { animation-delay: 0.25s; }
-        .paw:nth-child(3) { animation-delay: 0.4s; }
-        .paw:nth-child(4) { animation-delay: 0.55s; }
-        .paw:nth-child(5) { animation-delay: 0.7s; }
-        .paw:nth-child(6) { animation-delay: 0.85s; }
-        .paw:nth-child(7) { animation-delay: 1.0s; }
-        .paw:nth-child(8) { animation-delay: 1.15s; }
+        .paw:nth-child(1)  { animation-delay: 0.1s; }
+        .paw:nth-child(2)  { animation-delay: 0.2s; }
+        .paw:nth-child(3)  { animation-delay: 0.3s; }
+        .paw:nth-child(4)  { animation-delay: 0.4s; }
+        .paw:nth-child(5)  { animation-delay: 0.5s; }
+        .paw:nth-child(6)  { animation-delay: 0.6s; }
+        .paw:nth-child(7)  { animation-delay: 0.7s; }
+        .paw:nth-child(8)  { animation-delay: 0.8s; }
+        .paw:nth-child(9)  { animation-delay: 0.9s; }
+        .paw:nth-child(10) { animation-delay: 1s; }
+        .paw:nth-child(11) { animation-delay: 1.1s; }
 
-        /* Desktop: pad van pootjes over het scherm, geen scroll */
+        /* Desktop: pad start lager en loopt omhoog */
         @media (min-width: 701px) {
             html,
             body {
-                height: 100vh;
+                height: 100%;
                 overflow: hidden;
             }
 
             .paws {
                 position: absolute;
-                top: 4rem;
-                bottom: 3.5rem;
+                top: 5.5rem;
+                bottom: 4.5rem;
                 left: 2vw;
                 right: 2vw;
             }
@@ -127,51 +135,66 @@
                 position: absolute;
                 left: var(--x);
                 top: var(--y);
-                transform: rotate(var(--r)) scale(1);
+                transform: rotate(var(--r));
             }
 
             @media (hover: hover) {
                 .paw:hover {
                     transform: rotate(0deg) scale(3.3);
                     z-index: 10;
+                    outline: none;
                 }
 
-                .paw:hover .outline {
-                    opacity: 1;
+                .paw:focus,
+                .paw:focus-visible {
+                    outline: none;
                 }
             }
         }
 
         .nav-links {
-            position: absolute;
+            position: fixed;
             bottom: clamp(0.8rem, 2vw, 1.5rem);
             left: clamp(0.8rem, 2vw, 1.5rem);
+            right: clamp(0.8rem, 2vw, 1.5rem);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: clamp(1.5rem, 3vw, 2rem);
             z-index: 20;
         }
 
         .nav-link {
-            font-size: clamp(0.7rem, 1.5vw, 1rem);
+            font-size: clamp(0.7rem, 1.3vw, 0.95rem);
             font-weight: 400;
-            color: #ff1493;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             text-decoration: none;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
             white-space: nowrap;
+            transition: opacity 0.25s ease;
+            outline: none;
         }
 
-        .nav-link:hover {
+        .nav-link:hover,
+        .nav-link:focus,
+        .nav-link:focus-visible {
             opacity: 0.7;
+            outline: none;
         }
 
-        /* Mobiel: pad in zigzag omhoog, pagina scrolt */
+        /* Mobiel: zigzagpad dat van onder naar boven loopt */
         @media (max-width: 700px) {
+            body {
+                min-height: 100vh;
+                padding-top: 5rem;
+            }
+
             .paws {
                 display: flex;
-                flex-direction: column;
-                padding: 3.5rem 0 2rem;
+                flex-direction: column-reverse;
+                align-items: center;
+                gap: 0;
+                padding: 2rem 0 1rem;
             }
 
             .paw {
@@ -193,25 +216,35 @@
             }
 
             .nav-links {
-                position: static;
-                padding-top: 1rem;
+                position: relative;
+                left: auto;
+                right: auto;
+                bottom: auto;
+                padding: 1.5rem 0 1rem;
+                margin: 0 clamp(0.8rem, 3vw, 1.5rem);
             }
 
             .nav-link {
-                font-size: 0.9rem;
+                font-size: clamp(0.7rem, 1.3vw, 0.95rem);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .paw {
+                animation: none;
+                transition: none;
             }
         }
     </style>
 </head>
+
 <body>
     <svg class="defs" aria-hidden="true" focusable="false">
         <defs>
-            <!-- Alleen het grote kussentje: hier komt de foto in -->
             <clipPath id="pad-clip">
                 <path d="M50 48 C30 48 16 66 16 80 C16 92 26 98 38 96 C45 95 55 95 62 96 C74 98 84 92 84 80 C84 66 70 48 50 48 Z"/>
             </clipPath>
 
-            <!-- De vier tenen -->
             <g id="toes-shape">
                 <ellipse cx="12" cy="42" rx="8" ry="11" transform="rotate(-25 12 42)"/>
                 <ellipse cx="34" cy="20" rx="9" ry="13" transform="rotate(-8 34 20)"/>
@@ -219,7 +252,6 @@
                 <ellipse cx="88" cy="42" rx="8" ry="11" transform="rotate(25 88 42)"/>
             </g>
 
-            <!-- Hele poot voor de outline -->
             <g id="paw-shape">
                 <path d="M50 48 C30 48 16 66 16 80 C16 92 26 98 38 96 C45 95 55 95 62 96 C74 98 84 92 84 80 C84 66 70 48 50 48 Z"/>
                 <use href="#toes-shape"/>
@@ -233,49 +265,118 @@
     </header>
 
     <main class="paws">
-        <svg class="paw" viewBox="-6 -6 112 112" style="--x:3%;    --y:50%; --r:78deg;" role="img" aria-label="Dog 1">
-            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8804.jpeg" x="16" y="46" width="68" height="54" preserveAspectRatio="xMidYMid slice" clip-path="url(#pad-clip)"/>
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:3%; --y:70%; --r:78deg;"
+             role="img" aria-label="Dog 1">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8804.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
             <use href="#toes-shape" class="toes"/>
-            <use href="#paw-shape" class="outline"/>
         </svg>
-        <svg class="paw" viewBox="-6 -6 112 112" style="--x:14.5%; --y:28%; --r:84deg;" role="img" aria-label="Dog 2">
-            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8806.jpeg" x="16" y="46" width="68" height="54" preserveAspectRatio="xMidYMid slice" clip-path="url(#pad-clip)"/>
+
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:14.5%; --y:46%; --r:84deg;"
+             role="img" aria-label="Dog 2">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8806.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
             <use href="#toes-shape" class="toes"/>
-            <use href="#paw-shape" class="outline"/>
         </svg>
-        <svg class="paw" viewBox="-6 -6 112 112" style="--x:26%;   --y:54%; --r:80deg;" role="img" aria-label="Dog 3">
-            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8817.jpeg" x="16" y="46" width="68" height="54" preserveAspectRatio="xMidYMid slice" clip-path="url(#pad-clip)"/>
+
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:26%; --y:74%; --r:80deg;"
+             role="img" aria-label="Dog 3">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8817.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
             <use href="#toes-shape" class="toes"/>
-            <use href="#paw-shape" class="outline"/>
         </svg>
-        <svg class="paw" viewBox="-6 -6 112 112" style="--x:37.5%; --y:30%; --r:72deg;" role="img" aria-label="Dog 4">
-            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8818.jpeg" x="16" y="46" width="68" height="54" preserveAspectRatio="xMidYMid slice" clip-path="url(#pad-clip)"/>
+
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:37.5%; --y:48%; --r:72deg;"
+             role="img" aria-label="Dog 4">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8818.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
             <use href="#toes-shape" class="toes"/>
-            <use href="#paw-shape" class="outline"/>
         </svg>
-        <svg class="paw" viewBox="-6 -6 112 112" style="--x:49%;   --y:54%; --r:68deg;" role="img" aria-label="Dog 5">
-            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8821.jpeg" x="16" y="46" width="68" height="54" preserveAspectRatio="xMidYMid slice" clip-path="url(#pad-clip)"/>
+
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:49%; --y:74%; --r:68deg;"
+             role="img" aria-label="Dog 5">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8821.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
             <use href="#toes-shape" class="toes"/>
-            <use href="#paw-shape" class="outline"/>
         </svg>
-        <svg class="paw" viewBox="-6 -6 112 112" style="--x:60.5%; --y:28%; --r:74deg;" role="img" aria-label="Dog 6">
-            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8822.jpeg" x="16" y="46" width="68" height="54" preserveAspectRatio="xMidYMid slice" clip-path="url(#pad-clip)"/>
+
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:60.5%; --y:46%; --r:74deg;"
+             role="img" aria-label="Dog 6">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8822.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
             <use href="#toes-shape" class="toes"/>
-            <use href="#paw-shape" class="outline"/>
         </svg>
-        <svg class="paw" viewBox="-6 -6 112 112" style="--x:72%;   --y:50%; --r:80deg;" role="img" aria-label="Dog 7">
-            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8879.jpeg" x="16" y="46" width="68" height="54" preserveAspectRatio="xMidYMid slice" clip-path="url(#pad-clip)"/>
+
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:72%; --y:70%; --r:80deg;"
+             role="img" aria-label="Dog 7">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8879.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
             <use href="#toes-shape" class="toes"/>
-            <use href="#paw-shape" class="outline"/>
         </svg>
-        <svg class="paw" viewBox="-6 -6 112 112" style="--x:83%;   --y:26%; --r:86deg;" role="img" aria-label="Dog 8">
-            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8819.jpeg" x="16" y="46" width="68" height="54" preserveAspectRatio="xMidYMid slice" clip-path="url(#pad-clip)"/>
+
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:83%; --y:44%; --r:86deg;"
+             role="img" aria-label="Dog 8">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8819.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
             <use href="#toes-shape" class="toes"/>
-            <use href="#paw-shape" class="outline"/>
+        </svg>
+
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:22%; --y:12%; --r:76deg;"
+             role="img" aria-label="Dog 9">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8936.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
+            <use href="#toes-shape" class="toes"/>
+        </svg>
+
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:47%; --y:25%; --r:82deg;"
+             role="img" aria-label="Dog 10">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8942.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
+            <use href="#toes-shape" class="toes"/>
+        </svg>
+
+        <svg class="paw" viewBox="-6 -6 112 112"
+             style="--x:72%; --y:10%; --r:72deg;"
+             role="img" aria-label="Dog 11">
+            <image href="https://indi2601.github.io/dogdaysarenotover/IMG_8945.jpeg"
+                   x="16" y="46" width="68" height="54"
+                   preserveAspectRatio="xMidYMid slice"
+                   clip-path="url(#pad-clip)"/>
+            <use href="#toes-shape" class="toes"/>
         </svg>
     </main>
 
-    <nav class="nav-links">
+    <nav class="nav-links" aria-label="Edition navigation">
         <a href="editie-01.html" class="nav-link">← Edition 01</a>
         <a href="editie-03.html" class="nav-link">Edition 03 →</a>
     </nav>
