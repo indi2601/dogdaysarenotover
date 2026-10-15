@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Dog Days Are Not Over – Edition 03</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 
-@font-face {
+@font-face{
     font-family:'Neue Haas Grotesk';
     src:url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2');
 }
@@ -27,9 +28,9 @@
 }
 
 body{
-    font-family:'Neue Haas Grotesk',sans-serif;
     background:var(--bg);
     color:var(--brown);
+    font-family:'Neue Haas Grotesk', sans-serif;
 }
 
 /* HEADER */
@@ -45,7 +46,8 @@ header{
 
 .editie-badge,
 .title-text{
-    font-size:clamp(.9rem,2vw,1.2rem);
+    font-size:clamp(.85rem,1.2vw,1rem);
+    font-weight:400;
     text-transform:uppercase;
     letter-spacing:.05em;
 }
@@ -53,29 +55,23 @@ header{
 /* DESKTOP */
 
 .desktop-layout{
-    height:100vh;
     display:grid;
-    grid-template-columns:240px 1fr 280px;
+    grid-template-columns:320px 1fr 320px;
+    height:100vh;
+    background:var(--bg);
 }
 
 .left-panel{
     background:var(--pink);
     color:white;
-    padding:2rem;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
+    padding:4rem 3rem 3rem 3rem;
 }
 
 .left-panel h1{
-    font-size:4rem;
-    line-height:.9;
+    font-size:clamp(4rem,6vw,6rem);
+    line-height:.82;
     font-weight:400;
-}
-
-.left-panel p{
-    font-size:.9rem;
-    max-width:170px;
+    letter-spacing:-0.04em;
 }
 
 #map{
@@ -83,17 +79,23 @@ header{
     width:100%;
 }
 
+.leaflet-tile{
+    filter:grayscale(100%) brightness(1.15) contrast(.7);
+}
+
 .right-panel{
     background:var(--brown);
     color:white;
-    padding:2rem;
+    padding:4rem 2rem;
     overflow:auto;
 }
 
 .right-panel h2{
     color:var(--pink);
-    margin-bottom:2rem;
     font-weight:400;
+    margin-bottom:2rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
 }
 
 .stop{
@@ -104,10 +106,53 @@ header{
     color:var(--pink);
     display:block;
     margin-bottom:.25rem;
+    font-size:.85rem;
 }
 
 .stop-title{
     font-size:1rem;
+}
+
+.stop-type{
+    margin-top:.2rem;
+    color:#f8d0e6;
+    font-size:.75rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+/* MARKERS */
+
+.dog-marker{
+    width:36px !important;
+    height:36px !important;
+    background:var(--pink);
+    color:white;
+    border-radius:50%;
+    border:2px solid white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:14px;
+}
+
+/* MEDIUM SCREENS */
+
+@media (max-width:1150px){
+
+.desktop-layout{
+    grid-template-columns:250px 1fr 250px;
+}
+
+.left-panel{
+    padding:4rem 2rem;
+}
+
+.left-panel h1{
+    font-size:4rem;
+}
+
 }
 
 /* MOBILE */
@@ -117,6 +162,10 @@ header{
 }
 
 @media (max-width:700px){
+
+header{
+    position:absolute;
+}
 
 .desktop-layout{
     display:none;
@@ -128,30 +177,51 @@ header{
 
 .mobile-stop{
     min-height:100vh;
-    padding:2rem;
+    background:var(--bg);
+    padding:2.5rem;
     display:flex;
     flex-direction:column;
     justify-content:center;
-    border-bottom:1px solid rgba(107,68,35,.15);
 }
 
-.mobile-stop span{
+.mobile-number{
     color:var(--pink);
-    letter-spacing:.1em;
-    margin-bottom:1rem;
+    font-size:5rem;
+    line-height:1;
 }
 
 .mobile-stop h2{
-    font-size:3rem;
+    margin-top:1rem;
+    font-size:clamp(2.8rem,10vw,4.5rem);
+    line-height:.9;
     font-weight:400;
 }
 
-.mobile-stop p{
+.mobile-type{
     margin-top:1rem;
-    max-width:300px;
-    line-height:1.5;
+    color:var(--pink);
+    font-size:.85rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
 }
 
+.mobile-stop::after{
+    content:"↓";
+    color:var(--pink);
+    margin-top:3rem;
+    font-size:2rem;
+}
+
+.mobile-stop:last-child::after{
+    display:none;
+}
+
+}
+
+/* POPUP */
+
+.leaflet-popup-content{
+    font-family:'Neue Haas Grotesk',sans-serif;
 }
 
 .nav-link{
@@ -161,14 +231,6 @@ header{
     color:var(--pink);
     text-decoration:none;
     z-index:9999;
-}
-
-.leaflet-popup-content-wrapper{
-    border-radius:0;
-}
-
-.leaflet-popup-content{
-    font-family:'Neue Haas Grotesk',sans-serif;
 }
 
 </style>
@@ -181,26 +243,15 @@ header{
     <div class="title-text">Dog Days Are Not Over</div>
 </header>
 
-<!-- DESKTOP -->
-
 <div class="desktop-layout">
 
     <aside class="left-panel">
 
-        <div>
-            <h1>
-                DOG<br>
-                MAP<br>
-                GHENT
-            </h1>
-        </div>
-
-        <p>
-            A canine reading of Ghent.
-            Off-leash areas, swimming spots
-            and spaces temporarily occupied
-            by dogs.
-        </p>
+        <h1>
+            DOG<br>
+            MAP<br>
+            GHENT
+        </h1>
 
     </aside>
 
@@ -213,75 +264,79 @@ header{
         <div class="stop">
             <span class="stop-number">01</span>
             <div class="stop-title">Molenaarsstraat</div>
+            <div class="stop-type">Off-leash area</div>
         </div>
 
         <div class="stop">
             <span class="stop-number">02</span>
             <div class="stop-title">Rozebroeken</div>
+            <div class="stop-type">Off-leash area</div>
         </div>
 
         <div class="stop">
             <span class="stop-number">03</span>
             <div class="stop-title">Morekstraat</div>
+            <div class="stop-type">Off-leash area</div>
         </div>
 
         <div class="stop">
             <span class="stop-number">04</span>
             <div class="stop-title">Europalaan</div>
+            <div class="stop-type">Off-leash area</div>
         </div>
 
         <div class="stop">
             <span class="stop-number">05</span>
             <div class="stop-title">Normandiëlaan</div>
+            <div class="stop-type">Off-leash area</div>
         </div>
 
         <div class="stop">
             <span class="stop-number">06</span>
             <div class="stop-title">Yachtdreef</div>
+            <div class="stop-type">Dog swimming zone</div>
         </div>
 
     </aside>
 
 </div>
 
-<!-- MOBILE -->
-
 <div class="mobile-route">
 
     <section class="mobile-stop">
-        <span>STOP 01</span>
+        <div class="mobile-number">01</div>
         <h2>Molenaarsstraat</h2>
-        <p>Off-leash area.</p>
+        <div class="mobile-type">Off-leash area</div>
     </section>
 
     <section class="mobile-stop">
-        <span>STOP 02</span>
+        <div class="mobile-number">02</div>
         <h2>Rozebroeken</h2>
-        <p>Off-leash area.</p>
+        <div class="mobile-type">Off-leash area</div>
     </section>
 
     <section class="mobile-stop">
-        <span>STOP 03</span>
+        <div class="mobile-number">03</div>
         <h2>Morekstraat</h2>
-        <p>Off-leash area.</p>
+        <div class="mobile-type">Off-leash area</div>
     </section>
 
     <section class="mobile-stop">
-        <span>STOP 04</span>
+        <div class="mobile-number">04</div>
         <h2>Europalaan</h2>
-        <p>Off-leash area.</p>
+        <div class="mobile-type">Off-leash area</div>
     </section>
 
     <section class="mobile-stop">
-        <span>STOP 05</span>
+        <div class="mobile-number">05</div>
         <h2>Normandiëlaan</h2>
-        <p>Off-leash area.</p>
+        <div class="mobile-type">Off-leash area</div>
     </section>
 
     <section class="mobile-stop">
-        <span>STOP 06</span>
+        <div class="mobile-number">06</div>
         <h2>Yachtdreef</h2>
-        <p>Dog swimming zone.</p>
+        <div class="mobile-type">Dog swimming zone</div>
     </section>
 
 </div>
@@ -294,9 +349,9 @@ header{
 
 if(window.innerWidth > 700){
 
-const map = L.map('map',{
+const map = L.map('map', {
     zoomControl:false
-}).setView([51.0543,3.7174],12);
+}).setView([51.0543,3.7174], 12);
 
 L.tileLayer(
 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -339,14 +394,15 @@ coords:[51.0400,3.6900]
 
 ];
 
-stops.forEach(stop => {
+stops.forEach((stop,index)=>{
 
-L.circleMarker(stop.coords,{
-radius:10,
-color:'#ff1493',
-fillColor:'#ff1493',
-fillOpacity:1,
-weight:0
+const icon = L.divIcon({
+className:'dog-marker',
+html:String(index + 1)
+});
+
+L.marker(stop.coords,{
+icon:icon
 })
 .addTo(map)
 .bindPopup(stop.title);
