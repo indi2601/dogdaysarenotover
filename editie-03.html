@@ -2,653 +2,760 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dog Days Are Not Over — Edition 03</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dog Days Are Not Over – Edition 03</title>
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  >
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-  <style>
-    :root {
-      --brown: #6b4423;
-      --turquoise: #50F6D8;
-      --bg: #FFFFFF;
-      --border: rgba(107, 68, 35, 0.18);
+<style>
+@font-face {
+    font-family: 'Neue Haas Grotesk';
+    src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+:root {
+    --brown: #6b4423;
+    --turquoise: #50F6D8;
+    --bg: #FFFFFF;
+    --border: rgba(107, 68, 35, .18);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+body {
+    background: var(--bg);
+    color: var(--brown);
+    font-family: 'Neue Haas Grotesk', sans-serif;
+}
+
+button,
+a {
+    font: inherit;
+}
+
+/* HEADER */
+
+header {
+    position: fixed;
+    top: clamp(.8rem, 2vw, 1.5rem);
+    left: clamp(.8rem, 2vw, 1.5rem);
+    display: flex;
+    align-items: baseline;
+    gap: clamp(.5rem, 1vw, 1rem);
+    z-index: 10000;
+}
+
+.editie-badge,
+.title-text {
+    font-size: clamp(.7rem, 1.3vw, .95rem);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    white-space: nowrap;
+}
+
+/* DESKTOP LAYOUT */
+
+.desktop-layout {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(190px, 27%) minmax(0, 1fr) minmax(220px, 25%);
+    overflow: hidden;
+}
+
+.left-panel {
+    min-width: 0;
+    min-height: 0;
+    padding: clamp(5rem, 14vh, 8rem) 1.5rem 4.5rem clamp(1rem, 3vw, 3rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.left-panel h1 {
+    font-size: clamp(3rem, 6.2vw, 7.5rem);
+    line-height: .8;
+    font-weight: 400;
+    letter-spacing: -.06em;
+}
+
+.left-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+
+.eyebrow {
+    color: var(--turquoise);
+    font-size: .75rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.location-count {
+    font-size: .9rem;
+}
+
+.map-wrapper {
+    min-width: 0;
+    min-height: 0;
+    padding: clamp(5rem, 11vh, 6.5rem) .75rem 4.5rem;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+}
+
+/* MAP */
+
+.leaflet-container {
+    background: #FFFFFF;
+    font-family: 'Neue Haas Grotesk', sans-serif;
+}
+
+.leaflet-control-attribution {
+    font-size: 9px !important;
+    background: rgba(255,255,255,.85) !important;
+}
+
+.leaflet-control-attribution a {
+    color: var(--brown);
+}
+
+/* LOCATION PANEL */
+
+.right-panel {
+    min-width: 0;
+    min-height: 0;
+    padding: clamp(5rem, 12vh, 7rem) clamp(1rem, 2.5vw, 2.5rem) 4.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.location-type {
+    color: var(--brown);
+    font-size: .75rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 1rem;
+}
+
+.location-number {
+    color: var(--turquoise);
+    font-size: clamp(3.5rem, 6vw, 6rem);
+    line-height: .95;
+    margin-bottom: 1rem;
+    font-weight: 400;
+}
+
+.location-name {
+    font-size: clamp(1.8rem, 3vw, 3.5rem);
+    line-height: .95;
+    font-weight: 400;
+    letter-spacing: -.04em;
+    overflow-wrap: anywhere;
+}
+
+.location-description {
+    margin-top: 1rem;
+    font-size: .85rem;
+    line-height: 1.5;
+    opacity: .8;
+}
+
+/* LOCATION ARROWS */
+
+.location-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+}
+
+.arrow-button {
+    width: 2.8rem;
+    height: 2.8rem;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid var(--turquoise);
+    border-radius: 50%;
+    color: var(--brown);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: background .2s, color .2s, border-color .2s;
+}
+
+.arrow-button:hover,
+.arrow-button:focus-visible {
+    background: var(--turquoise);
+    border-color: var(--turquoise);
+    color: #FFFFFF;
+    outline: none;
+}
+
+.arrow-button:disabled {
+    opacity: .25;
+    cursor: default;
+}
+
+.control-counter {
+    font-size: .8rem;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* MAP MARKERS */
+
+.dog-marker {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFFFFF;
+    border: 2px solid var(--turquoise);
+    color: var(--turquoise);
+    font-family: 'Neue Haas Grotesk', sans-serif;
+    font-size: .75rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background .2s, color .2s, transform .2s;
+}
+
+.dog-marker:hover,
+.dog-marker.active {
+    background: var(--turquoise);
+    border-color: var(--turquoise);
+    color: #FFFFFF;
+    transform: scale(1.15);
+}
+
+/* EDITION NAVIGATION */
+
+.nav-link {
+    position: fixed;
+    bottom: clamp(.8rem, 2vw, 1.5rem);
+    color: var(--turquoise);
+    font-size: clamp(.7rem, 1.3vw, .95rem);
+    text-decoration: none;
+    z-index: 10001;
+    white-space: nowrap;
+    transition: opacity .2s;
+}
+
+.nav-link:hover {
+    opacity: .65;
+}
+
+.nav-prev {
+    left: clamp(.8rem, 2vw, 1.5rem);
+}
+
+.nav-next {
+    right: clamp(.8rem, 2vw, 1.5rem);
+}
+
+/* MOBILE */
+
+.mobile-route {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .desktop-layout {
+        display: none;
     }
 
-    * {
-      box-sizing: border-box;
+    .mobile-route {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
     }
 
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      background: var(--bg);
-      color: var(--brown);
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    .mobile-stop {
+        display: none;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        padding: 5.5rem clamp(1.25rem, 7vw, 2.5rem) 8rem;
+        flex-direction: column;
+        justify-content: center;
+        overflow: hidden;
     }
 
-    body {
-      position: relative;
+    .mobile-stop.active {
+        display: flex;
     }
 
-    a {
-      color: var(--turquoise);
-      text-decoration: none;
-      transition: opacity 0.2s ease;
+    .mobile-number {
+        color: var(--turquoise);
+        font-size: clamp(4rem, 14vw, 6rem);
+        line-height: .9;
+        margin-bottom: 1.5rem;
     }
 
-    a:hover {
-      opacity: 0.65;
+    .mobile-type {
+        color: var(--brown);
+        font-size: .75rem;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
     }
 
-    .page {
-      display: grid;
-      grid-template-columns: minmax(180px, 0.8fr) minmax(300px, 1.6fr) minmax(220px, 0.9fr);
-      width: 100%;
-      height: 100dvh;
-      padding: 24px;
-      gap: 24px;
+    .mobile-stop h2 {
+        font-size: clamp(2.5rem, 10vw, 5.5rem);
+        line-height: .9;
+        letter-spacing: -.05em;
+        font-weight: 400;
+        overflow-wrap: anywhere;
     }
 
+    .mobile-description {
+        font-size: .85rem;
+        line-height: 1.5;
+        margin-top: 1.2rem;
+        max-width: 25rem;
+        opacity: .8;
+    }
+
+    .mobile-controls {
+        position: fixed;
+        left: 1.25rem;
+        right: 1.25rem;
+        bottom: 4.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        z-index: 5;
+    }
+
+    .mobile-controls .arrow-button {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .mobile-controls .control-counter {
+        font-size: .85rem;
+    }
+}
+
+/* SHORT DESKTOP WINDOWS */
+
+@media (min-width: 901px) and (max-height: 600px) {
     .left-panel {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-width: 0;
-      padding-bottom: 48px;
+        padding-top: 4.5rem;
+        padding-bottom: 3.5rem;
     }
 
-    .page-title {
-      margin: 0;
-      font-size: clamp(1.8rem, 3vw, 3.4rem);
-      font-weight: 400;
-      line-height: 0.95;
-      letter-spacing: -0.06em;
-      text-transform: uppercase;
+    .left-panel h1 {
+        font-size: clamp(2.8rem, 5vw, 4.5rem);
     }
 
-    .edition-label {
-      margin-top: 12px;
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .map-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      min-width: 0;
-      min-height: 0;
-      background: #f7f7f5;
-      border: 1px solid var(--border);
-    }
-
-    #map {
-      width: 100%;
-      height: 100%;
-      background: #f7f7f5;
+    .map-wrapper {
+        padding-top: 4.5rem;
+        padding-bottom: 3.5rem;
     }
 
     .right-panel {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      min-height: 0;
-      padding-bottom: 48px;
+        padding-top: 4.5rem;
+        padding-bottom: 3.5rem;
     }
 
-    .location-counter {
-      margin: 0 0 20px;
-      font-size: clamp(2.5rem, 5vw, 5rem);
-      line-height: 0.9;
-      letter-spacing: -0.07em;
-      font-weight: 400;
-    }
-
-    .location-category {
-      margin-bottom: 12px;
-      color: var(--brown);
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+    .location-number {
+        font-size: 3.5rem;
+        margin-bottom: .6rem;
     }
 
     .location-name {
-      margin: 0 0 16px;
-      font-size: clamp(1.5rem, 2.3vw, 2.7rem);
-      font-weight: 400;
-      line-height: 0.98;
-      letter-spacing: -0.05em;
-      overflow-wrap: anywhere;
+        font-size: clamp(1.6rem, 2.4vw, 2.5rem);
     }
 
     .location-description {
-      margin: 0;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      max-width: 34ch;
+        margin-top: .6rem;
+        font-size: .75rem;
     }
 
-    .location-address {
-      margin-top: 16px;
-      font-size: 0.75rem;
-      line-height: 1.4;
-      opacity: 0.7;
-    }
-
-    .location-navigation {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: auto;
-      padding-top: 24px;
+    .location-controls {
+        padding-top: .7rem;
     }
 
     .arrow-button {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--turquoise);
-      border-radius: 50%;
-      background: white;
-      color: var(--turquoise);
-      font-size: 1.4rem;
-      cursor: pointer;
-      transition: background 0.2s ease, color 0.2s ease;
+        width: 2.3rem;
+        height: 2.3rem;
     }
+}
 
-    .arrow-button:hover,
-    .arrow-button:focus-visible {
-      background: var(--turquoise);
-      color: white;
-      outline: none;
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
     }
-
-    .navigation-count {
-      font-size: 0.75rem;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .page-link {
-      position: fixed;
-      bottom: 20px;
-      z-index: 1000;
-      color: var(--turquoise);
-      font-size: 0.75rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .page-link.previous {
-      left: 24px;
-    }
-
-    .page-link.next {
-      right: 24px;
-    }
-
-    .dog-marker {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px !important;
-      height: 32px !important;
-      border: 2px solid var(--turquoise);
-      border-radius: 50%;
-      background: #FFFFFF;
-      color: var(--turquoise);
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 0.75rem;
-      font-weight: 400;
-      cursor: pointer;
-      transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
-    }
-
-    .dog-marker:hover,
-    .dog-marker.active {
-      border-color: var(--turquoise);
-      background: var(--turquoise);
-      color: #FFFFFF;
-      transform: scale(1.15);
-    }
-
-    .leaflet-container {
-      font-family: inherit;
-    }
-
-    .leaflet-control-attribution {
-      font-size: 9px !important;
-    }
-
-    .leaflet-control-attribution a {
-      color: var(--brown);
-    }
-
-    @media (max-width: 800px) {
-      .page {
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 36% minmax(0, 1fr);
-        padding: 14px;
-        gap: 12px;
-      }
-
-      .left-panel {
-        grid-column: 1 / -1;
-        grid-row: 1;
-        justify-content: flex-start;
-        padding: 0;
-      }
-
-      .page-title {
-        font-size: clamp(2rem, 8vw, 4rem);
-      }
-
-      .edition-label {
-        margin-top: 8px;
-      }
-
-      .map-container {
-        grid-column: 1;
-        grid-row: 2;
-        height: 100%;
-      }
-
-      .right-panel {
-        grid-column: 2;
-        grid-row: 2;
-        padding: 0 0 38px;
-      }
-
-      .location-counter {
-        margin-bottom: 12px;
-        font-size: clamp(2.2rem, 10vw, 4rem);
-      }
-
-      .location-category {
-        margin-bottom: 8px;
-        font-size: 0.62rem;
-      }
-
-      .location-name {
-        margin-bottom: 10px;
-        font-size: clamp(1.35rem, 5vw, 2.2rem);
-      }
-
-      .location-description {
-        font-size: 0.78rem;
-        line-height: 1.4;
-      }
-
-      .location-address {
-        margin-top: 10px;
-        font-size: 0.68rem;
-      }
-
-      .location-navigation {
-        padding-top: 12px;
-      }
-
-      .arrow-button {
-        width: 36px;
-        height: 36px;
-      }
-
-      .page-link {
-        bottom: 12px;
-        font-size: 0.65rem;
-      }
-
-      .page-link.previous {
-        left: 14px;
-      }
-
-      .page-link.next {
-        right: 14px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .page {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto minmax(0, 42%) minmax(0, 1fr);
-        padding: 14px;
-        gap: 12px;
-      }
-
-      .left-panel {
-        grid-column: 1;
-        grid-row: 1;
-      }
-
-      .map-container {
-        grid-column: 1;
-        grid-row: 2;
-      }
-
-      .right-panel {
-        grid-column: 1;
-        grid-row: 3;
-        padding-bottom: 32px;
-      }
-
-      .page-title {
-        font-size: clamp(2rem, 10vw, 3.3rem);
-      }
-
-      .location-counter {
-        margin-bottom: 8px;
-        font-size: 2.5rem;
-      }
-
-      .location-category {
-        margin-bottom: 6px;
-      }
-
-      .location-name {
-        margin-bottom: 8px;
-        font-size: 1.65rem;
-      }
-
-      .location-description {
-        font-size: 0.8rem;
-      }
-
-      .location-address {
-        margin-top: 6px;
-      }
-
-      .location-navigation {
-        padding-top: 8px;
-      }
-    }
-
-    @media (max-height: 650px) and (min-width: 801px) {
-      .page {
-        padding-top: 16px;
-        padding-bottom: 16px;
-        gap: 16px;
-      }
-
-      .left-panel,
-      .right-panel {
-        padding-bottom: 36px;
-      }
-
-      .location-counter {
-        margin-bottom: 12px;
-      }
-
-      .location-name {
-        margin-bottom: 10px;
-      }
-
-      .location-description {
-        font-size: 0.82rem;
-      }
-    }
-  </style>
+}
+</style>
 </head>
 
 <body>
-  <main class="page">
-    <section class="left-panel">
-      <div>
-        <h1 class="page-title">Dog Map<br>Ghent</h1>
-        <div class="edition-label">Dog Days Are Not Over — Edition 03</div>
-      </div>
+
+<header>
+    <div class="editie-badge">Edition 03</div>
+    <div class="title-text">Dog Days Are Not Over</div>
+</header>
+
+<!-- DESKTOP -->
+
+<div class="desktop-layout">
+
+    <aside class="left-panel">
+        <h1>DOG<br>MAP<br>GHENT</h1>
+    </aside>
+
+    <div class="map-wrapper">
+        <div id="map"></div>
+    </div>
+
+    <aside class="right-panel">
+        <div id="desktop-type" class="location-type"></div>
+        <div id="desktop-number" class="location-number">01</div>
+        <h2 id="desktop-name" class="location-name">Molenaarsstraat</h2>
+        <p id="desktop-description" class="location-description"></p>
+
+        <div class="location-controls">
+            <button class="arrow-button" id="desktop-prev"
+                    aria-label="Previous location">←</button>
+            <span class="control-counter" id="desktop-counter">01 / 12</span>
+            <button class="arrow-button" id="desktop-next"
+                    aria-label="Next location">→</button>
+        </div>
+    </aside>
+
+</div>
+
+<!-- MOBILE -->
+
+<div class="mobile-route" id="mobile-route">
+
+    <section class="mobile-stop active">
+        <div class="mobile-number">01</div>
+        <div class="mobile-type">Off-leash Area</div>
+        <h2>Molenaarsstraat</h2>
     </section>
 
-    <section class="map-container" aria-label="Map of dog-friendly locations in Ghent">
-      <div id="map"></div>
+    <section class="mobile-stop">
+        <div class="mobile-number">02</div>
+        <div class="mobile-type">Off-leash Area</div>
+        <h2>Rozebroeken</h2>
     </section>
 
-    <section class="right-panel" aria-live="polite">
-      <div>
-        <div class="location-counter" id="location-counter">01</div>
-        <div class="location-category" id="location-category"></div>
-        <h2 class="location-name" id="location-name"></h2>
-        <p class="location-description" id="location-description"></p>
-        <div class="location-address" id="location-address"></div>
-      </div>
-
-      <div class="location-navigation">
-        <button
-          class="arrow-button"
-          id="previous-location"
-          type="button"
-          aria-label="Previous location"
-        >←</button>
-
-        <span class="navigation-count" id="navigation-count">01 / 12</span>
-
-        <button
-          class="arrow-button"
-          id="next-location"
-          type="button"
-          aria-label="Next location"
-        >→</button>
-      </div>
+    <section class="mobile-stop">
+        <div class="mobile-number">03</div>
+        <div class="mobile-type">Off-leash Area</div>
+        <h2>Morekstraat</h2>
     </section>
-  </main>
 
-  <a class="page-link previous" href="editie-02.html">← Edition 02</a>
-  <a class="page-link next" href="editie-04.html">Edition 04 →</a>
+    <section class="mobile-stop">
+        <div class="mobile-number">04</div>
+        <div class="mobile-type">Off-leash Area</div>
+        <h2>Europalaan</h2>
+    </section>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <section class="mobile-stop">
+        <div class="mobile-number">05</div>
+        <div class="mobile-type">Off-leash Area</div>
+        <h2>Normandiëlaan</h2>
+    </section>
 
-  <script>
-    /*
-      Replace the example locations below with your original 12 locations
-      if they differ. Each location needs a name, coordinates, category,
-      description and address.
-    */
+    <section class="mobile-stop">
+        <div class="mobile-number">06</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Blaarmeersen</h2>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">07</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Bourgoyen</h2>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">08</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Citadelpark</h2>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">09</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Keizerpark</h2>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">10</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Muinkpark</h2>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">11</div>
+        <div class="mobile-type">Green Area · Leash Required</div>
+        <h2>Parkbos</h2>
+    </section>
+
+    <section class="mobile-stop">
+        <div class="mobile-number">12</div>
+        <div class="mobile-type">Water</div>
+        <h2>Yachtdreef</h2>
+    </section>
+
+    <div class="mobile-controls">
+        <button class="arrow-button" id="mobile-prev"
+                aria-label="Previous location">←</button>
+        <span class="control-counter" id="mobile-counter">01 / 12</span>
+        <button class="arrow-button" id="mobile-next"
+                aria-label="Next location">→</button>
+    </div>
+
+</div>
+
+<!-- EDITION NAVIGATION -->
+
+<a href="editie-02.html" class="nav-link nav-prev">← Edition 02</a>
+<a href="editie-04.html" class="nav-link nav-next">Edition 04 →</a>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+(function () {
     const locations = [
-      {
-        name: "Citadelpark",
-        lat: 51.0358,
-        lng: 3.7218,
-        category: "DOG-FRIENDLY PARK",
-        description: "A green space to walk, explore and take a break with your dog.",
-        address: "Citadelpark, Ghent"
-      },
-      {
-        name: "Blaarmeersen",
-        lat: 51.0475,
-        lng: 3.6804,
-        category: "DOG-FRIENDLY AREA",
-        description: "An open recreational area with space to enjoy the outdoors.",
-        address: "Strandlaan 24, Ghent"
-      },
-      {
-        name: "Keizerpark",
-        lat: 51.0446,
-        lng: 3.7484,
-        category: "DOG-FRIENDLY PARK",
-        description: "A riverside green space for a relaxed walk through the city.",
-        address: "Keizerpark, Ghent"
-      },
-      {
-        name: "Baudelopark",
-        lat: 51.0584,
-        lng: 3.7335,
-        category: "DOG-FRIENDLY PARK",
-        description: "A compact city park for a short break during your walk.",
-        address: "Baudelopark, Ghent"
-      },
-      {
-        name: "Muinkpark",
-        lat: 51.0394,
-        lng: 3.7306,
-        category: "DOG-FRIENDLY PARK",
-        description: "A leafy neighbourhood park for a peaceful pause.",
-        address: "Muinkpark, Ghent"
-      },
-      {
-        name: "Portus Ganda",
-        lat: 51.0561,
-        lng: 3.7388,
-        category: "WALKING ROUTE",
-        description: "Follow the water along this scenic spot in the historic city.",
-        address: "Portus Ganda, Ghent"
-      },
-      {
-        name: "Groenevalleipark",
-        lat: 51.0612,
-        lng: 3.7076,
-        category: "DOG-FRIENDLY PARK",
-        description: "A green escape with room to enjoy a walk outdoors.",
-        address: "Groenevalleipark, Ghent"
-      },
-      {
-        name: "Kon. Albertpark",
-        lat: 51.0386,
-        lng: 3.7273,
-        category: "DOG-FRIENDLY PARK",
-        description: "A pleasant green stop near the city's main routes.",
-        address: "Koning Albertpark, Ghent"
-      },
-      {
-        name: "Rijsenbergpark",
-        lat: 51.0394,
-        lng: 3.7008,
-        category: "DOG-FRIENDLY PARK",
-        description: "A neighbourhood green space for an easy outdoor stroll.",
-        address: "Rijsenbergpark, Ghent"
-      },
-      {
-        name: "Bijgaardepark",
-        lat: 51.0559,
-        lng: 3.7491,
-        category: "DOG-FRIENDLY PARK",
-        description: "A park to discover while exploring the eastern side of the city.",
-        address: "Bijgaardepark, Ghent"
-      },
-      {
-        name: "Ledebergplein",
-        lat: 51.0384,
-        lng: 3.7466,
-        category: "CITY WALK",
-        description: "A handy urban stop when walking through Ledeberg.",
-        address: "Ledebergplein, Ghent"
-      },
-      {
-        name: "Park De Vijvers",
-        lat: 51.0332,
-        lng: 3.7504,
-        category: "DOG-FRIENDLY AREA",
-        description: "A green area for a little fresh air beyond the busy streets.",
-        address: "Park De Vijvers, Ghent"
-      }
+        {
+            name: "Molenaarsstraat",
+            type: "Off-leash Area",
+            coords: [51.0638, 3.7178],
+            description: ""
+        },
+        {
+            name: "Rozebroeken",
+            type: "Off-leash Area",
+            coords: [51.0585, 3.7565],
+            description: ""
+        },
+        {
+            name: "Morekstraat",
+            type: "Off-leash Area",
+            coords: [51.0763, 3.7156],
+            description: ""
+        },
+        {
+            name: "Europalaan",
+            type: "Off-leash Area",
+            coords: [51.0470, 3.7060],
+            description: ""
+        },
+        {
+            name: "Normandiëlaan",
+            type: "Off-leash Area",
+            coords: [51.0800, 3.6800],
+            description: ""
+        },
+        {
+            name: "Blaarmeersen",
+            type: "Green Area · Leash Required",
+            coords: [51.0438, 3.6897],
+            description: ""
+        },
+        {
+            name: "Bourgoyen",
+            type: "Green Area · Leash Required",
+            coords: [51.0735, 3.6835],
+            description: ""
+        },
+        {
+            name: "Citadelpark",
+            type: "Green Area · Leash Required",
+            coords: [51.0418, 3.7248],
+            description: ""
+        },
+        {
+            name: "Keizerpark",
+            type: "Green Area · Leash Required",
+            coords: [51.0377, 3.7375],
+            description: ""
+        },
+        {
+            name: "Muinkpark",
+            type: "Green Area · Leash Required",
+            coords: [51.0464, 3.7306],
+            description: ""
+        },
+        {
+            name: "Parkbos",
+            type: "Green Area · Leash Required",
+            coords: [51.0060, 3.6870],
+            description: ""
+        },
+        {
+            name: "Yachtdreef",
+            type: "Water",
+            coords: [51.0420, 3.6940],
+            description: ""
+        }
     ];
 
-    const map = L.map("map", {
-      zoomControl: true,
-      scrollWheelZoom: true
-    });
-
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
+    let current = 0;
+    let map = null;
     const markers = [];
-    let activeIndex = 0;
 
-    const counter = document.getElementById("location-counter");
-    const category = document.getElementById("location-category");
-    const name = document.getElementById("location-name");
-    const description = document.getElementById("location-description");
-    const address = document.getElementById("location-address");
-    const navigationCount = document.getElementById("navigation-count");
+    const $ = id => document.getElementById(id);
+    const twoDigits = n => String(n).padStart(2, "0");
 
-    function createMarker(location, index) {
-      const markerIcon = L.divIcon({
-        className: "",
-        html: `<div class="dog-marker" data-index="${index}">${String(index + 1).padStart(2, "0")}</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-      });
+    function updateLocation(index) {
+        current = Math.max(0, Math.min(locations.length - 1, index));
 
-      const marker = L.marker([location.lat, location.lng], {
-        icon: markerIcon,
-        keyboard: true,
-        title: location.name
-      }).addTo(map);
+        const place = locations[current];
+        const number = twoDigits(current + 1);
+        const counter = number + " / " + twoDigits(locations.length);
 
-      marker.on("click", () => showLocation(index));
-      markers.push(marker);
+        $("desktop-type").textContent = place.type;
+        $("desktop-number").textContent = number;
+        $("desktop-name").textContent = place.name;
+        $("desktop-description").textContent = place.description;
+        $("desktop-description").style.display = place.description ? "" : "none";
+        $("desktop-counter").textContent = counter;
+
+        $("desktop-prev").disabled = current === 0;
+        $("desktop-next").disabled = current === locations.length - 1;
+
+        document.querySelectorAll(".mobile-stop").forEach((section, i) => {
+            section.classList.toggle("active", i === current);
+            section.setAttribute(
+                "aria-hidden",
+                i === current ? "false" : "true"
+            );
+        });
+
+        $("mobile-counter").textContent = counter;
+        $("mobile-prev").disabled = current === 0;
+        $("mobile-next").disabled = current === locations.length - 1;
+
+        markers.forEach((marker, i) => {
+            const el = marker.getElement();
+            if (el) {
+                const dot = el.querySelector(".dog-marker");
+                if (dot) dot.classList.toggle("active", i === current);
+            }
+        });
+
+        if (map && markers[current]) {
+            map.panTo(place.coords, {
+                animate: true,
+                duration: 0.35
+            });
+        }
     }
 
-    function showLocation(index) {
-      activeIndex = (index + locations.length) % locations.length;
-      const location = locations[activeIndex];
-
-      counter.textContent = String(activeIndex + 1).padStart(2, "0");
-      category.textContent = location.category;
-      name.textContent = location.name;
-      description.textContent = location.description;
-      address.textContent = location.address;
-      navigationCount.textContent =
-        `${String(activeIndex + 1).padStart(2, "0")} / ${String(locations.length).padStart(2, "0")}`;
-
-      markers.forEach((marker, markerIndex) => {
-        const markerElement = marker.getElement();
-        if (!markerElement) return;
-
-        const circle = markerElement.querySelector(".dog-marker");
-        if (!circle) return;
-
-        circle.classList.toggle("active", markerIndex === activeIndex);
-      });
-
-      const selected = locations[activeIndex];
-      map.panTo([selected.lat, selected.lng], { animate: true });
+    function previous() {
+        if (current > 0) updateLocation(current - 1);
     }
 
-    locations.forEach(createMarker);
+    function next() {
+        if (current < locations.length - 1) updateLocation(current + 1);
+    }
 
-    const bounds = L.latLngBounds(
-      locations.map(location => [location.lat, location.lng])
-    );
-
-    map.fitBounds(bounds, { padding: [30, 30] });
-
-    document.getElementById("previous-location").addEventListener("click", () => {
-      showLocation(activeIndex - 1);
-    });
-
-    document.getElementById("next-location").addEventListener("click", () => {
-      showLocation(activeIndex + 1);
-    });
+    $("desktop-prev").addEventListener("click", previous);
+    $("desktop-next").addEventListener("click", next);
+    $("mobile-prev").addEventListener("click", previous);
+    $("mobile-next").addEventListener("click", next);
 
     document.addEventListener("keydown", event => {
-      if (event.key === "ArrowLeft") {
-        showLocation(activeIndex - 1);
-      } else if (event.key === "ArrowRight") {
-        showLocation(activeIndex + 1);
-      }
+        if (event.altKey || event.ctrlKey || event.metaKey) return;
+
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            next();
+        } else if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            previous();
+        }
     });
 
-    showLocation(0);
+    if (window.matchMedia("(min-width: 901px)").matches) {
+        map = L.map("map", {
+            zoomControl: false,
+            scrollWheelZoom: false
+        }).setView([51.0543, 3.7174], 11.8);
 
-    window.addEventListener("resize", () => {
-      map.invalidateSize();
-    });
-  </script>
+        L.tileLayer(
+            "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+                maxZoom: 19,
+                attribution:
+                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }
+        ).addTo(map);
+
+        locations.forEach((place, i) => {
+            const icon = L.divIcon({
+                className: "",
+                html:
+                    '<div class="dog-marker' +
+                    (i === 0 ? ' active' : '') +
+                    '">' + twoDigits(i + 1) + '</div>',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+            const marker = L.marker(place.coords, { icon }).addTo(map);
+
+            marker.on("click", () => updateLocation(i));
+            marker.bindTooltip(place.name);
+
+            markers.push(marker);
+        });
+
+        updateLocation(0);
+
+        window.addEventListener("resize", () => {
+            map.invalidateSize();
+        });
+    } else {
+        updateLocation(0);
+    }
+})();
+</script>
+
 </body>
 </html>
