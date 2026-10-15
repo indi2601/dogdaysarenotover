@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dog Days Are Not Over – Editie 02</title>
+    <title>Dog Days Are Not Over – Edition 02</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap');
 
@@ -23,12 +23,12 @@
         }
 
         :root {
-            --gap: clamp(0.8rem, 1.5vw, 1.5rem);
+            --gap: clamp(0.5rem, 0.9vw, 0.9rem);
             --brown: #6b4423;
-            /* Formaat van één vierkante foto: past altijd in breedte én hoogte van het venster, zonder scrollen */
+            /* Formaat van één vierkante foto: past in breedte én hoogte, zonder scrollen */
             --size: max(60px, min(
-                calc((88vw - 3 * var(--gap)) / 4),
-                calc((100vh - 13rem - var(--gap)) / 2)
+                calc((97vw - 3 * var(--gap)) / 4),
+                calc((100vh - 9rem - var(--gap)) / 2)
             ));
         }
 
@@ -77,7 +77,7 @@
 
             main {
                 height: 100%;
-                padding: 5rem 0;
+                padding: 4rem 0 3.5rem;
             }
         }
 
@@ -95,6 +95,7 @@
         }
 
         .photo {
+            position: relative;
             flex: 1 1 0;
             min-width: 0;
             background: linear-gradient(135deg, rgba(255, 20, 147, 0.1) 0%, rgba(255, 20, 147, 0.05) 100%);
@@ -109,12 +110,49 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            transition: opacity 0.35s ease;
         }
 
-        /* Hover: foto groeit, de rest wordt opzij geduwd (alleen met muis op desktop) */
+        /* Desktop met muis: eerst een bruin geometrisch hartje, foto komt tevoorschijn bij hover */
         @media (hover: hover) and (min-width: 701px) {
+            .photo {
+                background: #faf8f7;
+            }
+
+            .photo::before {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 34%;
+                aspect-ratio: 1;
+                transform: translate(-50%, -50%);
+                background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%236b4423' d='M50 90 L8 48 A23 23 0 0 1 50 24 A23 23 0 0 1 92 48 Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                transition: opacity 0.3s ease;
+                z-index: 1;
+            }
+
+            .photo img {
+                opacity: 0;
+            }
+
             .photo:hover {
                 flex-grow: 2;
+                outline: 8px solid var(--brown);
+                outline-offset: -8px;
+            }
+
+            .photo:hover img {
+                opacity: 1;
+            }
+
+            .photo:hover::before {
+                opacity: 0;
+            }
+
+            /* outline boven de foto */
+            .photo:hover {
+                z-index: 2;
             }
         }
 
@@ -185,30 +223,30 @@
 </head>
 <body>
     <header>
-        <div class="editie-badge">Editie 02</div>
+        <div class="editie-badge">Edition 02</div>
         <div class="title-text">Dog Days Are Not Over</div>
     </header>
 
     <main>
         <div class="photo-grid">
             <div class="photo-row">
-                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8804.jpeg" alt="Hond 1" loading="lazy"></div>
-                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8806.jpeg" alt="Hond 2" loading="lazy"></div>
-                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8817.jpeg" alt="Hond 3" loading="lazy"></div>
-                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8818.jpeg" alt="Hond 4" loading="lazy"></div>
+                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8804.jpeg" alt="Dog 1" loading="lazy"></div>
+                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8806.jpeg" alt="Dog 2" loading="lazy"></div>
+                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8817.jpeg" alt="Dog 3" loading="lazy"></div>
+                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8818.jpeg" alt="Dog 4" loading="lazy"></div>
             </div>
             <div class="photo-row">
-                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8821.jpeg" alt="Hond 5" loading="lazy"></div>
-                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8822.jpeg" alt="Hond 6" loading="lazy"></div>
-                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8879.jpeg" alt="Hond 7" loading="lazy"></div>
-                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8819.jpeg" alt="Hond 8" loading="lazy"></div>
+                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8821.jpeg" alt="Dog 5" loading="lazy"></div>
+                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8822.jpeg" alt="Dog 6" loading="lazy"></div>
+                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8879.jpeg" alt="Dog 7" loading="lazy"></div>
+                <div class="photo"><img src="https://indi2601.github.io/dogdaysarenotover/IMG_8819.jpeg" alt="Dog 8" loading="lazy"></div>
             </div>
         </div>
     </main>
 
     <nav class="nav-links">
-        <a href="editie-01.html" class="nav-link">← Editie 01</a>
-        <a href="editie-03.html" class="nav-link">Editie 03 →</a>
+        <a href="editie-01.html" class="nav-link">← Edition 01</a>
+        <a href="editie-03.html" class="nav-link">Edition 03 →</a>
     </nav>
 </body>
 </html>
