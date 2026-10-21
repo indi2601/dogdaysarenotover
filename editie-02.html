@@ -40,7 +40,7 @@
             position: relative;
         }
 
-        /* Onzichtbare SVG met de pootvormen */
+        /* Onzichtbare SVG met de pootvorm */
         .defs {
             position: absolute;
             width: 0;
@@ -48,32 +48,20 @@
             overflow: hidden;
         }
 
-        /* Een vak per pootje en per foto: foto's blijven binnen hun eigen vak */
-        .slot {
+        /* Het speelveld: pootjes en foto's worden door het script geplaatst */
+        .stage {
             position: relative;
         }
 
         /* Pootje */
         .paw {
-            --ox: var(--dx, 0);
-            --oy: var(--dy, 0);
-            --or: var(--dr, 0deg);
-            --s: 1;
-
             position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 40%;
-            aspect-ratio: 1;
+            display: block;
             overflow: visible;
             outline: none;
             cursor: pointer;
-            transform:
-                translate(calc(-50% + var(--ox) * 100%), calc(-50% + var(--oy) * 100%))
-                rotate(var(--or))
-                scale(var(--s));
-            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
-            animation: stepIn 0.5s ease-out backwards;
+            opacity: 0;
+            animation: stepIn 0.5s ease-out forwards;
         }
 
         .paw .shape {
@@ -85,15 +73,12 @@
             pointer-events: all;
         }
 
-        /* Foto */
+        /* Foto: volledig, niet bijgesneden */
         .shot {
             position: absolute;
-            inset: 5% 6%;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.45rem;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.5s ease;
@@ -101,31 +86,13 @@
 
         .shot img {
             display: block;
-            flex: 0 1 auto;
-            min-height: 0;
             max-width: 100%;
-            max-height: calc(100% - 1.2rem);
+            max-height: 100%;
             width: auto;
             height: auto;
-            object-fit: contain;
         }
 
-        .shot figcaption {
-            font-size: 0.62rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--neon);
-            line-height: 1;
-        }
-
-        /* Onthuld: foto blijft staan, pootje verdwijnt */
-        .slot.revealed .paw {
-            --s: 0.5;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .slot.revealed .shot {
+        .shot.revealed {
             opacity: 1;
         }
 
@@ -134,7 +101,7 @@
             to   { opacity: 1; }
         }
 
-        /* Desktop: pad over het scherm, geen scroll */
+        /* Desktop: geen scroll */
         @media (min-width: 701px) {
             html,
             body {
@@ -142,15 +109,12 @@
                 overflow: hidden;
             }
 
-            .trail {
+            .stage {
                 position: absolute;
                 top: 1.5rem;
                 bottom: 4.5rem;
                 left: 3vw;
                 right: 3vw;
-                display: grid;
-                grid-template-columns: repeat(5, 1fr);
-                grid-template-rows: repeat(3, 1fr);
             }
         }
 
@@ -186,37 +150,6 @@
 
         /* Mobiel: zigzagpad dat van onder naar boven loopt, tik om te onthullen */
         @media (max-width: 700px) {
-            .trail {
-                display: flex;
-                flex-direction: column-reverse;
-                padding: 1.5rem 0 0.5rem;
-            }
-
-            .slot {
-                width: 100%;
-                height: 92vw;
-            }
-
-            .paw {
-                width: 26vw;
-            }
-
-            .slot:nth-child(odd) .paw {
-                --ox: -0.9;
-                --oy: 0;
-                --or: -14deg;
-            }
-
-            .slot:nth-child(even) .paw {
-                --ox: 0.9;
-                --oy: 0;
-                --or: 14deg;
-            }
-
-            .shot {
-                inset: 4% 8%;
-            }
-
             .nav-links {
                 position: relative;
                 left: auto;
@@ -232,9 +165,12 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .paw,
-            .shot {
+            .paw {
                 animation: none;
+                opacity: 1;
+            }
+
+            .shot {
                 transition: none;
             }
         }
@@ -254,7 +190,7 @@
         </defs>
     </svg>
 
-    <main class="trail" id="trail"></main>
+    <main class="stage" id="stage"></main>
 
     <nav class="nav-links" aria-label="Edition navigation">
         <a href="editie-01.html" class="nav-link">← Edition 01</a>
@@ -265,102 +201,155 @@
         (function () {
             var BASE = 'https://indi2601.github.io/dogdaysarenotover/';
 
-            // Het pad, van onder (1) naar boven (11).
-            // [kolom, rij, bestand]  in een raster van 5 kolommen x 3 rijen (rij 3 = onderaan)
-            var PATH = [
-                [1, 3, 'IMG_8804.jpeg'],
-                [2, 3, 'IMG_8806.jpeg'],
-                [3, 3, 'IMG_8817.jpeg'],
-                [4, 3, 'IMG_8818.jpeg'],
-                [5, 2, 'IMG_8821.jpeg'],
-                [4, 2, 'IMG_8822.jpeg'],
-                [3, 2, 'IMG_8879.jpeg'],
-                [2, 2, 'IMG_8819.jpeg'],
-                [1, 1, 'IMG_8936.jpeg'],
-                [2, 1, 'IMG_8942.jpeg'],
-                [3, 1, 'IMG_8945.jpeg']
+            // Foto's in de volgorde van het pad (van onder naar boven)
+            var FILES = [
+                'IMG_8804.jpeg', 'IMG_8806.jpeg', 'IMG_8817.jpeg', 'IMG_8818.jpeg',
+                'IMG_8821.jpeg', 'IMG_8822.jpeg', 'IMG_8879.jpeg', 'IMG_8819.jpeg',
+                'IMG_8936.jpeg', 'IMG_8942.jpeg', 'IMG_8945.jpeg'
             ];
 
             var RESET_DELAY = 3500;   // milliseconden tot alles terugspringt naar pootjes
-            var SIDE = 0.55;          // hoe ver een pootje naast de looplijn staat (in pootbreedtes)
+            var N = FILES.length;
 
-            var trail = document.getElementById('trail');
-            var slots = [];
+            var stage = document.getElementById('stage');
+            var paws = [];
+            var shots = [];
 
-            PATH.forEach(function (step, i) {
-                // Looprichting: naar het volgende pootje (het laatste volgt de vorige richting)
-                var a = PATH[i];
-                var b = PATH[i + 1] || null;
-                var p = PATH[i - 1] || null;
-                var dx, dy;
+            FILES.forEach(function (file, i) {
+                var shot = document.createElement('figure');
+                shot.className = 'shot';
+                var img = document.createElement('img');
+                img.src = BASE + file;
+                img.alt = 'Dog ' + (i + 1);
+                shot.appendChild(img);
+                stage.appendChild(shot);
+                shots.push(shot);
 
-                if (b) { dx = b[0] - a[0]; dy = b[1] - a[1]; }
-                else   { dx = a[0] - p[0]; dy = a[1] - p[1]; }
-
-                var len = Math.sqrt(dx * dx + dy * dy) || 1;
-                dx /= len;
-                dy /= len;
-
-                // Pootje wijst in de looprichting (tenen omhoog = 0 graden)
-                var rot = Math.atan2(dy, dx) * 180 / Math.PI + 90;
-
-                // Links en rechts van de looplijn, om en om
-                var side = (i % 2 === 0) ? 1 : -1;
-                var ox = -dy * side * SIDE;
-                var oy = dx * side * SIDE;
-
-                var num = (i + 1 < 10 ? '0' : '') + (i + 1);
-
-                var slot = document.createElement('div');
-                slot.className = 'slot';
-                slot.style.gridColumn = step[0];
-                slot.style.gridRow = step[1];
-                slot.style.setProperty('--dx', ox.toFixed(3));
-                slot.style.setProperty('--dy', oy.toFixed(3));
-                slot.style.setProperty('--dr', rot.toFixed(1) + 'deg');
-
-                slot.innerHTML =
-                    '<figure class="shot">' +
-                        '<img src="' + BASE + step[2] + '" alt="Dog ' + (i + 1) + '">' +
-                        '<figcaption>No. ' + num + '</figcaption>' +
-                    '</figure>' +
-                    '<svg class="paw" viewBox="0 0 100 100" tabindex="0" role="img" aria-label="Dog ' + (i + 1) + '" style="animation-delay:' + (0.1 + i * 0.22).toFixed(2) + 's">' +
-                        '<rect class="hit" x="0" y="0" width="100" height="100"/>' +
-                        '<use href="#paw-shape" class="shape"/>' +
-                    '</svg>';
-
-                trail.appendChild(slot);
-                slots.push(slot);
+                var svgNS = 'http://www.w3.org/2000/svg';
+                var paw = document.createElementNS(svgNS, 'svg');
+                paw.setAttribute('class', 'paw');
+                paw.setAttribute('viewBox', '-25 -25 150 150');
+                paw.setAttribute('tabindex', '0');
+                paw.setAttribute('role', 'img');
+                paw.setAttribute('aria-label', 'Dog ' + (i + 1));
+                paw.style.animationDelay = (0.1 + i * 0.22).toFixed(2) + 's';
+                paw.innerHTML =
+                    '<rect class="hit" x="-25" y="-25" width="150" height="150"/>' +
+                    '<use href="#paw-shape" class="shape"/>';
+                stage.appendChild(paw);
+                paws.push(paw);
             });
+
+            /* ---------- Plaatsing ---------- */
+
+            function place(el, cx, cy, w, h) {
+                el.style.left = (cx - w / 2) + 'px';
+                el.style.top = (cy - h / 2) + 'px';
+                el.style.width = w + 'px';
+                el.style.height = h + 'px';
+            }
+
+            function layout() {
+                var mobile = window.innerWidth <= 700;
+                var W = stage.clientWidth;
+                var i, s, p, cx, cy, ang;
+
+                if (mobile) {
+                    // Zigzag van onder naar boven; foto aan de andere kant van het pootje
+                    var rowH = W * 0.38;
+                    var S = W * 0.42;
+                    var pawSize = Math.max(34, W * 0.1);
+                    var padV = 24;
+                    var Hm = N * rowH + padV * 2;
+                    stage.style.height = Hm + 'px';
+
+                    for (i = 0; i < N; i++) {
+                        var left = (i % 2 === 0);
+                        cy = Hm - padV - rowH * (i + 0.5);
+                        var pawX = left ? W * 0.2 : W * 0.8;
+                        var shotX = left ? W * 0.72 : W * 0.28;
+                        ang = left ? 14 : -14;
+
+                        place(paws[i], pawX, cy, pawSize * 1.5, pawSize * 1.5);
+                        paws[i].style.transform = 'rotate(' + ang + 'deg)';
+                        place(shots[i], shotX, cy, S, S);
+                    }
+                    return;
+                }
+
+                // Desktop: diagonaal pad van linksonder naar rechtsboven
+                stage.style.height = '';
+                var H = stage.clientHeight;
+
+                var sx = W * 0.10, sy = H * 0.72;
+                var ex = W * 0.90, ey = H * 0.30;
+                var tx = ex - sx, ty = ey - sy;
+                var L = Math.sqrt(tx * tx + ty * ty);
+                var ux = tx / L, uy = ty / L;      // looprichting
+                var nx = -uy, ny = ux;             // loodrecht, wijst naar rechtsonder
+
+                var size = Math.max(20, Math.min(30, W * 0.02));   // pootgrootte
+                var off = size * 0.9;                              // afstand tot de looplijn
+                var box = Math.min(W * 0.14, H * 0.2);             // foto-vak
+                var dist = (box / 2) * (Math.abs(nx) + Math.abs(ny)) + off + 12;
+                var rot = Math.atan2(uy, ux) * 180 / Math.PI + 90;
+
+                for (i = 0; i < N; i++) {
+                    p = i / (N - 1);
+                    var px = sx + tx * p;
+                    var py = sy + ty * p;
+                    s = (i % 2 === 0) ? -1 : 1;    // even: links boven, oneven: rechts onder
+
+                    cx = px + nx * s * off;
+                    cy = py + ny * s * off;
+                    place(paws[i], cx, cy, size * 1.5, size * 1.5);
+                    paws[i].style.transform = 'rotate(' + rot.toFixed(1) + 'deg)';
+
+                    var fx = px + nx * s * dist;
+                    var fy = py + ny * s * dist;
+                    fx = Math.max(box / 2 + 6, Math.min(W - box / 2 - 6, fx));
+                    fy = Math.max(box / 2 + 6, Math.min(H - box / 2 - 6, fy));
+                    place(shots[i], fx, fy, box, box);
+                }
+            }
+
+            /* ---------- Onthullen ---------- */
 
             var shown = 0;
             var locked = false;
 
-            function reveal(slot) {
-                if (locked || slot.classList.contains('revealed')) return;
-                slot.classList.add('revealed');
+            function reveal(i) {
+                if (locked || shots[i].classList.contains('revealed')) return;
+                shots[i].classList.add('revealed');
                 shown++;
-                if (shown === slots.length) {
+                if (shown === N) {
                     locked = true;
                     setTimeout(reset, RESET_DELAY);
                 }
             }
 
             function reset() {
-                slots.forEach(function (s) { s.classList.remove('revealed'); });
+                shots.forEach(function (s) { s.classList.remove('revealed'); });
                 shown = 0;
                 locked = false;
             }
 
-            slots.forEach(function (slot) {
-                var paw = slot.querySelector('.paw');
-                paw.addEventListener('pointerover', function () { reveal(slot); });
-                paw.addEventListener('focus', function () { reveal(slot); });
-                paw.addEventListener('click', function () { reveal(slot); });
+            paws.forEach(function (paw, i) {
+                paw.addEventListener('pointerover', function () { reveal(i); });
+                paw.addEventListener('focus', function () { reveal(i); });
+                paw.addEventListener('click', function () { reveal(i); });
+            });
+
+            layout();
+
+            var t = 0;
+            window.addEventListener('resize', function () {
+                clearTimeout(t);
+                t = setTimeout(layout, 80);
             });
 
             // Mobiel: begin onderaan, waar het pad begint
-            if (window.matchMedia('(max-width: 700px)').matches) {
+            if (window.innerWidth <= 700) {
                 window.addEventListener('load', function () {
                     window.scrollTo(0, document.documentElement.scrollHeight);
                 });
