@@ -48,7 +48,7 @@
             overflow: hidden;
         }
 
-        /* Het speelveld: pootjes en foto's worden door het script geplaatst */
+        /* Speelveld: pootjes en foto's worden door het script geplaatst */
         .stage {
             position: relative;
         }
@@ -60,8 +60,9 @@
             overflow: visible;
             outline: none;
             cursor: pointer;
-            opacity: 0;
-            animation: stepIn 0.5s ease-out forwards;
+            opacity: 1;
+            transition: opacity 0.35s ease;
+            animation: stepIn 0.5s ease-out backwards;
         }
 
         .paw .shape {
@@ -73,7 +74,13 @@
             pointer-events: all;
         }
 
-        /* Foto: volledig, niet bijgesneden */
+        /* Pootje verdwijnt als de foto verschijnt */
+        .paw.gone {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Foto: volledig, niet bijgesneden, op de plek van het pootje */
         .shot {
             position: absolute;
             display: flex;
@@ -111,10 +118,10 @@
 
             .stage {
                 position: absolute;
-                top: 1.5rem;
-                bottom: 4.5rem;
-                left: 3vw;
-                right: 3vw;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
             }
         }
 
@@ -148,7 +155,6 @@
             outline: none;
         }
 
-        /* Mobiel: zigzagpad dat van onder naar boven loopt, tik om te onthullen */
         @media (max-width: 700px) {
             .nav-links {
                 position: relative;
@@ -167,9 +173,9 @@
         @media (prefers-reduced-motion: reduce) {
             .paw {
                 animation: none;
-                opacity: 1;
             }
 
+            .paw,
             .shot {
                 transition: none;
             }
@@ -249,67 +255,80 @@
                 el.style.height = h + 'px';
             }
 
+            // Kleinste afstand (grootste van dx/dy) tussen twee middelpunten
+            function minGap(pts) {
+                var d = Infinity;
+                for (var a = 0; a < pts.length; a++) {
+                    for (var b = a + 1; b < pts.length; b++) {
+                        var g = Math.max(Math.abs(pts[a][0] - pts[b][0]), Math.abs(pts[a][1] - pts[b][1]));
+                        if (g < d) d = g;
+                    }
+                }
+                return d;
+            }
+
             function layout() {
                 var mobile = window.innerWidth <= 700;
                 var W = stage.clientWidth;
-                var i, s, p, cx, cy, ang;
+                var i, cx, cy;
 
                 if (mobile) {
-                    // Zigzag van onder naar boven; foto aan de andere kant van het pootje
-                    var rowH = W * 0.38;
-                    var S = W * 0.42;
+                    // Zigzag van onder naar boven, foto op de plek van het pootje
+                    var S = W * 0.44;
+                    var rowH = W * 0.36;
                     var pawSize = Math.max(34, W * 0.1);
-                    var padV = 24;
-                    var Hm = N * rowH + padV * 2;
+                    var padV = S / 2 + 16;
+                    var Hm = (N - 1) * rowH + padV * 2;
                     stage.style.height = Hm + 'px';
 
                     for (i = 0; i < N; i++) {
                         var left = (i % 2 === 0);
-                        cy = Hm - padV - rowH * (i + 0.5);
-                        var pawX = left ? W * 0.2 : W * 0.8;
-                        var shotX = left ? W * 0.72 : W * 0.28;
-                        ang = left ? 14 : -14;
-
-                        place(paws[i], pawX, cy, pawSize * 1.5, pawSize * 1.5);
-                        paws[i].style.transform = 'rotate(' + ang + 'deg)';
-                        place(shots[i], shotX, cy, S, S);
+                        cx = left ? W * 0.27 : W * 0.73;
+                        cy = Hm - padV - rowH * i;
+                        place(paws[i], cx, cy, pawSize * 1.5, pawSize * 1.5);
+                        paws[i].style.transform = 'rotate(' + (left ? 14 : -14) + 'deg)';
+                        place(shots[i], cx, cy, S, S);
                     }
                     return;
                 }
 
-                // Desktop: diagonaal pad van linksonder naar rechtsboven
+                // Desktop: diagonaal pad dat helemaal onderin begint
                 stage.style.height = '';
                 var H = stage.clientHeight;
 
-                var sx = W * 0.10, sy = H * 0.72;
-                var ex = W * 0.90, ey = H * 0.30;
+                var box = Math.min(H * 0.2, W * 0.12);
+                var size = Math.max(20, Math.min(30, W * 0.02));
+                var off = Math.min(W, H) * 0.07;
+
+                var sx = box / 2 + 140;                 // start rechts van de linkerknop
+                var sy = H - box / 2 - 10;              // helemaal onderin
+                var ex = W - box / 2 - 24;
+                var ey = box / 2 + 24;
                 var tx = ex - sx, ty = ey - sy;
                 var L = Math.sqrt(tx * tx + ty * ty);
-                var ux = tx / L, uy = ty / L;      // looprichting
-                var nx = -uy, ny = ux;             // loodrecht, wijst naar rechtsonder
-
-                var size = Math.max(20, Math.min(30, W * 0.02));   // pootgrootte
-                var off = size * 0.9;                              // afstand tot de looplijn
-                var box = Math.min(W * 0.14, H * 0.2);             // foto-vak
-                var dist = (box / 2) * (Math.abs(nx) + Math.abs(ny)) + off + 12;
+                var ux = tx / L, uy = ty / L;           // looprichting
+                var nx = -uy, ny = ux;                  // loodrecht op het pad
                 var rot = Math.atan2(uy, ux) * 180 / Math.PI + 90;
 
+                var pts = [];
                 for (i = 0; i < N; i++) {
-                    p = i / (N - 1);
-                    var px = sx + tx * p;
-                    var py = sy + ty * p;
-                    s = (i % 2 === 0) ? -1 : 1;    // even: links boven, oneven: rechts onder
+                    var p = i / (N - 1);
+                    var s = (i % 2 === 0) ? -1 : 1;     // links en rechts van de looplijn
+                    cx = sx + tx * p + nx * s * off;
+                    cy = sy + ty * p + ny * s * off;
+                    cx = Math.max(box / 2 + 6, Math.min(W - box / 2 - 6, cx));
+                    cy = Math.max(box / 2 + 6, Math.min(H - box / 2 - 6, cy));
+                    pts.push([cx, cy]);
+                }
 
-                    cx = px + nx * s * off;
-                    cy = py + ny * s * off;
-                    place(paws[i], cx, cy, size * 1.5, size * 1.5);
+                // Foto's nooit groter dan de ruimte tussen pootjes: dan overlappen ze niet
+                box = Math.min(box, minGap(pts) - 8);
+                box = Math.max(box, 40);
+
+                for (i = 0; i < N; i++) {
+                    place(paws[i], pts[i][0], pts[i][1], size * 1.5, size * 1.5);
                     paws[i].style.transform = 'rotate(' + rot.toFixed(1) + 'deg)';
-
-                    var fx = px + nx * s * dist;
-                    var fy = py + ny * s * dist;
-                    fx = Math.max(box / 2 + 6, Math.min(W - box / 2 - 6, fx));
-                    fy = Math.max(box / 2 + 6, Math.min(H - box / 2 - 6, fy));
-                    place(shots[i], fx, fy, box, box);
+                    place(shots[i], pts[i][0], pts[i][1], box, box);
                 }
             }
 
@@ -321,6 +340,7 @@
             function reveal(i) {
                 if (locked || shots[i].classList.contains('revealed')) return;
                 shots[i].classList.add('revealed');
+                paws[i].classList.add('gone');
                 shown++;
                 if (shown === N) {
                     locked = true;
@@ -330,6 +350,7 @@
 
             function reset() {
                 shots.forEach(function (s) { s.classList.remove('revealed'); });
+                paws.forEach(function (p) { p.classList.remove('gone'); });
                 shown = 0;
                 locked = false;
             }
