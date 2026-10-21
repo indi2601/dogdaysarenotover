@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog Days Are Not Over – Edition 03</title>
+
     <style>
         * {
             margin: 0;
@@ -24,54 +25,28 @@
             --brown: #6b4423;
             --neon: #ff2fa8;
             --background: #FFFFFF;
+            --gap: clamp(0.5rem, 0.9vw, 0.9rem);
         }
 
         html,
         body {
-            height: 100%;
-            overflow: hidden;
-            overscroll-behavior: none;
+            width: 100%;
+            min-height: 100%;
         }
 
         body {
-            background-color: var(--background);
+            background: var(--background);
             color: var(--brown);
             font-family: 'Neue Haas Grotesk', sans-serif;
         }
 
-        #fur {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-            touch-action: none;
-            cursor: crosshair;
-            -webkit-user-select: none;
-            user-select: none;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
         }
 
-        .hint {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: clamp(1.6rem, 4.5vw, 3.4rem);
-            text-align: center;
-            pointer-events: none;
-            transition: opacity 0.6s ease;
-            z-index: 2;
-        }
+        /* ---------- Navigatie (zelfde als editie 1 en 2) ---------- */
 
-        .hint.hide {
-            opacity: 0;
-        }
-
-        .hint .touch {
-            display: none;
-        }
-
-        /* Onderin: knoppen links en rechts, percentage precies in het midden */
         .nav-links {
             position: fixed;
             bottom: clamp(0.8rem, 2vw, 1.5rem);
@@ -86,7 +61,6 @@
 
         .nav-link {
             font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            line-height: 1.2;
             font-weight: 400;
             color: var(--neon);
             text-transform: none;
@@ -105,82 +79,245 @@
             outline: none;
         }
 
-        .center {
-            position: fixed;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 20;
-            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            line-height: 1.2;
-            white-space: nowrap;
+        #app {
+            animation: fadeIn 0.5s ease-out;
         }
 
-        .meter {
-            color: var(--brown);
-            pointer-events: none;
-            text-shadow: 0 0 6px rgba(255, 255, 255, 0.95), 0 0 2px rgba(255, 255, 255, 0.95);
+        /* =========================================================
+           LEZING 1: TELEFOON. Lijst, nieuwste eerst, kleine beelden
+           ========================================================= */
+
+        .list {
+            list-style: none;
+            padding: 1.5rem clamp(1rem, 5vw, 1.5rem) 5rem;
         }
 
-        .again {
-            display: none;
-            font-family: inherit;
-            font-size: inherit;
-            line-height: inherit;
-            font-weight: 400;
+        .list-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--brown);
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 0;
+            border-bottom: 1px solid rgba(107, 68, 35, 0.35);
+            animation: fadeIn 0.5s ease-out backwards;
+        }
+
+        .row img {
+            width: 76px;
+            height: 76px;
+            flex: none;
+            object-fit: cover;
+            border: 2px solid var(--brown);
+            border-radius: 4px;
+            display: block;
+        }
+
+        .row-num {
             color: var(--neon);
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            outline: none;
-            transition: opacity 0.25s ease;
+            font-size: 2.2rem;
+            line-height: 1;
+            width: 3.2rem;
+            flex: none;
+            font-variant-numeric: tabular-nums;
         }
 
-        .again:hover,
-        .again:focus-visible {
-            opacity: 0.7;
+        .row-text {
+            min-width: 0;
+            flex: 1;
         }
 
-        .done .meter {
-            display: none;
+        .row-name {
+            font-size: 1.35rem;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
         }
 
-        .done .again {
-            display: inline;
+        .row-bark {
+            font-size: 0.85rem;
+            margin-top: 0.35rem;
+            opacity: 0.85;
         }
 
-        /* Telefoon / touch: andere lezing van hetzelfde materiaal */
-        @media (max-width: 700px), (pointer: coarse) {
-            .hint .mouse {
-                display: none;
+        .dots {
+            display: flex;
+            gap: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .dots i {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            border: 1.5px solid var(--neon);
+            display: block;
+        }
+
+        .dots i.on {
+            background: var(--neon);
+        }
+
+        /* Onderin de telefoon: witte balk zodat de lijst er netjes achter verdwijnt */
+        @media (max-width: 899px) {
+            .nav-links {
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 0.9rem clamp(1rem, 5vw, 1.5rem);
+                background: linear-gradient(to top, #fff 70%, rgba(255, 255, 255, 0));
             }
 
-            .hint .touch {
-                display: inline;
-            }
-        }
-
-        @media (max-width: 700px) {
-            .nav-link,
-            .center {
+            .nav-link {
                 font-size: 1rem;
+            }
+        }
+
+        /* =========================================================
+           LEZING 2: LAPTOP. Raster, gesorteerd op volume, groot nummer
+           ========================================================= */
+
+        @media (min-width: 900px) {
+            html,
+            body {
+                height: 100%;
+                overflow: hidden;
+            }
+
+            .grid {
+                position: absolute;
+                top: 1.5rem;
+                bottom: 4.5rem;
+                left: 3vw;
+                right: 3vw;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+                gap: var(--gap);
+            }
+
+            .tile {
+                position: relative;
+                overflow: hidden;
+                border: 2px solid var(--brown);
+                border-radius: 4px;
+                background: #fff;
+                outline: none;
+                cursor: default;
+                animation: fadeIn 0.6s ease-out backwards;
+            }
+
+            .tile img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+                transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            }
+
+            .tile::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(to bottom, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0) 45%);
+                pointer-events: none;
+            }
+
+            .tile-num {
+                position: absolute;
+                top: 0.2rem;
+                left: 0.7rem;
+                z-index: 2;
+                color: var(--neon);
+                font-size: clamp(2.6rem, 6.5vw, 6.5rem);
+                line-height: 1;
+                letter-spacing: -0.04em;
+                font-variant-numeric: tabular-nums;
+                pointer-events: none;
+            }
+
+            .tile-name {
+                position: absolute;
+                top: 0.9rem;
+                right: 0.8rem;
+                z-index: 2;
+                color: #fff;
+                font-size: clamp(0.7rem, 1.1vw, 0.95rem);
+                pointer-events: none;
+            }
+
+            .tile-bark {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 3;
+                padding: 0.5rem 0.8rem;
+                background: #fff;
+                color: var(--neon);
+                font-size: clamp(0.9rem, 1.6vw, 1.4rem);
+                transform: translateY(101%);
+                transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+            }
+
+            .tile:hover img,
+            .tile:focus-visible img {
+                transform: scale(1.06);
+            }
+
+            .tile:hover .tile-bark,
+            .tile:focus-visible .tile-bark {
+                transform: translateY(0);
+            }
+
+            .tile-note {
+                border: none;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                padding: 0 0.2rem 0.2rem;
+                font-size: clamp(0.8rem, 1.4vw, 1.1rem);
+                line-height: 1.3;
+            }
+
+            .tile-note .scale {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+                margin-top: 0.8rem;
+                color: var(--neon);
+                font-size: 0.8rem;
+            }
+
+            .tile-note .scale span {
+                flex: 1;
+                height: 2px;
+                background: var(--neon);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #app,
+            .row,
+            .tile {
+                animation: none;
+            }
+
+            .tile img,
+            .tile-bark {
+                transition: none;
             }
         }
     </style>
 </head>
+
 <body>
-    <canvas id="fur"></canvas>
-
-    <div class="hint" id="hint">
-        <span class="mouse">click and drag to grow fur</span>
-        <span class="touch">swipe to pet the dog</span>
-    </div>
-
-    <div class="center" id="center">
-        <span class="meter" id="meter">0%</span>
-        <button type="button" class="again" id="again">↻ Again</button>
-    </div>
+    <main id="app"></main>
 
     <nav class="nav-links" aria-label="Edition navigation">
         <a href="editie-02.html" class="nav-link">← Edition 02</a>
@@ -189,861 +326,91 @@
 
     <script>
         (function () {
-            'use strict';
+            var BASE = 'https://indi2601.github.io/dogdaysarenotover/';
 
-            var canvas = document.getElementById('fur');
-            var ctx = canvas.getContext('2d');
-            var hint = document.getElementById('hint');
-            var meter = document.getElementById('meter');
-            var again = document.getElementById('again');
-
-            var TAU = Math.PI * 2;
-            var W = 0, H = 0, dpr = 1;
-            var GX = 64, GY = 40, TOTAL = GX * GY;
-            var grid = new Uint8Array(TOTAL);
-            var covered = 0;
-            var THRESHOLD = 0.975;           // hoeveel van de pagina bedekt moet zijn voor het gezicht verschijnt
-
-            var drawing = false, complete = false;
-            var last = null, vx = 0, vy = 1, lastBuzz = 0;
-            var base = null, layers = null, geo = null;
-            var animStart = 0, rafId = 0;
-            var gaze = { x: 0, y: 0, tx: 0, ty: 0 };
-
-            // Vachtpalet: donker naar licht
-            var PAL = [
-                [52, 30, 14], [78, 47, 22], [104, 66, 34], [134, 90, 48],
-                [166, 118, 66], [194, 148, 92], [220, 184, 132], [238, 214, 172]
+            // Het materiaal: 11 honden, in volgorde van ontmoeting (1 = eerste, 11 = laatste).
+            // loud: blafvolume van 1 (zacht) tot 5 (luid). Pas namen, blaf en volume gerust aan.
+            var DOGS = [
+                { id: 1,  file: 'IMG_8804.jpeg', name: 'Biscuit', bark: 'Waf! Waf-waf!',               loud: 2 },
+                { id: 2,  file: 'IMG_8806.jpeg', name: 'Mochi',   bark: 'Waf-waf! WOOF!',              loud: 3 },
+                { id: 3,  file: 'IMG_8817.jpeg', name: 'Pepper',  bark: 'WAF! WAF! WAF! Waf-waf-waf!', loud: 5 },
+                { id: 4,  file: 'IMG_8818.jpeg', name: 'Olive',   bark: 'Waf! Woef! Hrr-waf!',         loud: 2 },
+                { id: 5,  file: 'IMG_8821.jpeg', name: 'Nacho',   bark: 'WOOF! Waf! WOOF!',            loud: 4 },
+                { id: 6,  file: 'IMG_8822.jpeg', name: 'Waffle',  bark: 'Waf! Waf! Waf-waf!',          loud: 1 },
+                { id: 7,  file: 'IMG_8879.jpeg', name: 'Juno',    bark: 'WAF! WAF-waf!',               loud: 3 },
+                { id: 8,  file: 'IMG_8819.jpeg', name: 'Milo',    bark: 'Waf! Waf-waf!',               loud: 1 },
+                { id: 9,  file: 'IMG_8936.jpeg', name: 'Fenna',   bark: 'WAF-WAF-WAF-WAF!',            loud: 5 },
+                { id: 10, file: 'IMG_8942.jpeg', name: 'Rocco',   bark: 'WOOF! Waf! WOOF!',            loud: 4 },
+                { id: 11, file: 'IMG_8945.jpeg', name: 'Sunny',   bark: 'Waf-waf! WOOF!',              loud: 3 }
             ];
 
-            // Drie lagen vacht: ondervacht, middenlaag, lichte toppen
-            var COAT = [
-                { n: 0.34, l0: 8,  l1: 18, w0: 1.5, w1: 2.4, t0: 0.0,  t1: 0.3, a0: 0.7,  a1: 0.95 },
-                { n: 0.46, l0: 14, l1: 34, w0: 1.0, w1: 1.8, t0: 0.2,  t1: 0.7, a0: 0.6,  a1: 0.95 },
-                { n: 0.20, l0: 18, l1: 38, w0: 0.7, w1: 1.2, t0: 0.6,  t1: 1.0, a0: 0.35, a1: 0.7 }
-            ];
+            var app = document.getElementById('app');
+            var mq = window.matchMedia('(min-width: 900px)');
 
-            function isPhone() {
-                return window.matchMedia('(max-width: 700px), (pointer: coarse)').matches;
+            function two(n) { return (n < 10 ? '0' : '') + n; }
+
+            function dots(level) {
+                var s = '';
+                for (var i = 1; i <= 5; i++) s += '<i class="' + (i <= level ? 'on' : '') + '"></i>';
+                return '<div class="dots" aria-label="Volume ' + level + ' of 5">' + s + '</div>';
             }
 
-            function cl(v) { return Math.max(0, Math.min(255, v | 0)); }
-            function clamp01(v) { return Math.max(0, Math.min(1, v)); }
-            function ease(p) { return p * p * (3 - 2 * p); }
-
-            function palAt(t) {
-                t = Math.max(0, Math.min(0.999, t));
-                var f = t * (PAL.length - 1);
-                var i = Math.floor(f), m = f - i;
-                var a = PAL[i], b = PAL[i + 1];
-                return [a[0] + (b[0] - a[0]) * m, a[1] + (b[1] - a[1]) * m, a[2] + (b[2] - a[2]) * m];
-            }
-
-            function rgba(c, a, j) {
-                var d = (Math.random() - 0.5) * (j || 0);
-                return 'rgba(' + cl(c[0] + d) + ',' + cl(c[1] + d * 0.8) + ',' + cl(c[2] + d * 0.6) + ',' + a.toFixed(2) + ')';
-            }
-
-            function tone(x, y) {
-                return clamp01(0.5 + 0.28 * Math.sin(x / 170) * Math.cos(y / 140) + 0.14 * Math.sin((x + y) / 55));
-            }
-
-            function flow(x, y) {
-                return Math.PI / 2 + 0.7 * Math.sin(x / 230 + 1) * Math.cos(y / 190);
-            }
-
-            /* Eén haartje: spits toelopend, licht gebogen */
-            function hair(c, x, y, dir, len, w, color, curl) {
-                var ex = x + Math.cos(dir) * len, ey = y + Math.sin(dir) * len;
-                var bend = curl * len;
-                var mx = (x + ex) / 2 - Math.sin(dir) * bend;
-                var my = (y + ey) / 2 + Math.cos(dir) * bend;
-                var nx = -Math.sin(dir) * w / 2, ny = Math.cos(dir) * w / 2;
-                c.fillStyle = color;
-                c.beginPath();
-                c.moveTo(x + nx, y + ny);
-                c.quadraticCurveTo(mx + nx * 0.6, my + ny * 0.6, ex, ey);
-                c.quadraticCurveTo(mx - nx * 0.6, my - ny * 0.6, x - nx, y - ny);
-                c.closePath();
-                c.fill();
-            }
-
-            /* ---------- Vacht tijdens het tekenen ---------- */
-
-            function stamp(x, y, ang, r, count) {
-                // Donkere ondervacht, zodat er nooit wit doorheen schijnt
-                var g = ctx.createRadialGradient(x, y, 0, x, y, r);
-                g.addColorStop(0, 'rgba(56,32,15,0.55)');
-                g.addColorStop(0.7, 'rgba(56,32,15,0.3)');
-                g.addColorStop(1, 'rgba(56,32,15,0)');
-                ctx.fillStyle = g;
-                ctx.beginPath();
-                ctx.arc(x, y, r, 0, TAU);
-                ctx.fill();
-
-                var sc = 0.7 + r / 120;
-                for (var L = 0; L < COAT.length; L++) {
-                    var ly = COAT[L];
-                    var n = Math.round(count * ly.n);
-                    for (var i = 0; i < n; i++) {
-                        var a = Math.random() * TAU;
-                        var d = Math.sqrt(Math.random()) * r;
-                        var sx = x + Math.cos(a) * d;
-                        var sy = y + Math.sin(a) * d;
-
-                        var fa = flow(sx, sy);
-                        var ux = Math.cos(ang) * 0.55 + Math.cos(fa) * 0.45;
-                        var uy = Math.sin(ang) * 0.55 + Math.sin(fa) * 0.45;
-                        var dir = Math.atan2(uy, ux) + (Math.random() - 0.5) * 0.9;
-
-                        var len = (ly.l0 + Math.random() * (ly.l1 - ly.l0)) * sc;
-                        var w = (ly.w0 + Math.random() * (ly.w1 - ly.w0)) * (0.8 + r / 200);
-                        var tt = ly.t0 + (ly.t1 - ly.t0) * (0.5 * Math.random() + 0.5 * tone(sx, sy));
-                        var al = ly.a0 + Math.random() * (ly.a1 - ly.a0);
-                        hair(ctx, sx, sy, dir, len, w, rgba(palAt(tt), al, 14), (Math.random() - 0.5) * 0.5);
-                    }
-                }
-            }
-
-            function rad() {
-                var m = Math.min(W, H);
-                return isPhone() ? Math.max(40, m * 0.11) : Math.max(34, m * 0.05);
-            }
-
-            function mark(x, y, r) {
-                var cw = W / GX, ch = H / GY;
-                var x0 = Math.max(0, Math.floor((x - r) / cw));
-                var x1 = Math.min(GX - 1, Math.floor((x + r) / cw));
-                var y0 = Math.max(0, Math.floor((y - r) / ch));
-                var y1 = Math.min(GY - 1, Math.floor((y + r) / ch));
-                var lim = r * r * 0.55;
-                for (var gy = y0; gy <= y1; gy++) {
-                    for (var gx = x0; gx <= x1; gx++) {
-                        var dx = (gx + 0.5) * cw - x;
-                        var dy = (gy + 0.5) * ch - y;
-                        if (dx * dx + dy * dy <= lim) {
-                            var i = gy * GX + gx;
-                            if (!grid[i]) { grid[i] = 1; covered++; }
-                        }
-                    }
-                }
-            }
-
-            function paint(x, y, ang) {
-                var r = rad();
-                stamp(x, y, ang, r, isPhone() ? 36 : 44);
-                mark(x, y, r);
-            }
-
-            function updateProgress() {
-                var p = covered / TOTAL;
-                var shown = Math.min(100, Math.round(p / THRESHOLD * 100));
-                meter.textContent = shown + '%';
-                return p;
-            }
-
-            function buzz() {
-                if (!isPhone() || !navigator.vibrate) return;
-                var now = performance.now();
-                if (now - lastBuzz > 70) {
-                    navigator.vibrate(6);
-                    lastBuzz = now;
-                }
-            }
-
-            /* ---------- Invoer ---------- */
-
-            canvas.addEventListener('pointerdown', function (e) {
-                if (complete) return;
-                e.preventDefault();
-                drawing = true;
-                try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
-                last = { x: e.clientX, y: e.clientY };
-                vx = 0; vy = 1;
-                hint.classList.add('hide');
-                paint(e.clientX, e.clientY, Math.PI / 2);
-                checkDone();
-            });
-
-            canvas.addEventListener('pointermove', function (e) {
-                setGaze(e.clientX, e.clientY);
-                if (!drawing || complete) return;
-                var dx = e.clientX - last.x;
-                var dy = e.clientY - last.y;
-                var dist = Math.sqrt(dx * dx + dy * dy);
-                var sp = rad() * 0.35;
-                if (dist < sp) return;
-
-                vx = vx * 0.5 + (dx / dist) * 0.5;
-                vy = vy * 0.5 + (dy / dist) * 0.5;
-                var ang = Math.atan2(vy, vx);
-                var n = Math.floor(dist / sp);
-                for (var i = 1; i <= n; i++) {
-                    paint(last.x + (dx / dist) * sp * i, last.y + (dy / dist) * sp * i, ang);
-                }
-                last = { x: last.x + (dx / dist) * sp * n, y: last.y + (dy / dist) * sp * n };
-                buzz();
-                checkDone();
-            });
-
-            function stop() { drawing = false; }
-            canvas.addEventListener('pointerup', stop);
-            canvas.addEventListener('pointercancel', stop);
-
-            function checkDone() {
-                if (updateProgress() >= THRESHOLD && !complete) finish();
-            }
-
-            /* ---------- Afronden: gaatjes vullen, dan het gezicht ---------- */
-
-            function finish() {
-                complete = true;
-                drawing = false;
-
-                var cw = W / GX, ch = H / GY;
-                for (var gy = 0; gy < GY; gy++) {
-                    for (var gx = 0; gx < GX; gx++) {
-                        if (!grid[gy * GX + gx]) {
-                            stamp((gx + 0.5) * cw, (gy + 0.5) * ch, Math.PI / 2 + (Math.random() - 0.5), Math.max(cw, ch) * 1.2, 30);
-                        }
-                    }
-                }
-
-                // Diepte: donkerder naar de rand, licht op het voorhoofd
-                var vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.max(W, H) * 0.75);
-                vg.addColorStop(0, 'rgba(0,0,0,0)');
-                vg.addColorStop(1, 'rgba(20,10,3,0.38)');
-                ctx.fillStyle = vg;
-                ctx.fillRect(0, 0, W, H);
-
-                var lg = ctx.createRadialGradient(W / 2, H * 0.3, 0, W / 2, H * 0.3, Math.min(W, H) * 0.5);
-                lg.addColorStop(0, 'rgba(255,230,190,0.12)');
-                lg.addColorStop(1, 'rgba(255,230,190,0)');
-                ctx.fillStyle = lg;
-                ctx.fillRect(0, 0, W, H);
-
-                base = document.createElement('canvas');
-                base.width = canvas.width;
-                base.height = canvas.height;
-                base.getContext('2d').drawImage(canvas, 0, 0);
-
-                buildLayers();
-                document.body.classList.add('done');
-                animStart = performance.now();
-                kick();
-            }
-
-            /* ---------- Gezicht: getekend in apparaatpixels ---------- */
-
-            function computeGeo() {
-                var Wd = canvas.width, Hd = canvas.height;
-                var s = isPhone() ? Math.min(Wd * 0.30, Hd * 0.24) : Math.min(Wd * 0.30, Hd * 0.34);
-                return { s: s, cx: Wd / 2, cy: Hd * 0.5 };
-            }
-
-            function mkLayer() {
-                var l = document.createElement('canvas');
-                l.width = canvas.width;
-                l.height = canvas.height;
-                return l;
-            }
-
-            function eyeShape(g, sg) {
-                var s = g.s;
-                var ex = g.cx + sg * 0.38 * s, ey = g.cy - 0.12 * s;
-                var ix = ex - sg * 0.095 * s, iy = ey + 0.012 * s;
-                var ox = ex + sg * 0.095 * s, oy = ey - 0.008 * s;
-
-                var top = new Path2D();
-                top.moveTo(ix, iy);
-                top.bezierCurveTo(ex - sg * 0.05 * s, ey - 0.08 * s, ex + sg * 0.05 * s, ey - 0.08 * s, ox, oy);
-
-                var low = new Path2D();
-                low.moveTo(ox, oy);
-                low.bezierCurveTo(ex + sg * 0.05 * s, ey + 0.065 * s, ex - sg * 0.05 * s, ey + 0.07 * s, ix, iy);
-
-                var full = new Path2D();
-                full.moveTo(ix, iy);
-                full.bezierCurveTo(ex - sg * 0.05 * s, ey - 0.08 * s, ex + sg * 0.05 * s, ey - 0.08 * s, ox, oy);
-                full.bezierCurveTo(ex + sg * 0.05 * s, ey + 0.065 * s, ex - sg * 0.05 * s, ey + 0.07 * s, ix, iy);
-                full.closePath();
-
-                return { sg: sg, ex: ex, ey: ey, ix: ix, iy: iy, ox: ox, oy: oy, top: top, low: low, full: full };
-            }
-
-            function buildLayers() {
-                geo = computeGeo();
-                geo.eyes = [eyeShape(geo, -1), eyeShape(geo, 1)];
-                layers = {
-                    ears: mkLayer(), face: mkLayer(), nose: mkLayer(),
-                    mouth: mkLayer(), fringe: mkLayer()
-                };
-                buildEars(layers.ears.getContext('2d'), geo);
-                buildFace(layers.face.getContext('2d'), geo);
-                buildNose(layers.nose.getContext('2d'), geo);
-                buildMouth(layers.mouth.getContext('2d'), geo);
-                buildFringe(layers.fringe.getContext('2d'), geo);
-            }
-
-            /* Haartjes langs de rand van een vorm.
-               'in': wortel buiten de vorm, haar valt over de rand naar binnen.
-               'out': wortel binnen de vorm, haar steekt over de rand naar buiten. */
-            function edgeHairs(c, path, box, tries, mode, d, colFn, len, w) {
-                var o = [[1, 0], [-1, 0], [0, 1], [0, -1], [0.7, 0.7], [-0.7, 0.7], [0.7, -0.7], [-0.7, -0.7]];
-                for (var i = 0; i < tries; i++) {
-                    var x = box[0] + Math.random() * (box[2] - box[0]);
-                    var y = box[1] + Math.random() * (box[3] - box[1]);
-                    var inP = c.isPointInPath(path, x, y);
-                    if (mode === 'out' && !inP) continue;
-                    if (mode === 'in' && inP) continue;
-                    var j = (Math.random() * 8) | 0;
-                    if (c.isPointInPath(path, x + o[j][0] * d, y + o[j][1] * d) === inP) continue;
-                    var dir = Math.atan2(o[j][1], o[j][0]) + (Math.random() - 0.5) * 0.6;
-                    hair(c, x, y, dir, len * (0.6 + Math.random() * 0.8), w * (0.7 + Math.random() * 0.6), colFn(), (Math.random() - 0.5) * 0.4);
-                }
-            }
-
-            /* Oren van vacht */
-            function earPath(g, sign) {
-                var p = new Path2D();
-                var s = g.s, cx = g.cx, cy = g.cy;
-                function X(u) { return cx + sign * u * s; }
-                function Y(v) { return cy + v * s; }
-                p.moveTo(X(0.52), Y(-0.8));
-                p.bezierCurveTo(X(0.95), Y(-0.98), X(1.38), Y(-0.55), X(1.34), Y(-0.05));
-                p.bezierCurveTo(X(1.31), Y(0.40), X(1.12), Y(0.78), X(0.92), Y(0.72));
-                p.bezierCurveTo(X(0.72), Y(0.66), X(0.62), Y(0.20), X(0.58), Y(-0.12));
-                p.bezierCurveTo(X(0.55), Y(-0.35), X(0.52), Y(-0.55), X(0.52), Y(-0.8));
-                p.closePath();
-                return p;
-            }
-
-            function buildEars(c, g) {
-                var s = g.s, k = dpr;
-                [-1, 1].forEach(function (sign) {
-                    var path = earPath(g, sign);
-                    var grad = c.createLinearGradient(0, g.cy - 0.9 * s, 0, g.cy + 0.8 * s);
-                    grad.addColorStop(0, '#4d3019');
-                    grad.addColorStop(1, '#25140a');
-
-                    c.save();
-                    c.shadowColor = 'rgba(0,0,0,0.55)';
-                    c.shadowBlur = s * 0.07;
-                    c.shadowOffsetX = sign * s * 0.015;
-                    c.shadowOffsetY = s * 0.025;
-                    c.fillStyle = grad;
-                    c.fill(path);
-                    c.restore();
-
-                    var xa = g.cx + sign * 0.45 * s, xb = g.cx + sign * 1.45 * s;
-                    var box = [Math.min(xa, xb), g.cy - 1.05 * s, Math.max(xa, xb), g.cy + 0.85 * s];
-
-                    // Haartjes in het oor, naar beneden gericht
-                    var n = Math.round(s * s * 0.09);
-                    for (var i = 0; i < n; i++) {
-                        var x = box[0] + Math.random() * (box[2] - box[0]);
-                        var y = box[1] + Math.random() * (box[3] - box[1]);
-                        if (!c.isPointInPath(path, x, y)) continue;
-                        var dir = Math.PI / 2 - sign * 0.25 + (Math.random() - 0.5) * 0.7;
-                        var tt = 0.04 + Math.random() * 0.3 + 0.1 * ((y - box[1]) / (box[3] - box[1]));
-                        hair(c, x, y, dir, s * (0.05 + Math.random() * 0.09), (0.9 + Math.random() * 0.9) * k,
-                            rgba(palAt(tt), 0.5 + Math.random() * 0.4, 10), (Math.random() - 0.5) * 0.4);
-                    }
-
-                    // Haarfranje langs de rand
-                    edgeHairs(c, path, box, Math.round(s * s * 0.18), 'out', s * 0.025,
-                        function () { return rgba(palAt(0.1 + Math.random() * 0.35), 0.7, 10); },
-                        s * 0.06, 1.3 * k);
+            // Telefoon: lijst, nieuwste bovenaan
+            function renderPhone() {
+                var items = DOGS.slice().sort(function (a, b) { return b.id - a.id; });
+                var html = '<ul class="list"><li class="list-label">' + DOGS.length + ' dogs · newest first</li>';
+                items.forEach(function (d, i) {
+                    html +=
+                        '<li class="row" style="animation-delay:' + (i * 0.04).toFixed(2) + 's">' +
+                            '<span class="row-num">' + two(d.id) + '</span>' +
+                            '<img src="' + BASE + d.file + '" alt="' + d.name + '" loading="lazy">' +
+                            '<div class="row-text">' +
+                                '<div class="row-name">' + d.name + '</div>' +
+                                '<div class="row-bark">' + d.bark + '</div>' +
+                                dots(d.loud) +
+                            '</div>' +
+                        '</li>';
                 });
+                html += '</ul>';
+                app.innerHTML = html;
             }
 
-            /* Gezicht: haartjes die vanaf de neus uitwaaieren */
-            function buildFace(c, g) {
-                var s = g.s, cx = g.cx, cy = g.cy, k = dpr;
-
-                // Volume van de kop
-                c.save();
-                c.translate(cx, cy + 0.15 * s);
-                c.scale(0.85, 1);
-                var hg = c.createRadialGradient(0, -0.12 * s, 0.05 * s, 0, 0, 0.95 * s);
-                hg.addColorStop(0, 'rgba(170,118,66,0.9)');
-                hg.addColorStop(0.55, 'rgba(138,92,50,0.75)');
-                hg.addColorStop(1, 'rgba(100,64,32,0)');
-                c.fillStyle = hg;
-                c.beginPath();
-                c.arc(0, 0, 0.95 * s, 0, TAU);
-                c.fill();
-                c.restore();
-
-                var n = Math.round(s * s * 0.06);
-                for (var i = 0; i < n; i++) {
-                    var u = (Math.random() * 2 - 1) * 0.82;
-                    var v = -0.82 + Math.random() * 1.95;
-                    var e = 1 - (u / 0.81) * (u / 0.81) - ((v - 0.15) / 0.95) * ((v - 0.15) / 0.95);
-                    if (e <= 0) continue;
-
-                    var x = cx + u * s, y = cy + v * s;
-                    var dir = Math.atan2(v - 0.34, u) + (Math.random() - 0.5) * 0.55;
-
-                    var dm = Math.sqrt((u / 0.5) * (u / 0.5) + ((v - 0.42) / 0.34) * ((v - 0.42) / 0.34));
-                    var t = 0.32 + Math.random() * 0.28;
-                    if (dm < 1) t = 0.6 + Math.random() * 0.32;               // lichte snuit
-                    else if (dm < 1.5) t = 0.45 + Math.random() * 0.3;
-                    if (Math.abs(u) < 0.09 && v < 0.12 && v > -0.75) t = Math.max(t, 0.58 + Math.random() * 0.3);  // bles
-                    var d1 = Math.sqrt((u - 0.38) * (u - 0.38) + (v + 0.12) * (v + 0.12));
-                    var d2 = Math.sqrt((u + 0.38) * (u + 0.38) + (v + 0.12) * (v + 0.12));
-                    if (Math.min(d1, d2) < 0.18) t = 0.1 + Math.random() * 0.22;   // donker rond de ogen
-                    t -= 0.12 * (1 - e);
-
-                    hair(c, x, y, dir, s * (0.035 + Math.random() * 0.06), (0.9 + Math.random() * 0.9) * k,
-                        rgba(palAt(t), Math.min(1, e * 3) * (0.55 + Math.random() * 0.4), 12), (Math.random() - 0.5) * 0.5);
-                }
-
-                // Zachte lichtval op de neusbrug
-                c.save();
-                c.translate(cx, cy + 0.2 * s);
-                c.scale(0.5, 1);
-                var bg = c.createRadialGradient(0, 0, 0, 0, 0, 0.3 * s);
-                bg.addColorStop(0, 'rgba(255,235,200,0.16)');
-                bg.addColorStop(1, 'rgba(255,235,200,0)');
-                c.fillStyle = bg;
-                c.beginPath();
-                c.arc(0, 0, 0.3 * s, 0, TAU);
-                c.fill();
-                c.restore();
-            }
-
-            /* Neus */
-            function nosePath(g) {
-                var p = new Path2D();
-                var s = g.s, cx = g.cx, cy = g.cy;
-                function X(u) { return cx + u * s; }
-                function Y(v) { return cy + v * s; }
-                p.moveTo(X(-0.19), Y(0.25));
-                p.bezierCurveTo(X(-0.19), Y(0.19), X(0.19), Y(0.19), X(0.19), Y(0.25));
-                p.bezierCurveTo(X(0.21), Y(0.33), X(0.12), Y(0.42), X(0.03), Y(0.465));
-                p.quadraticCurveTo(X(0), Y(0.475), X(-0.03), Y(0.465));
-                p.bezierCurveTo(X(-0.12), Y(0.42), X(-0.21), Y(0.33), X(-0.19), Y(0.25));
-                p.closePath();
-                return p;
-            }
-
-            function buildNose(c, g) {
-                var s = g.s, cx = g.cx, cy = g.cy, k = dpr;
-                var np = nosePath(g);
-
-                var ng = c.createRadialGradient(cx, cy + 0.3 * s, 0, cx, cy + 0.33 * s, 0.26 * s);
-                ng.addColorStop(0, '#2b2726');
-                ng.addColorStop(1, '#050404');
-                c.save();
-                c.shadowColor = 'rgba(0,0,0,0.5)';
-                c.shadowBlur = s * 0.035;
-                c.shadowOffsetY = s * 0.018;
-                c.fillStyle = ng;
-                c.fill(np);
-                c.restore();
-
-                // Stenige leerstructuur
-                var nb = [cx - 0.2 * s, cy + 0.18 * s, cx + 0.2 * s, cy + 0.47 * s];
-                var dots = Math.round(s * s * 0.012);
-                for (var i = 0; i < dots; i++) {
-                    var x = nb[0] + Math.random() * (nb[2] - nb[0]);
-                    var y = nb[1] + Math.random() * (nb[3] - nb[1]);
-                    if (!c.isPointInPath(np, x, y)) continue;
-                    c.fillStyle = 'rgba(255,255,255,0.09)';
-                    c.beginPath();
-                    c.arc(x, y, (0.003 + Math.random() * 0.003) * s, 0, TAU);
-                    c.fill();
-                    c.fillStyle = 'rgba(0,0,0,0.35)';
-                    c.beginPath();
-                    c.arc(x + 0.004 * s, y + 0.004 * s, 0.002 * s, 0, TAU);
-                    c.fill();
-                }
-
-                // Neusgaten
-                [-1, 1].forEach(function (sg) {
-                    c.save();
-                    c.translate(cx + sg * 0.08 * s, cy + 0.37 * s);
-                    c.rotate(sg * 0.5);
-                    c.fillStyle = 'rgba(0,0,0,0.97)';
-                    c.beginPath();
-                    c.ellipse(0, 0, 0.04 * s, 0.02 * s, 0, 0, TAU);
-                    c.fill();
-                    c.strokeStyle = 'rgba(255,255,255,0.18)';
-                    c.lineWidth = 0.006 * s;
-                    c.beginPath();
-                    c.ellipse(0, 0, 0.042 * s, 0.022 * s, 0, 0, TAU);
-                    c.stroke();
-                    c.restore();
+            // Laptop: raster, van zacht naar luid, groot nummer op het beeld
+            function renderLaptop() {
+                var items = DOGS.slice().sort(function (a, b) { return a.loud - b.loud || a.id - b.id; });
+                var html = '<div class="grid">';
+                items.forEach(function (d, i) {
+                    html +=
+                        '<div class="tile" tabindex="0" style="animation-delay:' + (i * 0.05).toFixed(2) + 's">' +
+                            '<img src="' + BASE + d.file + '" alt="' + d.name + '">' +
+                            '<span class="tile-num">' + two(d.id) + '</span>' +
+                            '<span class="tile-name">' + d.name + '</span>' +
+                            '<div class="tile-bark">' + d.bark + '</div>' +
+                        '</div>';
                 });
-
-                // Groef onder de neus
-                c.strokeStyle = 'rgba(0,0,0,0.95)';
-                c.lineWidth = 0.013 * s;
-                c.lineCap = 'round';
-                c.beginPath();
-                c.moveTo(cx, cy + 0.38 * s);
-                c.lineTo(cx, cy + 0.47 * s);
-                c.stroke();
-
-                // Natte glans
-                c.save();
-                c.translate(cx - 0.065 * s, cy + 0.26 * s);
-                c.scale(1, 0.38);
-                var hg = c.createRadialGradient(0, 0, 0, 0, 0, 0.1 * s);
-                hg.addColorStop(0, 'rgba(255,255,255,0.55)');
-                hg.addColorStop(1, 'rgba(255,255,255,0)');
-                c.fillStyle = hg;
-                c.beginPath();
-                c.arc(0, 0, 0.1 * s, 0, TAU);
-                c.fill();
-                c.restore();
-
-                c.fillStyle = 'rgba(255,255,255,0.85)';
-                c.beginPath();
-                c.ellipse(cx - 0.08 * s, cy + 0.248 * s, 0.013 * s, 0.006 * s, -0.3, 0, TAU);
-                c.fill();
-                c.fillStyle = 'rgba(255,255,255,0.3)';
-                c.beginPath();
-                c.ellipse(cx + 0.09 * s, cy + 0.3 * s, 0.01 * s, 0.005 * s, 0.4, 0, TAU);
-                c.fill();
+                html +=
+                    '<div class="tile tile-note">' +
+                        '<div>' + DOGS.length + ' dogs.<br>Sorted by volume.<br>Hover for the bark.</div>' +
+                        '<div class="scale">quiet <span></span> loud</div>' +
+                    '</div>';
+                html += '</div>';
+                app.innerHTML = html;
             }
 
-            /* Bekje: gesloten, met zwarte lippen */
-            function lipPoint(t, sg, s, cx, cy) {
-                var p0 = [0, 0.56], p1 = [0.07, 0.645], p2 = [0.2, 0.665], p3 = [0.31, 0.585];
-                var m = 1 - t;
-                var u = m * m * m * p0[0] + 3 * m * m * t * p1[0] + 3 * m * t * t * p2[0] + t * t * t * p3[0];
-                var v = m * m * m * p0[1] + 3 * m * m * t * p1[1] + 3 * m * t * t * p2[1] + t * t * t * p3[1];
-                return [cx + sg * u * s, cy + v * s];
+            var current = null;
+
+            function render() {
+                var mode = mq.matches ? 'laptop' : 'phone';
+                if (mode === current) return;
+                current = mode;
+                if (mode === 'laptop') renderLaptop(); else renderPhone();
+                window.scrollTo(0, 0);
             }
 
-            function buildMouth(c, g) {
-                var s = g.s, cx = g.cx, cy = g.cy;
-                function X(u) { return cx + u * s; }
-                function Y(v) { return cy + v * s; }
+            if (mq.addEventListener) mq.addEventListener('change', render);
+            else mq.addListener(render);
 
-                // Schaduw van de onderkaak
-                c.save();
-                c.translate(cx, cy + 0.72 * s);
-                c.scale(1, 0.34);
-                var sh = c.createRadialGradient(0, 0, 0, 0, 0, 0.32 * s);
-                sh.addColorStop(0, 'rgba(15,7,3,0.34)');
-                sh.addColorStop(1, 'rgba(15,7,3,0)');
-                c.fillStyle = sh;
-                c.beginPath();
-                c.arc(0, 0, 0.32 * s, 0, TAU);
-                c.fill();
-                c.restore();
-
-                var lip = new Path2D();
-                lip.moveTo(X(-0.31), Y(0.585));
-                lip.bezierCurveTo(X(-0.2), Y(0.665), X(-0.07), Y(0.645), X(0), Y(0.56));
-                lip.bezierCurveTo(X(0.07), Y(0.645), X(0.2), Y(0.665), X(0.31), Y(0.585));
-
-                c.lineCap = 'round';
-                c.lineJoin = 'round';
-                c.strokeStyle = '#0c0605';
-                c.lineWidth = 0.03 * s;
-                c.stroke(lip);
-
-                // Natte glans op de lip
-                c.save();
-                c.translate(0, 0.014 * s);
-                c.strokeStyle = 'rgba(255,255,255,0.1)';
-                c.lineWidth = 0.007 * s;
-                c.stroke(lip);
-                c.restore();
-
-                // Neusgroef naar de lip
-                c.strokeStyle = '#0c0605';
-                c.lineWidth = 0.014 * s;
-                c.beginPath();
-                c.moveTo(X(0), Y(0.46));
-                c.lineTo(X(0), Y(0.57));
-                c.stroke();
-
-                // Snorhaarporiën
-                c.fillStyle = 'rgba(25,14,8,0.6)';
-                [-1, 1].forEach(function (sg) {
-                    for (var r = 0; r < 3; r++) {
-                        for (var j = 0; j < 4; j++) {
-                            c.beginPath();
-                            c.arc(X(sg * (0.15 + 0.045 * j + 0.012 * r)), Y(0.47 + 0.035 * r + 0.012 * j), 0.005 * s, 0, TAU);
-                            c.fill();
-                        }
-                    }
-                });
-            }
-
-            /* Ogen: live getekend, zodat de pupillen de cursor volgen */
-            function drawEyes(c, g, a) {
-                if (a <= 0) return;
-                var s = g.s;
-                var lx = gaze.x * s * 0.03;
-                var ly = gaze.y * s * 0.018;
-                c.save();
-                c.globalAlpha = a;
-
-                g.eyes.forEach(function (E) {
-                    var ex = E.ex, ey = E.ey;
-
-                    // Schaduw rond de oogkas
-                    var sh = c.createRadialGradient(ex, ey, 0, ex, ey, 0.2 * s);
-                    sh.addColorStop(0, 'rgba(20,10,4,0.6)');
-                    sh.addColorStop(0.6, 'rgba(20,10,4,0.28)');
-                    sh.addColorStop(1, 'rgba(20,10,4,0)');
-                    c.fillStyle = sh;
-                    c.beginPath();
-                    c.arc(ex, ey, 0.2 * s, 0, TAU);
-                    c.fill();
-
-                    c.save();
-                    c.clip(E.full);
-                    c.fillStyle = '#150b05';
-                    c.fillRect(ex - 0.2 * s, ey - 0.2 * s, 0.4 * s, 0.4 * s);
-
-                    var px = ex + lx, py = ey + ly + 0.004 * s;
-                    var ir = 0.062 * s;
-                    var ig = c.createRadialGradient(px, py, 0, px, py, ir);
-                    ig.addColorStop(0, '#6b4112');
-                    ig.addColorStop(0.35, '#b27a2c');
-                    ig.addColorStop(0.75, '#7a4b14');
-                    ig.addColorStop(1, '#1a0d04');
-                    c.fillStyle = ig;
-                    c.beginPath();
-                    c.arc(px, py, ir, 0, TAU);
-                    c.fill();
-
-                    // Structuur in de iris
-                    c.lineWidth = Math.max(0.6, s * 0.002);
-                    for (var i = 0; i < 30; i++) {
-                        var an = (i / 30) * TAU + Math.random() * 0.1;
-                        c.strokeStyle = (i % 2) ? 'rgba(255,210,130,0.2)' : 'rgba(0,0,0,0.22)';
-                        c.beginPath();
-                        c.moveTo(px + Math.cos(an) * 0.03 * s, py + Math.sin(an) * 0.03 * s);
-                        c.lineTo(px + Math.cos(an) * 0.058 * s, py + Math.sin(an) * 0.058 * s);
-                        c.stroke();
-                    }
-
-                    c.fillStyle = '#000';
-                    c.beginPath();
-                    c.arc(px, py, 0.029 * s, 0, TAU);
-                    c.fill();
-
-                    // Schaduw van het bovenste ooglid
-                    var lg = c.createLinearGradient(0, ey - 0.085 * s, 0, ey + 0.01 * s);
-                    lg.addColorStop(0, 'rgba(0,0,0,0.75)');
-                    lg.addColorStop(1, 'rgba(0,0,0,0)');
-                    c.fillStyle = lg;
-                    c.fillRect(ex - 0.2 * s, ey - 0.1 * s, 0.4 * s, 0.11 * s);
-
-                    // Glans van het hoornvlies
-                    var gl = c.createLinearGradient(0, ey - 0.07 * s, 0, ey + 0.07 * s);
-                    gl.addColorStop(0, 'rgba(255,255,255,0.16)');
-                    gl.addColorStop(0.5, 'rgba(255,255,255,0)');
-                    c.fillStyle = gl;
-                    c.fillRect(ex - 0.2 * s, ey - 0.08 * s, 0.4 * s, 0.16 * s);
-
-                    // Lichtpuntjes
-                    c.fillStyle = 'rgba(255,255,255,0.95)';
-                    c.beginPath();
-                    c.ellipse(px - 0.022 * s, py - 0.024 * s, 0.013 * s, 0.011 * s, -0.4, 0, TAU);
-                    c.fill();
-                    c.fillStyle = 'rgba(255,255,255,0.5)';
-                    c.beginPath();
-                    c.arc(px + 0.022 * s, py + 0.02 * s, 0.006 * s, 0, TAU);
-                    c.fill();
-                    c.restore();
-
-                    // Ooglidranden en traanklier
-                    c.lineCap = 'round';
-                    c.strokeStyle = '#0b0604';
-                    c.lineWidth = 0.015 * s;
-                    c.stroke(E.top);
-                    c.strokeStyle = 'rgba(70,30,24,0.8)';
-                    c.lineWidth = 0.009 * s;
-                    c.stroke(E.low);
-                    c.fillStyle = 'rgba(150,70,65,0.55)';
-                    c.beginPath();
-                    c.ellipse(E.ix, E.iy, 0.014 * s, 0.01 * s, 0, 0, TAU);
-                    c.fill();
-                });
-                c.restore();
-            }
-
-            /* Franje: haartjes die over de randen van ogen, neus en bek vallen, plus snorharen */
-            function buildFringe(c, g) {
-                var s = g.s, cx = g.cx, cy = g.cy, k = dpr;
-
-                // Ogen
-                g.eyes.forEach(function (E) {
-                    var box = [E.ex - 0.15 * s, E.ey - 0.11 * s, E.ex + 0.15 * s, E.ey + 0.11 * s];
-                    edgeHairs(c, E.full, box, Math.round(s * s * 0.12), 'in', s * 0.015,
-                        function () { return rgba(palAt(0.05 + Math.random() * 0.25), 0.8, 10); },
-                        s * 0.035, 1.1 * k);
-
-                    // Wenkbrauwhaartjes
-                    for (var i = 0; i < 16; i++) {
-                        var bx = E.ex + (Math.random() - 0.5) * 0.2 * s;
-                        var by = E.ey - 0.1 * s - Math.random() * 0.02 * s;
-                        var dir = -Math.PI / 2 + E.sg * (0.25 + Math.random() * 0.4) + (Math.random() - 0.5) * 0.3;
-                        hair(c, bx, by, dir, s * (0.04 + Math.random() * 0.04), 1.3 * k,
-                            rgba(palAt(0.55 + Math.random() * 0.3), 0.8, 10), (Math.random() - 0.5) * 0.3);
-                    }
-                });
-
-                // Neusrand
-                var np = nosePath(g);
-                edgeHairs(c, np, [cx - 0.26 * s, cy + 0.14 * s, cx + 0.26 * s, cy + 0.5 * s],
-                    Math.round(s * s * 0.14), 'in', s * 0.014,
-                    function () { return rgba(palAt(0.6 + Math.random() * 0.3), 0.85, 10); },
-                    s * 0.045, 1.2 * k);
-
-                // Haartjes boven de lip
-                [-1, 1].forEach(function (sg) {
-                    for (var i = 0; i < 70; i++) {
-                        var t = Math.random();
-                        var p = lipPoint(t, sg, s, cx, cy);
-                        var dir = Math.PI / 2 + (Math.random() - 0.5) * 0.8;
-                        hair(c, p[0] + (Math.random() - 0.5) * 0.01 * s, p[1] - (0.012 + Math.random() * 0.02) * s,
-                            dir, s * (0.03 + Math.random() * 0.03), 1.2 * k,
-                            rgba(palAt(0.6 + Math.random() * 0.3), 0.8, 10), (Math.random() - 0.5) * 0.3);
-                    }
-                });
-
-                // Snorharen
-                c.lineCap = 'round';
-                [-1, 1].forEach(function (sg) {
-                    for (var j = 0; j < 4; j++) {
-                        var rx = cx + sg * 0.2 * s, ry = cy + (0.5 + 0.02 * j) * s;
-                        var qx = cx + sg * (0.45 + 0.04 * j) * s, qy = cy + (0.5 + 0.06 * j) * s;
-                        var ex = cx + sg * (0.72 + 0.07 * j) * s, ey = cy + (0.6 + 0.13 * j) * s;
-                        c.strokeStyle = 'rgba(30,16,8,0.35)';
-                        c.lineWidth = 1.6 * k;
-                        c.beginPath();
-                        c.moveTo(rx, ry + 1.5 * k);
-                        c.quadraticCurveTo(qx, qy + 1.5 * k, ex, ey + 1.5 * k);
-                        c.stroke();
-                        c.strokeStyle = 'rgba(244,234,214,0.6)';
-                        c.lineWidth = 1.1 * k;
-                        c.beginPath();
-                        c.moveTo(rx, ry);
-                        c.quadraticCurveTo(qx, qy, ex, ey);
-                        c.stroke();
-                    }
-                });
-            }
-
-            /* ---------- Onthulling ---------- */
-
-            function setGaze(x, y) {
-                if (!complete) return;
-                gaze.tx = Math.max(-1, Math.min(1, (x - W / 2) / (W / 2)));
-                gaze.ty = Math.max(-1, Math.min(1, (y - H / 2) / (H / 2)));
-                kick();
-            }
-
-            function frame(now) {
-                rafId = 0;
-                if (!complete || !base) return;
-                var t = now - animStart;
-                var c = ctx;
-                c.setTransform(1, 0, 0, 1, 0, 0);
-                c.globalAlpha = 1;
-                c.clearRect(0, 0, canvas.width, canvas.height);
-                c.drawImage(base, 0, 0);
-
-                c.globalAlpha = ease(clamp01(t / 900));
-                c.drawImage(layers.ears, 0, 0);
-
-                c.globalAlpha = ease(clamp01((t - 700) / 900));
-                c.drawImage(layers.face, 0, 0);
-
-                c.globalAlpha = 1;
-                drawEyes(c, geo, ease(clamp01((t - 1500) / 900)));
-
-                c.globalAlpha = ease(clamp01((t - 2200) / 800));
-                c.drawImage(layers.nose, 0, 0);
-
-                c.globalAlpha = ease(clamp01((t - 2900) / 800));
-                c.drawImage(layers.mouth, 0, 0);
-
-                c.globalAlpha = ease(clamp01((t - 3000) / 900));
-                c.drawImage(layers.fringe, 0, 0);
-                c.globalAlpha = 1;
-
-                gaze.x += (gaze.tx - gaze.x) * 0.18;
-                gaze.y += (gaze.ty - gaze.y) * 0.18;
-                var moving = Math.abs(gaze.tx - gaze.x) > 0.002 || Math.abs(gaze.ty - gaze.y) > 0.002;
-                if (t < 4000 || moving) rafId = requestAnimationFrame(frame);
-            }
-
-            function kick() {
-                if (!rafId && complete) rafId = requestAnimationFrame(frame);
-            }
-
-            /* ---------- Opnieuw ---------- */
-
-            again.addEventListener('click', function () {
-                complete = false;
-                drawing = false;
-                if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
-                grid.fill(0);
-                covered = 0;
-                base = null;
-                layers = null;
-                gaze.x = gaze.y = gaze.tx = gaze.ty = 0;
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                ctx.globalAlpha = 1;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                document.body.classList.remove('done');
-                hint.classList.remove('hide');
-                updateProgress();
-            });
-
-            /* ---------- Formaat aanpassen ---------- */
-
-            function resize() {
-                var src = complete && base ? base : canvas;
-                var tmp = document.createElement('canvas');
-                tmp.width = src.width;
-                tmp.height = src.height;
-                tmp.getContext('2d').drawImage(src, 0, 0);
-
-                W = window.innerWidth;
-                H = window.innerHeight;
-                dpr = Math.min(window.devicePixelRatio || 1, 2);
-                canvas.width = Math.round(W * dpr);
-                canvas.height = Math.round(H * dpr);
-
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                if (tmp.width > 0 && tmp.height > 0) {
-                    ctx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
-                }
-
-                if (complete) {
-                    base = document.createElement('canvas');
-                    base.width = canvas.width;
-                    base.height = canvas.height;
-                    base.getContext('2d').drawImage(tmp, 0, 0, base.width, base.height);
-                    buildLayers();
-                    animStart = performance.now() - 10000;
-                    kick();
-                } else {
-                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                }
-            }
-
-            var resizeTimer = 0;
-            window.addEventListener('resize', function () {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(resize, 120);
-            });
-
-            resize();
-            updateProgress();
+            render();
         })();
     </script>
 </body>
