@@ -31,7 +31,8 @@
         html,
         body {
             width: 100%;
-            min-height: 100%;
+            height: 100%;
+            overflow: hidden;
         }
 
         body {
@@ -43,6 +44,12 @@
         @keyframes fadeIn {
             from { opacity: 0; }
             to   { opacity: 1; }
+        }
+
+        #app {
+            width: 100%;
+            height: 100%;
+            animation: fadeIn 0.5s ease-out;
         }
 
         /* ---------- Navigatie (zelfde als editie 1 en 2) ---------- */
@@ -79,91 +86,94 @@
             outline: none;
         }
 
-        #app {
-            animation: fadeIn 0.5s ease-out;
-        }
-
         /* =========================================================
-           LEZING 1: TELEFOON. Lijst, nieuwste eerst, kleine beelden
+           LEZING 1: TELEFOON
+           Eén moment tegelijk, beeldvullend. Vegen is bladeren.
            ========================================================= */
 
-        .list {
-            list-style: none;
-            padding: 1.5rem clamp(1rem, 5vw, 1.5rem) 5rem;
-        }
-
-        .list-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--brown);
-        }
-
-        .row {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.9rem 0;
-            border-bottom: 1px solid rgba(107, 68, 35, 0.35);
-            animation: fadeIn 0.5s ease-out backwards;
-        }
-
-        .row img {
-            width: 76px;
-            height: 76px;
-            flex: none;
-            object-fit: cover;
-            border: 2px solid var(--brown);
-            border-radius: 4px;
-            display: block;
-        }
-
-        .row-num {
-            color: var(--neon);
-            font-size: 2.2rem;
-            line-height: 1;
-            width: 3.2rem;
-            flex: none;
+        .clock {
+            position: fixed;
+            top: clamp(0.8rem, 2vw, 1.5rem);
+            left: clamp(0.8rem, 2vw, 1.5rem);
+            z-index: 10;
+            font-size: 1rem;
             font-variant-numeric: tabular-nums;
         }
 
-        .row-text {
-            min-width: 0;
-            flex: 1;
-        }
-
-        .row-name {
-            font-size: 1.35rem;
-            line-height: 1.1;
-            letter-spacing: -0.02em;
-        }
-
-        .row-bark {
-            font-size: 0.85rem;
-            margin-top: 0.35rem;
-            opacity: 0.85;
-        }
-
-        .dots {
+        .slides {
             display: flex;
-            gap: 4px;
-            margin-top: 0.5rem;
+            width: 100%;
+            height: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
         }
 
-        .dots i {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            border: 1.5px solid var(--neon);
-            display: block;
+        .slides::-webkit-scrollbar {
+            display: none;
         }
 
-        .dots i.on {
-            background: var(--neon);
+        .slide {
+            flex: 0 0 100%;
+            height: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 1.4rem 5rem;
         }
 
-        /* Onderin de telefoon: witte balk zodat de lijst er netjes achter verdwijnt */
+        .slide .tag {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            min-height: 1.2em;
+            margin-bottom: 0.8rem;
+        }
+
+        .slide.now .tag {
+            color: var(--neon);
+        }
+
+        .slide .word {
+            font-size: clamp(4.5rem, 21vw, 9rem);
+            line-height: 0.9;
+            letter-spacing: -0.05em;
+            overflow-wrap: anywhere;
+        }
+
+        .slide.now .word {
+            color: var(--neon);
+        }
+
+        .slide .line {
+            font-size: 1.15rem;
+            line-height: 1.3;
+            margin-top: 1.2rem;
+            max-width: 22rem;
+        }
+
+        .slide .meta {
+            font-size: 0.85rem;
+            margin-top: 1.6rem;
+            opacity: 0.85;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .slide .count {
+            position: absolute;
+            top: clamp(0.8rem, 2vw, 1.5rem);
+            right: clamp(0.8rem, 2vw, 1.5rem);
+            font-size: 1rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .slide {
+            position: relative;
+        }
+
         @media (max-width: 899px) {
             .nav-links {
                 bottom: 0;
@@ -179,137 +189,141 @@
         }
 
         /* =========================================================
-           LEZING 2: LAPTOP. Raster, gesorteerd op volume, groot nummer
+           LEZING 2: LAPTOP
+           De hele dag in één blik: twee rijen, 00-12 en 12-24.
            ========================================================= */
 
         @media (min-width: 900px) {
-            html,
-            body {
-                height: 100%;
-                overflow: hidden;
-            }
-
-            .grid {
+            .day {
                 position: absolute;
                 top: 1.5rem;
                 bottom: 4.5rem;
                 left: 3vw;
                 right: 3vw;
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                grid-template-rows: repeat(3, 1fr);
+                display: flex;
+                flex-direction: column;
                 gap: var(--gap);
             }
 
-            .tile {
+            .readout {
+                flex: 1.4;
+                min-height: 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 2rem;
+                padding-bottom: 0.5rem;
+            }
+
+            .readout-main {
+                min-width: 0;
+            }
+
+            .readout-tag {
+                font-size: clamp(0.8rem, 1.2vw, 1rem);
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin-bottom: 0.5rem;
+            }
+
+            .readout-word {
+                font-size: clamp(5rem, 17vh, 15rem);
+                line-height: 0.85;
+                letter-spacing: -0.05em;
+                color: var(--neon);
+                white-space: nowrap;
+            }
+
+            .readout-word.preview {
+                color: var(--brown);
+            }
+
+            .readout-line {
+                font-size: clamp(1rem, 1.8vw, 1.6rem);
+                margin-top: 1rem;
+            }
+
+            .readout-side {
+                text-align: right;
+                flex: none;
+            }
+
+            .readout-time {
+                font-size: clamp(2.5rem, 7vw, 7rem);
+                line-height: 0.9;
+                letter-spacing: -0.04em;
+                font-variant-numeric: tabular-nums;
+            }
+
+            .readout-next {
+                font-size: clamp(0.85rem, 1.3vw, 1.1rem);
+                margin-top: 0.8rem;
+            }
+
+            .row {
+                flex: 1;
+                min-height: 0;
+                display: grid;
+                grid-template-columns: repeat(12, 1fr);
+                gap: var(--gap);
+            }
+
+            .block {
                 position: relative;
+                min-width: 0;
                 overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 0.6rem 0.7rem;
                 border: 2px solid var(--brown);
                 border-radius: 4px;
                 background: #fff;
-                outline: none;
+                color: var(--brown);
                 cursor: default;
+                outline: none;
                 animation: fadeIn 0.6s ease-out backwards;
+                transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
             }
 
-            .tile img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                display: block;
-                transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-            }
-
-            .tile::after {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(to bottom, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0) 45%);
-                pointer-events: none;
-            }
-
-            .tile-num {
-                position: absolute;
-                top: 0.2rem;
-                left: 0.7rem;
-                z-index: 2;
-                color: var(--neon);
-                font-size: clamp(2.6rem, 6.5vw, 6.5rem);
-                line-height: 1;
-                letter-spacing: -0.04em;
+            .block .range {
+                font-size: clamp(0.65rem, 0.95vw, 0.85rem);
                 font-variant-numeric: tabular-nums;
-                pointer-events: none;
+                white-space: nowrap;
             }
 
-            .tile-name {
-                position: absolute;
-                top: 0.9rem;
-                right: 0.8rem;
-                z-index: 2;
-                color: #fff;
-                font-size: clamp(0.7rem, 1.1vw, 0.95rem);
-                pointer-events: none;
+            .block .bw {
+                font-size: clamp(0.9rem, 1.7vw, 1.5rem);
+                line-height: 1;
+                letter-spacing: -0.02em;
+                white-space: nowrap;
             }
 
-            .tile-bark {
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                z-index: 3;
-                padding: 0.5rem 0.8rem;
-                background: #fff;
+            .block.wide .bw {
+                font-size: clamp(1.4rem, 3vw, 2.8rem);
+            }
+
+            .block:hover,
+            .block:focus-visible {
+                border-color: var(--neon);
                 color: var(--neon);
-                font-size: clamp(0.9rem, 1.6vw, 1.4rem);
-                transform: translateY(101%);
-                transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
             }
 
-            .tile:hover img,
-            .tile:focus-visible img {
-                transform: scale(1.06);
-            }
-
-            .tile:hover .tile-bark,
-            .tile:focus-visible .tile-bark {
-                transform: translateY(0);
-            }
-
-            .tile-note {
-                border: none;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-end;
-                padding: 0 0.2rem 0.2rem;
-                font-size: clamp(0.8rem, 1.4vw, 1.1rem);
-                line-height: 1.3;
-            }
-
-            .tile-note .scale {
-                display: flex;
-                align-items: center;
-                gap: 0.6rem;
-                margin-top: 0.8rem;
-                color: var(--neon);
-                font-size: 0.8rem;
-            }
-
-            .tile-note .scale span {
-                flex: 1;
-                height: 2px;
+            .block.now {
                 background: var(--neon);
+                border-color: var(--neon);
+                color: #fff;
+            }
+
+            .block.now .range::after {
+                content: " · now";
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
             #app,
-            .row,
-            .tile {
+            .block {
                 animation: none;
-            }
-
-            .tile img,
-            .tile-bark {
                 transition: none;
             }
         }
@@ -326,91 +340,193 @@
 
     <script>
         (function () {
-            var BASE = 'https://indi2601.github.io/dogdaysarenotover/';
-
-            // Het materiaal: 11 honden, in volgorde van ontmoeting (1 = eerste, 11 = laatste).
-            // loud: blafvolume van 1 (zacht) tot 5 (luid). Pas namen, blaf en volume gerust aan.
-            var DOGS = [
-                { id: 1,  file: 'IMG_8804.jpeg', name: 'Biscuit', bark: 'Waf! Waf-waf!',               loud: 2 },
-                { id: 2,  file: 'IMG_8806.jpeg', name: 'Mochi',   bark: 'Waf-waf! WOOF!',              loud: 3 },
-                { id: 3,  file: 'IMG_8817.jpeg', name: 'Pepper',  bark: 'WAF! WAF! WAF! Waf-waf-waf!', loud: 5 },
-                { id: 4,  file: 'IMG_8818.jpeg', name: 'Olive',   bark: 'Waf! Woef! Hrr-waf!',         loud: 2 },
-                { id: 5,  file: 'IMG_8821.jpeg', name: 'Nacho',   bark: 'WOOF! Waf! WOOF!',            loud: 4 },
-                { id: 6,  file: 'IMG_8822.jpeg', name: 'Waffle',  bark: 'Waf! Waf! Waf-waf!',          loud: 1 },
-                { id: 7,  file: 'IMG_8879.jpeg', name: 'Juno',    bark: 'WAF! WAF-waf!',               loud: 3 },
-                { id: 8,  file: 'IMG_8819.jpeg', name: 'Milo',    bark: 'Waf! Waf-waf!',               loud: 1 },
-                { id: 9,  file: 'IMG_8936.jpeg', name: 'Fenna',   bark: 'WAF-WAF-WAF-WAF!',            loud: 5 },
-                { id: 10, file: 'IMG_8942.jpeg', name: 'Rocco',   bark: 'WOOF! Waf! WOOF!',            loud: 4 },
-                { id: 11, file: 'IMG_8945.jpeg', name: 'Sunny',   bark: 'Waf-waf! WOOF!',              loud: 3 }
+            // De dag van een hond. from/to zijn uren (0 tot 24).
+            // Pas gerust woorden en zinnen aan.
+            var BLOCKS = [
+                { from: 0,  to: 6,  word: 'Sleep',   line: 'Dreaming about squirrels. Do not disturb.' },
+                { from: 6,  to: 7,  word: 'Walk',    line: 'Bladder says now. Right now.' },
+                { from: 7,  to: 8,  word: 'Eat',     line: 'Breakfast. Yesterday\u2019s dinner is forgotten.' },
+                { from: 8,  to: 10, word: 'Walk',    line: 'Sniff every single lamppost.' },
+                { from: 10, to: 12, word: 'Nap',     line: 'Recovering from the walk.' },
+                { from: 12, to: 13, word: 'Eat',     line: 'A small snack. Just a tiny one. Please.' },
+                { from: 13, to: 15, word: 'Nap',     line: 'Hunting the one sunbeam in the room.' },
+                { from: 15, to: 16, word: 'Play',    line: 'Ball. Ball. Ball. Ball.' },
+                { from: 16, to: 18, word: 'Walk',    line: 'The long walk. The good one.' },
+                { from: 18, to: 19, word: 'Eat',     line: 'Dinner. Now. Immediately.' },
+                { from: 19, to: 21, word: 'Cuddle',  line: 'The couch. Your lap. Both.' },
+                { from: 21, to: 22, word: 'Zoomies', line: 'Sudden energy. Mind the furniture.' },
+                { from: 22, to: 24, word: 'Sleep',   line: 'Lights out. Back to the squirrels.' }
             ];
 
             var app = document.getElementById('app');
             var mq = window.matchMedia('(min-width: 900px)');
+            var mode = null;
+            var previewIdx = -1;
 
             function two(n) { return (n < 10 ? '0' : '') + n; }
+            function hh(h) { return two(h % 24) + ':00'; }
+            function range(b) { return hh(b.from) + '\u2013' + hh(b.to); }
 
-            function dots(level) {
-                var s = '';
-                for (var i = 1; i <= 5; i++) s += '<i class="' + (i <= level ? 'on' : '') + '"></i>';
-                return '<div class="dots" aria-label="Volume ' + level + ' of 5">' + s + '</div>';
+            function nowInfo() {
+                var d = new Date();
+                var mins = d.getHours() * 60 + d.getMinutes();
+                var idx = 0;
+                for (var i = 0; i < BLOCKS.length; i++) {
+                    if (mins >= BLOCKS[i].from * 60 && mins < BLOCKS[i].to * 60) { idx = i; break; }
+                }
+                return { d: d, mins: mins, idx: idx, clock: two(d.getHours()) + ':' + two(d.getMinutes()) };
             }
 
-            // Telefoon: lijst, nieuwste bovenaan
+            function dur(m) {
+                var h = Math.floor(m / 60), r = m % 60;
+                if (h === 0) return r + 'm';
+                return h + 'h ' + (r < 10 ? '0' : '') + r + 'm';
+            }
+
+            // minuten tot het begin van blok i (kan morgen zijn)
+            function until(i, mins) {
+                return (BLOCKS[i].from * 60 - mins + 1440) % 1440;
+            }
+
+            /* ---------- Telefoon ---------- */
+
             function renderPhone() {
-                var items = DOGS.slice().sort(function (a, b) { return b.id - a.id; });
-                var html = '<ul class="list"><li class="list-label">' + DOGS.length + ' dogs · newest first</li>';
-                items.forEach(function (d, i) {
+                var html = '<div class="clock" id="clock"></div><div class="slides" id="slides">';
+                BLOCKS.forEach(function (b, i) {
                     html +=
-                        '<li class="row" style="animation-delay:' + (i * 0.04).toFixed(2) + 's">' +
-                            '<span class="row-num">' + two(d.id) + '</span>' +
-                            '<img src="' + BASE + d.file + '" alt="' + d.name + '" loading="lazy">' +
-                            '<div class="row-text">' +
-                                '<div class="row-name">' + d.name + '</div>' +
-                                '<div class="row-bark">' + d.bark + '</div>' +
-                                dots(d.loud) +
-                            '</div>' +
-                        '</li>';
+                        '<section class="slide" data-i="' + i + '">' +
+                            '<div class="count">' + two(i + 1) + ' / ' + two(BLOCKS.length) + '</div>' +
+                            '<div class="tag"></div>' +
+                            '<div class="word">' + b.word + '.</div>' +
+                            '<p class="line">' + b.line + '</p>' +
+                            '<div class="meta"></div>' +
+                        '</section>';
                 });
-                html += '</ul>';
-                app.innerHTML = html;
-            }
-
-            // Laptop: raster, van zacht naar luid, groot nummer op het beeld
-            function renderLaptop() {
-                var items = DOGS.slice().sort(function (a, b) { return a.loud - b.loud || a.id - b.id; });
-                var html = '<div class="grid">';
-                items.forEach(function (d, i) {
-                    html +=
-                        '<div class="tile" tabindex="0" style="animation-delay:' + (i * 0.05).toFixed(2) + 's">' +
-                            '<img src="' + BASE + d.file + '" alt="' + d.name + '">' +
-                            '<span class="tile-num">' + two(d.id) + '</span>' +
-                            '<span class="tile-name">' + d.name + '</span>' +
-                            '<div class="tile-bark">' + d.bark + '</div>' +
-                        '</div>';
-                });
-                html +=
-                    '<div class="tile tile-note">' +
-                        '<div>' + DOGS.length + ' dogs.<br>Sorted by volume.<br>Hover for the bark.</div>' +
-                        '<div class="scale">quiet <span></span> loud</div>' +
-                    '</div>';
                 html += '</div>';
                 app.innerHTML = html;
+
+                var slides = document.getElementById('slides');
+                var info = nowInfo();
+                slides.scrollLeft = info.idx * slides.clientWidth;
+                updatePhone();
             }
 
-            var current = null;
+            function updatePhone() {
+                var info = nowInfo();
+                var clock = document.getElementById('clock');
+                if (clock) clock.textContent = info.clock;
+
+                var slides = app.querySelectorAll('.slide');
+                slides.forEach(function (s, i) {
+                    var b = BLOCKS[i];
+                    var isNow = i === info.idx;
+                    s.classList.toggle('now', isNow);
+                    var tag = s.querySelector('.tag');
+                    var meta = s.querySelector('.meta');
+                    if (isNow) {
+                        tag.textContent = 'Right now';
+                        var next = (i + 1) % BLOCKS.length;
+                        meta.textContent = 'Next: ' + BLOCKS[next].word + ' in ' + dur(until(next, info.mins));
+                    } else {
+                        tag.textContent = range(b);
+                        if (b.from * 60 > info.mins) {
+                            meta.textContent = 'Starts in ' + dur(until(i, info.mins));
+                        } else {
+                            meta.textContent = 'Earlier today';
+                        }
+                    }
+                });
+            }
+
+            /* ---------- Laptop ---------- */
+
+            function blockHtml(b, i) {
+                var wide = (b.to - b.from) >= 3 ? ' wide' : '';
+                return '<div class="block' + wide + '" tabindex="0" data-i="' + i + '" ' +
+                        'style="grid-column: span ' + (b.to - b.from) + '; animation-delay:' + (i * 0.04).toFixed(2) + 's">' +
+                            '<span class="range">' + range(b) + '</span>' +
+                            '<span class="bw">' + b.word + '</span>' +
+                        '</div>';
+            }
+
+            function renderLaptop() {
+                var am = '', pm = '';
+                BLOCKS.forEach(function (b, i) {
+                    if (b.from < 12) am += blockHtml(b, i); else pm += blockHtml(b, i);
+                });
+
+                app.innerHTML =
+                    '<div class="day">' +
+                        '<div class="readout">' +
+                            '<div class="readout-main">' +
+                                '<div class="readout-tag" id="r-tag"></div>' +
+                                '<div class="readout-word" id="r-word"></div>' +
+                                '<div class="readout-line" id="r-line"></div>' +
+                            '</div>' +
+                            '<div class="readout-side">' +
+                                '<div class="readout-time" id="r-time"></div>' +
+                                '<div class="readout-next" id="r-next"></div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="row">' + am + '</div>' +
+                        '<div class="row">' + pm + '</div>' +
+                    '</div>';
+
+                app.querySelectorAll('.block').forEach(function (el) {
+                    var i = parseInt(el.getAttribute('data-i'), 10);
+                    function on() { previewIdx = i; updateLaptop(); }
+                    function off() { previewIdx = -1; updateLaptop(); }
+                    el.addEventListener('mouseenter', on);
+                    el.addEventListener('mouseleave', off);
+                    el.addEventListener('focus', on);
+                    el.addEventListener('blur', off);
+                });
+
+                updateLaptop();
+            }
+
+            function updateLaptop() {
+                var info = nowInfo();
+                var shown = previewIdx >= 0 ? previewIdx : info.idx;
+                var b = BLOCKS[shown];
+                var isNow = shown === info.idx;
+
+                document.getElementById('r-tag').textContent = isNow ? 'Your dog wants, right now' : 'Later: ' + range(b);
+                var w = document.getElementById('r-word');
+                w.textContent = b.word + '.';
+                w.classList.toggle('preview', !isNow);
+                document.getElementById('r-line').textContent = b.line;
+                document.getElementById('r-time').textContent = info.clock;
+
+                var next = (info.idx + 1) % BLOCKS.length;
+                document.getElementById('r-next').textContent =
+                    'Next: ' + BLOCKS[next].word + ' in ' + dur(until(next, info.mins));
+
+                app.querySelectorAll('.block').forEach(function (el, k) {
+                    var i = parseInt(el.getAttribute('data-i'), 10);
+                    el.classList.toggle('now', i === info.idx);
+                });
+            }
+
+            /* ---------- Kiezen en bijwerken ---------- */
 
             function render() {
-                var mode = mq.matches ? 'laptop' : 'phone';
-                if (mode === current) return;
-                current = mode;
+                var next = mq.matches ? 'laptop' : 'phone';
+                if (next === mode) return;
+                mode = next;
+                previewIdx = -1;
                 if (mode === 'laptop') renderLaptop(); else renderPhone();
-                window.scrollTo(0, 0);
+            }
+
+            function tick() {
+                if (mode === 'laptop') updateLaptop(); else updatePhone();
             }
 
             if (mq.addEventListener) mq.addEventListener('change', render);
             else mq.addListener(render);
 
             render();
+            setInterval(tick, 20000);
         })();
     </script>
 </body>
