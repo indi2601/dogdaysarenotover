@@ -1,49 +1,696 @@
-<!doctype html>
-<html lang="nl">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <!-- Zonder deze regel toont een telefoon je pagina als een verkleinde desktoppagina. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- De titel in het tabblad van de browser. Vervang door je onderwerp. -->
-  <title>De vogels in mijn tuin</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Days Are Not Over</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @font-face {
+            font-family: 'Neue Haas Grotesk';
+            src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --brown: #6b4423;
+            --neon: #ff2fa8;
+            --background: #FFFFFF;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+            touch-action: none;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--brown);
+            font-family: 'Neue Haas Grotesk', sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .defs {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        /* ---------- Botjes (onder het zand) ---------- */
+
+        #field {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+        }
+
+        .bone {
+            position: absolute;
+            display: grid;
+            place-items: center;
+            text-decoration: none;
+            color: var(--neon);
+            pointer-events: none;
+            outline: none;
+            transform: rotate(var(--rot, 0deg));
+            transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .bone svg {
+            grid-area: 1 / 1;
+            width: 100%;
+            height: 100%;
+            display: block;
+            overflow: visible;
+            filter: drop-shadow(0 3px 4px rgba(90, 55, 20, 0.35));
+        }
+
+        .b-out {
+            fill: var(--brown);
+            stroke: var(--brown);
+            stroke-width: 9;
+            stroke-linejoin: round;
+        }
+
+        .b-in {
+            fill: #fff;
+            transition: fill 0.25s ease;
+        }
+
+        .num {
+            grid-area: 1 / 1;
+            font-size: calc(var(--w, 150px) * 0.3);
+            line-height: 1;
+            letter-spacing: -0.03em;
+            font-variant-numeric: tabular-nums;
+            opacity: 0;
+            transform: rotate(calc(var(--rot, 0deg) * -1));
+            transition: opacity 0.5s ease, transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.25s ease;
+        }
+
+        .bone.revealed {
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .bone.revealed .num {
+            opacity: 1;
+        }
+
+        .bone.revealed:hover,
+        .bone.revealed:focus-visible {
+            transform: rotate(0deg) scale(1.1);
+        }
+
+        .bone.revealed:hover .num,
+        .bone.revealed:focus-visible .num {
+            transform: rotate(0deg);
+            color: #fff;
+        }
+
+        .bone.revealed:hover .b-in,
+        .bone.revealed:focus-visible .b-in {
+            fill: var(--neon);
+        }
+
+        .bone:focus-visible {
+            outline: 2px dashed var(--neon);
+            outline-offset: 6px;
+        }
+
+        /* ---------- Zand en effecten ---------- */
+
+        #sand,
+        #fx {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+
+        #sand { z-index: 2; }
+        #fx   { z-index: 3; }
+
+        /* ---------- Titel ---------- */
+
+        .title {
+            position: fixed;
+            top: clamp(0.8rem, 2vw, 1.5rem);
+            left: clamp(0.8rem, 2vw, 1.5rem);
+            z-index: 4;
+            pointer-events: none;
+            font-size: clamp(2.4rem, 7vw, 8.5rem);
+            font-weight: 400;
+            line-height: 0.88;
+            letter-spacing: -0.045em;
+            text-transform: uppercase;
+            color: var(--brown);
+        }
+
+        .title span {
+            display: inline;
+        }
+
+        /* ---------- Onderin (zelfde stijl als de edities) ---------- */
+
+        .status {
+            position: fixed;
+            bottom: clamp(0.8rem, 2vw, 1.5rem);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 6;
+            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+            line-height: 1.2;
+            white-space: nowrap;
+            pointer-events: none;
+            color: var(--brown);
+        }
+
+        .nav-links {
+            position: fixed;
+            bottom: clamp(0.8rem, 2vw, 1.5rem);
+            left: clamp(0.8rem, 2vw, 1.5rem);
+            right: clamp(0.8rem, 2vw, 1.5rem);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        .nav-link {
+            font-family: inherit;
+            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+            line-height: 1.2;
+            font-weight: 400;
+            color: var(--neon);
+            text-transform: none;
+            letter-spacing: 0;
+            text-decoration: none;
+            white-space: nowrap;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            transition: opacity 0.25s ease;
+            outline: none;
+            pointer-events: auto;
+        }
+
+        .nav-link:hover,
+        .nav-link:focus,
+        .nav-link:focus-visible {
+            opacity: 0.7;
+            outline: none;
+        }
+
+        /* Telefoon */
+        @media (max-width: 899px) {
+            .title {
+                font-size: 16vw;
+            }
+
+            .title span {
+                display: block;
+            }
+
+            .status,
+            .nav-link {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
-<body class="overzicht">
 
-  <!--
-    NEVER FINISHED
-    Minor Webdesign, LUCA Gent, 2026-2027
+<body>
+    <!-- Botvorm, één keer gedefinieerd -->
+    <svg class="defs" aria-hidden="true" focusable="false">
+        <defs>
+            <g id="bone-shape">
+                <rect x="40" y="26" width="120" height="28"/>
+                <circle cx="34" cy="26" r="19"/>
+                <circle cx="34" cy="54" r="19"/>
+                <circle cx="166" cy="26" r="19"/>
+                <circle cx="166" cy="54" r="19"/>
+            </g>
+        </defs>
+    </svg>
 
-    Dit is je OVERZICHT: de pagina die al je edities toont en samenhoudt.
-    Alles hieronder is een voorbeeld. Vervang het door je eigen onderwerp.
+    <div id="field"></div>
+    <canvas id="sand"></canvas>
+    <canvas id="fx"></canvas>
 
-    Elke les komt hier één editie bij, en één nieuwe eis voor dit overzicht.
-  -->
+    <h1 class="title" id="title"><span>Dog Days</span> <span>Are Not</span> <span>Over</span></h1>
 
-  <header>
-    <!-- Je onderwerp. -->
-    <h1>De vogels in mijn tuin</h1>
+    <div class="status" id="status" aria-live="polite"></div>
 
-    <!-- Wat één editie is. Leg het vast in les 01. -->
-    <p>Elke editie is wat ik tussen twee lesdonderdagen zie vanuit mijn keukenraam: soort, aantal, uur, wat de vogel deed.</p>
-  </header>
+    <nav class="nav-links" aria-label="Controls">
+        <button type="button" class="nav-link" id="bury">↻ Bury again</button>
+    </nav>
 
-  <main>
-    <!--
-      De lijst met edities. Elke editie is één regel met een link naar haar eigen pagina.
-      Een editie toevoegen: kopieer een <li> ... </li>, pas nummer, datum en link aan.
-      Nieuwste bovenaan of onderaan? Dat beslis jij. Zeg waarom.
-    -->
-    <ol class="edities">
-      <li>
-        <a href="editie-01.html">
-          <span class="nummer">01</span>
-          <time datetime="2026-10-01">1 oktober 2026</time>
-          <span class="focus">Het scherm</span>
-        </a>
-      </li>
-    </ol>
-  </main>
+    <script>
+        (function () {
+            'use strict';
 
+            var COUNT = 10;
+            var DELAY = 1200;      // milliseconden stilhouden voor het graven begint
+            var GROW = 0.045;      // hoe snel het gat groeit (pixels per milliseconde)
+
+            var sand = document.getElementById('sand');
+            var fx = document.getElementById('fx');
+            var sctx = sand.getContext('2d', { willReadFrequently: true });
+            var fctx = fx.getContext('2d');
+            var field = document.getElementById('field');
+            var title = document.getElementById('title');
+            var statusEl = document.getElementById('status');
+            var buryBtn = document.getElementById('bury');
+
+            var TAU = Math.PI * 2;
+            var W = 0, H = 0, s = 1, maxR = 120;
+            var bones = [];
+            var particles = [];
+            var ptr = { active: false, x: 0, y: 0, sx: 0, sy: 0, t0: 0, done: false };
+            var touching = false;
+            var started = false;
+            var needCheck = false, lastCheck = 0, fxDirty = false, lastT = 0;
+            var isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+            function two(n) { return (n < 10 ? '0' : '') + n; }
+
+            function mulberry32(a) {
+                return function () {
+                    a |= 0; a = a + 0x6D2B79F5 | 0;
+                    var t = Math.imul(a ^ a >>> 15, 1 | a);
+                    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+                    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+                };
+            }
+
+            /* ---------- Botjes aanmaken ---------- */
+
+            for (var i = 0; i < COUNT; i++) {
+                var a = document.createElement('a');
+                a.className = 'bone';
+                a.href = 'editie-' + two(i + 1) + '.html';
+                a.setAttribute('aria-label', 'Edition ' + two(i + 1));
+                a.innerHTML =
+                    '<svg viewBox="0 0 200 80" aria-hidden="true">' +
+                        '<use href="#bone-shape" class="b-out"/>' +
+                        '<use href="#bone-shape" class="b-in"/>' +
+                    '</svg>' +
+                    '<span class="num">' + two(i + 1) + '</span>';
+                field.appendChild(a);
+                bones.push({ el: a, cx: 0, cy: 0, w: 0, h: 0, rot: 0, revealed: false });
+            }
+
+            bones.forEach(function (b) {
+                b.el.addEventListener('focus', function () {
+                    if (b.revealed) return;
+                    var r = b.w * 0.75;
+                    dig(b.cx, b.cy, r * 0.6);
+                    dig(b.cx, b.cy, r * 0.85);
+                    dig(b.cx, b.cy, r);
+                    spawn(b.cx, b.cy, r, 14);
+                    started = true;
+                    fxDirty = true;
+                    checkAll();
+                });
+            });
+
+            /* ---------- Zand tekenen ---------- */
+
+            function makeTile() {
+                var t = document.createElement('canvas');
+                t.width = 240;
+                t.height = 240;
+                var c = t.getContext('2d');
+                c.fillStyle = '#dcc08f';
+                c.fillRect(0, 0, 240, 240);
+                var cols = ['#f1dfb8', '#b48a55', '#c9a770', '#e8d0a0'];
+                for (var i = 0; i < 7000; i++) {
+                    c.globalAlpha = 0.25 + Math.random() * 0.5;
+                    c.fillStyle = cols[(Math.random() * cols.length) | 0];
+                    var sz = Math.random() < 0.8 ? 1 : 1.8;
+                    c.fillRect(Math.random() * 240, Math.random() * 240, sz, sz);
+                }
+                c.globalAlpha = 1;
+                return t;
+            }
+
+            function paintSand() {
+                sctx.save();
+                sctx.setTransform(s, 0, 0, s, 0, 0);
+                sctx.globalCompositeOperation = 'source-over';
+                sctx.globalAlpha = 1;
+
+                sctx.fillStyle = sctx.createPattern(makeTile(), 'repeat');
+                sctx.fillRect(0, 0, W, H);
+
+                // Grote, zachte vlekken
+                var rng = mulberry32(7);
+                for (var i = 0; i < 60; i++) {
+                    var x = rng() * W, y = rng() * H, r = 80 + rng() * 180;
+                    var light = rng() > 0.5;
+                    var g = sctx.createRadialGradient(x, y, 0, x, y, r);
+                    g.addColorStop(0, light ? 'rgba(255,240,205,0.12)' : 'rgba(110,75,35,0.09)');
+                    g.addColorStop(1, 'rgba(0,0,0,0)');
+                    sctx.fillStyle = g;
+                    sctx.fillRect(x - r, y - r, r * 2, r * 2);
+                }
+
+                // Duinribbels
+                sctx.lineCap = 'round';
+                for (var y2 = 20; y2 < H; y2 += 34) {
+                    for (var pass = 0; pass < 2; pass++) {
+                        sctx.beginPath();
+                        for (var x2 = -10; x2 <= W + 10; x2 += 12) {
+                            var yy = y2 + Math.sin(x2 / 90 + y2 / 40) * 5 + Math.sin(x2 / 37) * 2 + pass * 3;
+                            if (x2 === -10) sctx.moveTo(x2, yy); else sctx.lineTo(x2, yy);
+                        }
+                        sctx.strokeStyle = pass === 0 ? 'rgba(120,80,40,0.09)' : 'rgba(255,245,220,0.22)';
+                        sctx.lineWidth = pass === 0 ? 2 : 1.5;
+                        sctx.stroke();
+                    }
+                }
+                sctx.restore();
+            }
+
+            /* ---------- Opmaak ---------- */
+
+            function layout() {
+                var mobile = W < 900;
+                var tr = title.getBoundingClientRect();
+                var top = tr.bottom + (mobile ? 16 : 24);
+                var bottom = H - (mobile ? 64 : 72);
+                var left = W * (mobile ? 0.05 : 0.03);
+                var right = W - left;
+                var cols = mobile ? 2 : 5;
+                var rows = mobile ? 5 : 2;
+                var cw = (right - left) / cols;
+                var ch = Math.max(40, (bottom - top) / rows);
+                var rng = mulberry32(11);
+
+                bones.forEach(function (b, i) {
+                    var r = Math.floor(i / cols), c = i % cols;
+                    var w = Math.min(cw * 0.78, ch * 0.8 / 0.4);
+                    var h = w * 0.4;
+                    var jx = (cw - w) / 2 * 0.8 * (rng() * 2 - 1);
+                    var jy = (ch - h) / 2 * 0.7 * (rng() * 2 - 1);
+                    var rot = (rng() * 2 - 1) * (mobile ? 22 : 30);
+
+                    b.w = w;
+                    b.h = h;
+                    b.rot = rot;
+                    b.cx = left + cw * (c + 0.5) + jx;
+                    b.cy = top + ch * (r + 0.5) + jy;
+
+                    b.el.style.width = w + 'px';
+                    b.el.style.height = h + 'px';
+                    b.el.style.left = (b.cx - w / 2) + 'px';
+                    b.el.style.top = (b.cy - h / 2) + 'px';
+                    b.el.style.setProperty('--w', w + 'px');
+                    b.el.style.setProperty('--rot', rot.toFixed(1) + 'deg');
+                });
+            }
+
+            function setup(preserve) {
+                var old = null;
+                if (preserve && sand.width > 0) {
+                    old = document.createElement('canvas');
+                    old.width = sand.width;
+                    old.height = sand.height;
+                    old.getContext('2d').drawImage(sand, 0, 0);
+                }
+
+                W = window.innerWidth;
+                H = window.innerHeight;
+                s = Math.min(window.devicePixelRatio || 1, 1.5);
+                maxR = Math.max(80, Math.min(170, Math.min(W, H) * 0.15));
+
+                sand.width = fx.width = Math.round(W * s);
+                sand.height = fx.height = Math.round(H * s);
+                fctx.setTransform(s, 0, 0, s, 0, 0);
+
+                if (old) {
+                    sctx.setTransform(s, 0, 0, s, 0, 0);
+                    sctx.drawImage(old, 0, 0, W, H);
+                } else {
+                    paintSand();
+                }
+                sctx.setTransform(s, 0, 0, s, 0, 0);
+
+                layout();
+                checkAll();
+            }
+
+            /* ---------- Graven ---------- */
+
+            function circle(c, x, y, r) {
+                c.beginPath();
+                c.arc(x, y, r, 0, TAU);
+                c.fill();
+            }
+
+            function dig(x, y, r) {
+                sctx.save();
+                sctx.setTransform(s, 0, 0, s, 0, 0);
+
+                // Donkerder, opgeworpen randje (alleen waar nog zand ligt)
+                sctx.globalCompositeOperation = 'source-atop';
+                var g = sctx.createRadialGradient(x, y, r * 0.85, x, y, r * 1.35);
+                g.addColorStop(0, 'rgba(95,60,28,0.03)');
+                g.addColorStop(1, 'rgba(95,60,28,0)');
+                sctx.fillStyle = g;
+                circle(sctx, x, y, r * 1.35);
+
+                // Het gat zelf, met een grillige rand
+                sctx.globalCompositeOperation = 'destination-out';
+                sctx.fillStyle = '#000';
+                circle(sctx, x, y, r * 0.9);
+                for (var i = 0; i < 9; i++) {
+                    var an = Math.random() * TAU;
+                    circle(sctx, x + Math.cos(an) * r * 0.7, y + Math.sin(an) * r * 0.7, r * (0.22 + Math.random() * 0.12));
+                }
+                sctx.restore();
+            }
+
+            var GRAIN = ['#c9a770', '#b48a55', '#dcc08f', '#a87e4a'];
+
+            function spawn(x, y, r, n) {
+                for (var i = 0; i < n; i++) {
+                    var an = Math.random() * TAU;
+                    var sp = 0.6 + Math.random() * 2.2;
+                    particles.push({
+                        x: x + Math.cos(an) * r * 0.9,
+                        y: y + Math.sin(an) * r * 0.9,
+                        vx: Math.cos(an) * sp,
+                        vy: Math.sin(an) * sp - (1.2 + Math.random() * 2.2),
+                        life: 0,
+                        max: 28 + Math.random() * 26,
+                        size: 1.2 + Math.random() * 2.2,
+                        c: GRAIN[(Math.random() * GRAIN.length) | 0]
+                    });
+                }
+            }
+
+            /* ---------- Botjes onthullen ---------- */
+
+            function clearAt(px, py) {
+                var X = Math.round(px * s), Y = Math.round(py * s);
+                if (X < 0 || Y < 0 || X >= sand.width || Y >= sand.height) return false;
+                return sctx.getImageData(X, Y, 1, 1).data[3] < 40;
+            }
+
+            function checkAll() {
+                var found = 0;
+                bones.forEach(function (b) {
+                    var th = b.rot * Math.PI / 180;
+                    var cs = Math.cos(th), sn = Math.sin(th);
+                    var offs = [-0.3, -0.15, 0, 0.15, 0.3];
+                    var n = 0;
+                    offs.forEach(function (o) {
+                        if (clearAt(b.cx + o * b.w * cs, b.cy + o * b.w * sn)) n++;
+                    });
+                    var now = n >= 3;
+                    if (now !== b.revealed) {
+                        b.revealed = now;
+                        b.el.classList.toggle('revealed', now);
+                    }
+                    if (b.revealed) found++;
+                });
+                updateStatus(found);
+            }
+
+            function updateStatus(found) {
+                if (!started && found === 0) {
+                    statusEl.textContent = isTouch ? 'Press and hold to dig' : 'Hold still to dig';
+                } else if (found >= COUNT) {
+                    statusEl.textContent = 'All found. Pick an edition';
+                } else {
+                    statusEl.textContent = found + ' / ' + COUNT + ' bones found';
+                }
+            }
+
+            /* ---------- Animatie ---------- */
+
+            function loop(now) {
+                requestAnimationFrame(loop);
+                var dt = Math.min(40, now - (lastT || now)) / 16.7;
+                lastT = now;
+
+                if (!particles.length && !ptr.active && !fxDirty) return;
+
+                fctx.clearRect(0, 0, W, H);
+
+                if (ptr.active && !ptr.done) {
+                    var held = now - ptr.t0;
+                    if (held < DELAY) {
+                        if (held > 150) {
+                            var p = held / DELAY;
+                            fctx.lineWidth = 2.5;
+                            fctx.lineCap = 'round';
+                            fctx.strokeStyle = 'rgba(107,68,35,0.25)';
+                            fctx.beginPath();
+                            fctx.arc(ptr.sx, ptr.sy, 18, 0, TAU);
+                            fctx.stroke();
+                            fctx.strokeStyle = '#ff2fa8';
+                            fctx.beginPath();
+                            fctx.arc(ptr.sx, ptr.sy, 18, -Math.PI / 2, -Math.PI / 2 + p * TAU);
+                            fctx.stroke();
+                        }
+                    } else {
+                        started = true;
+                        var r = Math.min(maxR, 16 + (held - DELAY) * GROW);
+                        dig(ptr.sx, ptr.sy, r);
+                        spawn(ptr.sx, ptr.sy, r, 3);
+                        needCheck = true;
+                        if (r >= maxR) {
+                            ptr.done = true;
+                            lastCheck = 0;
+                        }
+                    }
+                }
+
+                for (var i = particles.length - 1; i >= 0; i--) {
+                    var q = particles[i];
+                    q.life += dt;
+                    if (q.life >= q.max) { particles.splice(i, 1); continue; }
+                    q.vy += 0.16 * dt;
+                    q.x += q.vx * dt;
+                    q.y += q.vy * dt;
+                    fctx.globalAlpha = 1 - q.life / q.max;
+                    fctx.fillStyle = q.c;
+                    fctx.fillRect(q.x, q.y, q.size, q.size);
+                }
+                fctx.globalAlpha = 1;
+                fxDirty = particles.length > 0 || ptr.active;
+
+                if (needCheck && now - lastCheck > 140) {
+                    lastCheck = now;
+                    needCheck = false;
+                    checkAll();
+                }
+            }
+
+            /* ---------- Invoer ---------- */
+
+            function startDwell(x, y) {
+                ptr.active = true;
+                ptr.done = false;
+                ptr.sx = x;
+                ptr.sy = y;
+                ptr.t0 = performance.now();
+            }
+
+            function onMove(e) {
+                var t = e.target;
+                if (t && t.closest && t.closest('.bone.revealed, .nav-link')) {
+                    ptr.active = false;
+                    return;
+                }
+                ptr.x = e.clientX;
+                ptr.y = e.clientY;
+                if (!ptr.active) {
+                    startDwell(e.clientX, e.clientY);
+                } else {
+                    var dx = e.clientX - ptr.sx, dy = e.clientY - ptr.sy;
+                    if (dx * dx + dy * dy > 196) startDwell(e.clientX, e.clientY);
+                }
+                fxDirty = true;
+            }
+
+            window.addEventListener('pointermove', function (e) {
+                if (e.pointerType === 'touch' && !touching) return;
+                onMove(e);
+            });
+
+            window.addEventListener('pointerdown', function (e) {
+                if (e.pointerType !== 'touch') return;
+                touching = true;
+                var t = e.target;
+                if (t && t.closest && t.closest('.bone.revealed, .nav-link')) return;
+                startDwell(e.clientX, e.clientY);
+                fxDirty = true;
+            });
+
+            function release(e) {
+                if (e.pointerType === 'touch') {
+                    touching = false;
+                    ptr.active = false;
+                    needCheck = true;
+                }
+            }
+            window.addEventListener('pointerup', release);
+            window.addEventListener('pointercancel', release);
+
+            document.documentElement.addEventListener('mouseleave', function () {
+                ptr.active = false;
+            });
+
+            buryBtn.addEventListener('click', function () {
+                paintSand();
+                particles = [];
+                ptr.active = false;
+                started = false;
+                fctx.clearRect(0, 0, W, H);
+                checkAll();
+            });
+
+            var resizeTimer = 0;
+            window.addEventListener('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function () { setup(true); }, 150);
+            });
+
+            /* ---------- Start ---------- */
+
+            setup(false);
+            requestAnimationFrame(loop);
+
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(function () {
+                    layout();
+                    checkAll();
+                });
+            }
+        })();
+    </script>
 </body>
 </html>
