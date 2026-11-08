@@ -42,6 +42,7 @@
             font-family: 'Neue Haas Grotesk', sans-serif;
             -webkit-user-select: none;
             user-select: none;
+            -webkit-touch-callout: none;
         }
 
         .defs {
@@ -291,7 +292,8 @@
             var COUNT = 10;
             var DELAY = 900;       // milliseconden stilhouden voor het graven begint
             var GROW = 0.05;       // hoe snel het gat groeit (pixels per milliseconde)
-            var BONE_SCALE = 0.8;  // botgrootte (1 = vorige versie)
+            var BONE_SCALE = 0.8;  // botgrootte (1 = eerdere versie)
+            var HOLE = 0.3;        // maximale gatgrootte als deel van de botbreedte
 
             var SURF = [107, 68, 35];   // #6b4423: het zand aan de oppervlakte
             var PIT  = [46, 27, 13];    // veel donkerder zand onder het oppervlak
@@ -309,7 +311,7 @@
             var buryBtn = document.getElementById('bury');
 
             var TAU = Math.PI * 2;
-            var W = 0, H = 0, s = 1, maxR = 120, lastW = 0, lastH = 0;
+            var W = 0, H = 0, s = 1, maxR = 45, lastW = 0, lastH = 0;
             var bones = [];
             var particles = [];
             var pending = 0;
@@ -350,7 +352,7 @@
                 mark.textContent = '!';
                 marks.appendChild(mark);
 
-                bones.push({ el: link, mark: mark, cx: 0, cy: 0, w: 0, h: 0, rot: 0, state: 0, queue: [], tick: 0 });
+                bones.push({ el: link, mark: mark, index: bi, cx: 0, cy: 0, w: 0, h: 0, rot: 0, state: 0, queue: [], tick: 0 });
             }
 
             bones.forEach(function (b) {
@@ -491,6 +493,11 @@
 
                 band(bones.slice(0, 5), x0, 28, x1, tr.top - 14, cols, rng, mobile);
                 band(bones.slice(5), x0, tr.bottom + 14, x1, H - 62, cols, rng, mobile);
+
+                // Het gat is overal even groot als het gat dat een bot vrijmaakt
+                var sum = 0;
+                bones.forEach(function (b) { sum += b.w; });
+                maxR = Math.max(28, Math.min(80, (sum / bones.length) * HOLE));
             }
 
             function resetBones() {
@@ -509,7 +516,6 @@
                 lastW = W;
                 lastH = H;
                 s = Math.min(window.devicePixelRatio || 1, 1.5);
-                maxR = Math.max(80, Math.min(170, Math.min(W, H) * 0.15));
 
                 sand.width = pit.width = fx.width = Math.round(W * s);
                 sand.height = pit.height = fx.height = Math.round(H * s);
@@ -521,13 +527,12 @@
 
                 particles = [];
                 ptr.active = false;
+                down = false;
                 started = false;
                 resetBones();
                 layout();
                 checkAll();
             }
-
-            bones.forEach(function (b, i) { b.index = i; });
 
             /* ---------- Uitroepteken boven een begraven bot ---------- */
 
@@ -660,7 +665,7 @@
                         [-0.3, -0.15, 0, 0.15, 0.3].forEach(function (o) {
                             if (clearAt(b.cx + o * b.w * cs, b.cy + o * b.w * sn)) n++;
                         });
-                        if (n >= 3) startReveal(b);
+                        if (n >= 2) startReveal(b);
                     }
                     if (b.state === 2) found++;
                 });
@@ -669,7 +674,7 @@
 
             function updateStatus(found) {
                 if (!started && found === 0) {
-                    statusEl.textContent = isTouch ? 'Press and drag to dig' : 'Hold still or click and drag to dig';
+                    statusEl.textContent = isTouch ? 'Press and hold to dig' : 'Hold still to dig';
                 } else if (found >= COUNT) {
                     statusEl.textContent = 'All found. Pick an edition';
                 } else {
@@ -688,7 +693,7 @@
 
                 fctx.clearRect(0, 0, W, H);
 
-                if (ptr.active && (!ptr.done || down)) {
+                if (ptr.active && !ptr.done) {
                     var held = now - ptr.t0;
                     if (held < DELAY) {
                         if (held > 150) {
@@ -706,11 +711,11 @@
                         }
                     } else {
                         started = true;
-                        var r = Math.min(maxR, 20 + (held - DELAY) * GROW);
+                        var r = Math.min(maxR, 16 + (held - DELAY) * GROW);
                         dig(ptr.sx, ptr.sy, r);
                         spawn(ptr.sx, ptr.sy, r, 6);
                         needCheck = true;
-                        if (r >= maxR && !down) {
+                        if (r >= maxR) {
                             ptr.done = true;
                             lastCheck = 0;
                         }
@@ -735,7 +740,7 @@
                     fctx.fillRect(q.x, q.y, q.size, q.size);
                 }
                 fctx.globalAlpha = 1;
-                fxDirty = particles.length > 0 || ptr.active || pending > 0;
+                fxDirty = particles.length > 0 || (ptr.active && !ptr.done) || pending > 0;
 
                 if (needCheck && now - lastCheck > 140) {
                     lastCheck = now;
@@ -751,54 +756,55 @@
                 return !!(t && t.closest && t.closest('.bone.revealed, .nav-link'));
             }
 
-            function startDwell(x, y, instant) {
+            function startDwell(x, y) {
                 ptr.active = true;
                 ptr.done = false;
                 ptr.sx = x;
                 ptr.sy = y;
-                ptr.t0 = performance.now() - (instant ? DELAY : 0);
+                ptr.t0 = performance.now();
                 fxDirty = true;
+            }
+
+            function moveDwell(x, y) {
+                if (!ptr.active) {
+                    startDwell(x, y);
+                } else {
+                    var dx = x - ptr.sx, dy = y - ptr.sy;
+                    if (dx * dx + dy * dy > 196) startDwell(x, y);
+                }
             }
 
             window.addEventListener('pointermove', function (e) {
                 updateMarks(e.clientX, e.clientY);
 
                 if (onBone(e)) {
-                    if (!down) ptr.active = false;
+                    ptr.active = false;
                     return;
                 }
-                if (down) {
-                    // Slepen: het gat volgt de cursor
-                    if (!ptr.active) startDwell(e.clientX, e.clientY, true);
-                    ptr.sx = e.clientX;
-                    ptr.sy = e.clientY;
-                    fxDirty = true;
+                if (e.pointerType === 'touch') {
+                    // Telefoon: alleen graven terwijl je vinger ingedrukt blijft
+                    if (down) moveDwell(e.clientX, e.clientY);
                     return;
                 }
-                if (e.pointerType === 'touch') return;
-                if (!ptr.active) {
-                    startDwell(e.clientX, e.clientY, false);
-                } else {
-                    var dx = e.clientX - ptr.sx, dy = e.clientY - ptr.sy;
-                    if (dx * dx + dy * dy > 196) startDwell(e.clientX, e.clientY, false);
-                }
+                // Desktop: stilhouden
+                moveDwell(e.clientX, e.clientY);
             });
 
             window.addEventListener('pointerdown', function (e) {
                 updateMarks(e.clientX, e.clientY);
                 if (onBone(e)) return;
-                down = true;
-                startDwell(e.clientX, e.clientY, true);
+                if (e.pointerType === 'touch') {
+                    down = true;
+                    startDwell(e.clientX, e.clientY);
+                }
             });
 
             function release(e) {
-                down = false;
                 needCheck = true;
                 if (e.pointerType === 'touch') {
+                    down = false;
                     ptr.active = false;
                     updateMarks(null, null);
-                } else {
-                    startDwell(e.clientX, e.clientY, false);
                 }
             }
             window.addEventListener('pointerup', release);
@@ -806,7 +812,6 @@
 
             document.documentElement.addEventListener('mouseleave', function () {
                 ptr.active = false;
-                down = false;
                 updateMarks(null, null);
             });
 
