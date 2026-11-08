@@ -92,14 +92,7 @@
             height: 100%;
             display: block;
             overflow: visible;
-            filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.55));
-        }
-
-        .b-out {
-            fill: #1d0f05;
-            stroke: #1d0f05;
-            stroke-width: 8;
-            stroke-linejoin: round;
+            filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
         }
 
         .b-in {
@@ -154,7 +147,7 @@
 
         .mark {
             position: absolute;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%) rotate(var(--mr, 0deg));
             color: var(--neon);
             font-family: 'Neue Haas Grotesk', sans-serif;
             font-weight: 400;
@@ -298,6 +291,7 @@
             var COUNT = 10;
             var DELAY = 900;       // milliseconden stilhouden voor het graven begint
             var GROW = 0.05;       // hoe snel het gat groeit (pixels per milliseconde)
+            var BONE_SCALE = 0.8;  // botgrootte (1 = vorige versie)
 
             var SURF = [107, 68, 35];   // #6b4423: het zand aan de oppervlakte
             var PIT  = [46, 27, 13];    // veel donkerder zand onder het oppervlak
@@ -346,7 +340,6 @@
                 link.setAttribute('aria-label', 'Edition ' + two(bi + 1));
                 link.innerHTML =
                     '<svg viewBox="0 0 200 80" aria-hidden="true">' +
-                        '<use href="#bone-shape" class="b-out"/>' +
                         '<use href="#bone-shape" class="b-in"/>' +
                     '</svg>' +
                     '<span class="num">' + two(bi + 1) + '</span>';
@@ -460,7 +453,7 @@
                     var r = Math.floor(i / cols), c = i % cols;
                     var inRow = Math.min(cols, n - r * cols);
                     var off = (cols - inRow) * cw / 2;
-                    var w = Math.min(cw * 0.78, ch * 1.2);
+                    var w = Math.min(cw * 0.78, ch * 1.2) * BONE_SCALE;
                     var h = w * 0.4;
                     var jx = (cw - w) / 2 * 0.5 * (rng() * 2 - 1);
                     var jy = (ch - h) / 2 * 0.3 * (rng() * 2 - 1);
@@ -479,9 +472,13 @@
                     b.el.style.setProperty('--w', w + 'px');
                     b.el.style.setProperty('--rot', rot.toFixed(1) + 'deg');
 
-                    b.mark.style.left = b.cx + 'px';
-                    b.mark.style.top = b.cy + 'px';
-                    b.mark.style.fontSize = Math.max(28, h * 1.1) + 'px';
+                    // Speels uitroepteken: eigen grootte, draaiing en plek per bot
+                    var mr = mulberry32(100 + b.index);
+                    var size = h * (0.5 + mr() * 0.9);
+                    b.mark.style.left = (b.cx + (mr() * 2 - 1) * w * 0.28) + 'px';
+                    b.mark.style.top = (b.cy + (mr() * 2 - 1) * h * 0.35) + 'px';
+                    b.mark.style.fontSize = Math.max(16, size) + 'px';
+                    b.mark.style.setProperty('--mr', ((mr() * 2 - 1) * 28).toFixed(1) + 'deg');
                 });
             }
 
@@ -529,6 +526,8 @@
                 layout();
                 checkAll();
             }
+
+            bones.forEach(function (b, i) { b.index = i; });
 
             /* ---------- Uitroepteken boven een begraven bot ---------- */
 
