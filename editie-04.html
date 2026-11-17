@@ -218,10 +218,10 @@
 
             var TAU = Math.PI * 2;
             var W = window.innerWidth, H = window.innerHeight, dpr = 1;
-            var GX = 64, GY = 40, TOTAL = GX * GY;
+            var GX = 48, GY = 30, TOTAL = GX * GY;
             var grid = new Uint8Array(TOTAL);
             var covered = 0;
-            var THRESHOLD = 0.975;           // hoeveel van de pagina bedekt moet zijn voor de hond verschijnt
+            var REVEAL_MS = 2200;            // hoe lang de hond erover doet om te verschijnen
 
             var drawing = false, complete = false;
             var last = null, vx = 0, vy = 1, lastBuzz = 0;
@@ -290,7 +290,7 @@
             /* ---------- Vacht tijdens het tekenen ---------- */
 
             function stamp(x, y, ang, r, count) {
-                // Donkere ondervacht, zodat er nooit wit doorheen schijnt
+                // Donkere ondervacht
                 var g = ctx.createRadialGradient(x, y, 0, x, y, r);
                 g.addColorStop(0, 'rgba(56,32,15,0.55)');
                 g.addColorStop(0.7, 'rgba(56,32,15,0.3)');
@@ -330,13 +330,14 @@
                 return isPhone() ? Math.max(50, m * 0.14) : Math.max(42, m * 0.062);
             }
 
+            // Een vakje telt mee als de kwast er redelijk dichtbij komt
             function mark(x, y, r) {
                 var cw = W / GX, ch = H / GY;
                 var x0 = Math.max(0, Math.floor((x - r) / cw));
                 var x1 = Math.min(GX - 1, Math.floor((x + r) / cw));
                 var y0 = Math.max(0, Math.floor((y - r) / ch));
                 var y1 = Math.min(GY - 1, Math.floor((y + r) / ch));
-                var lim = r * r * 0.62;
+                var lim = r * r * 0.72;
                 for (var gy = y0; gy <= y1; gy++) {
                     for (var gx = x0; gx <= x1; gx++) {
                         var dx = (gx + 0.5) * cw - x;
@@ -355,10 +356,10 @@
                 mark(x, y, r);
             }
 
+            // Het percentage is eerlijk: 100% pas als alles door jou is bedekt
             function updateProgress() {
                 var p = covered / TOTAL;
-                var shown = Math.min(100, Math.round(p / THRESHOLD * 100));
-                meter.textContent = shown + '%';
+                meter.textContent = Math.floor(p * 100) + '%';
                 return p;
             }
 
@@ -411,36 +412,23 @@
             canvas.addEventListener('pointercancel', stop);
 
             function checkDone() {
-                if (updateProgress() >= THRESHOLD && !complete) finish();
+                if (updateProgress() >= 1 && !complete) finish();
             }
 
-            /* ---------- Afronden: hele scherm vullen, dan de hond ---------- */
+            /* ---------- Afronden: alles is door jou gevuld, nu verschijnt de hond ---------- */
 
             function finish() {
                 complete = true;
                 drawing = false;
 
-                // 1. Donkerbruine ondergrond onder alle vacht: nergens meer wit
+                // Donkerbruine laag ónder de vacht, zodat er nergens wit tussen de haartjes doorschijnt
                 ctx.save();
                 ctx.globalCompositeOperation = 'destination-over';
                 ctx.fillStyle = '#442712';
                 ctx.fillRect(0, 0, W, H);
                 ctx.restore();
 
-                // 2. Resterende gaatjes met extra haar vullen
-                var cw = W / GX, ch = H / GY;
-                for (var gy = 0; gy < GY; gy++) {
-                    for (var gx = 0; gx < GX; gx++) {
-                        if (!grid[gy * GX + gx]) {
-                            var cx0 = (gx + 0.5) * cw, cy0 = (gy + 0.5) * ch;
-                            var ang = Math.PI / 2 + (Math.random() - 0.5);
-                            stamp(cx0, cy0, ang, Math.max(cw, ch) * 1.6, 44);
-                            stamp(cx0, cy0, ang, Math.max(cw, ch) * 1.1, 30);
-                        }
-                    }
-                }
-
-                // 3. Diepte: donkerder naar de rand, licht op het voorhoofd
+                // Diepte: donkerder naar de rand, licht op het voorhoofd
                 var vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.max(W, H) * 0.75);
                 vg.addColorStop(0, 'rgba(0,0,0,0)');
                 vg.addColorStop(1, 'rgba(20,10,3,0.3)');
@@ -528,9 +516,7 @@
                 layers = L;
             }
 
-            /* Haartjes langs de rand van een vorm.
-               'in': wortel buiten de vorm, haar valt over de rand naar binnen.
-               'out': wortel binnen de vorm, haar steekt over de rand naar buiten. */
+            /* Haartjes langs de rand van een vorm. */
             function edgeHairs(c, path, box, tries, mode, d, colFn, len, w) {
                 var o = [[1, 0], [-1, 0], [0, 1], [0, -1], [0.7, 0.7], [-0.7, 0.7], [0.7, -0.7], [-0.7, -0.7]];
                 for (var i = 0; i < tries; i++) {
@@ -581,7 +567,6 @@
                     var xa = g.cx + sign * 0.45 * s, xb = g.cx + sign * 1.45 * s;
                     var box = [Math.min(xa, xb), g.cy - 1.05 * s, Math.max(xa, xb), g.cy + 0.85 * s];
 
-                    // Haartjes in het oor, naar beneden gericht
                     var n = Math.round(s * s * 0.09);
                     for (var i = 0; i < n; i++) {
                         var x = box[0] + Math.random() * (box[2] - box[0]);
@@ -593,7 +578,6 @@
                             rgba(palAt(tt), 0.5 + Math.random() * 0.4, 10), (Math.random() - 0.5) * 0.4);
                     }
 
-                    // Haarfranje langs de rand
                     edgeHairs(c, path, box, Math.round(s * s * 0.18), 'out', s * 0.025,
                         function () { return rgba(palAt(0.12 + Math.random() * 0.35), 0.7, 10); },
                         s * 0.06, 1.3 * k);
@@ -604,7 +588,6 @@
             function buildFace(c, g) {
                 var s = g.s, cx = g.cx, cy = g.cy, k = dpr;
 
-                // Volume van de kop
                 c.save();
                 c.translate(cx, cy + 0.15 * s);
                 c.scale(0.85, 1);
@@ -630,19 +613,18 @@
 
                     var dm = Math.sqrt((u / 0.5) * (u / 0.5) + ((v - 0.42) / 0.34) * ((v - 0.42) / 0.34));
                     var t = 0.34 + Math.random() * 0.28;
-                    if (dm < 1) t = 0.62 + Math.random() * 0.32;               // lichte snuit
+                    if (dm < 1) t = 0.62 + Math.random() * 0.32;
                     else if (dm < 1.5) t = 0.48 + Math.random() * 0.3;
-                    if (Math.abs(u) < 0.09 && v < 0.12 && v > -0.75) t = Math.max(t, 0.6 + Math.random() * 0.3);  // bles
+                    if (Math.abs(u) < 0.09 && v < 0.12 && v > -0.75) t = Math.max(t, 0.6 + Math.random() * 0.3);
                     var d1 = Math.sqrt((u - 0.4) * (u - 0.4) + (v + 0.12) * (v + 0.12));
                     var d2 = Math.sqrt((u + 0.4) * (u + 0.4) + (v + 0.12) * (v + 0.12));
-                    if (Math.min(d1, d2) < 0.17) t = 0.18 + Math.random() * 0.22;   // iets donkerder rond de ogen
+                    if (Math.min(d1, d2) < 0.17) t = 0.18 + Math.random() * 0.22;
                     t -= 0.1 * (1 - e);
 
                     hair(c, x, y, dir, s * (0.035 + Math.random() * 0.06), (0.9 + Math.random() * 0.9) * k,
                         rgba(palAt(t), Math.min(1, e * 3) * (0.55 + Math.random() * 0.4), 12), (Math.random() - 0.5) * 0.5);
                 }
 
-                // Zachte lichtval op de neusbrug
                 c.save();
                 c.translate(cx, cy + 0.2 * s);
                 c.scale(0.5, 1);
@@ -686,7 +668,6 @@
                 c.fill(np);
                 c.restore();
 
-                // Stenige leerstructuur
                 var nb = [cx - 0.2 * s, cy + 0.18 * s, cx + 0.2 * s, cy + 0.47 * s];
                 var dots = Math.round(s * s * 0.012);
                 for (var i = 0; i < dots; i++) {
@@ -703,7 +684,6 @@
                     c.fill();
                 }
 
-                // Neusgaten
                 [-1, 1].forEach(function (sg) {
                     c.save();
                     c.translate(cx + sg * 0.08 * s, cy + 0.37 * s);
@@ -720,7 +700,6 @@
                     c.restore();
                 });
 
-                // Groef onder de neus
                 c.strokeStyle = 'rgba(0,0,0,0.95)';
                 c.lineWidth = 0.013 * s;
                 c.lineCap = 'round';
@@ -729,7 +708,6 @@
                 c.lineTo(cx, cy + 0.47 * s);
                 c.stroke();
 
-                // Natte glans
                 c.save();
                 c.translate(cx - 0.065 * s, cy + 0.26 * s);
                 c.scale(1, 0.38);
@@ -761,13 +739,11 @@
                 return [cx + sg * u * s, cy + v * s];
             }
 
-            // Vriendelijk open bekje met een tong
             function buildMouth(c, g) {
                 var s = g.s, cx = g.cx, cy = g.cy;
                 function X(u) { return cx + u * s; }
                 function Y(v) { return cy + v * s; }
 
-                // Schaduw van de onderkaak
                 c.save();
                 c.translate(cx, cy + 0.78 * s);
                 c.scale(1, 0.34);
@@ -780,7 +756,6 @@
                 c.fill();
                 c.restore();
 
-                // Binnenkant van de bek
                 var m = new Path2D();
                 m.moveTo(X(-0.31), Y(0.585));
                 m.bezierCurveTo(X(-0.2), Y(0.665), X(-0.07), Y(0.645), X(0), Y(0.56));
@@ -794,7 +769,6 @@
                 c.fillStyle = mg;
                 c.fill(m);
 
-                // Tong, geknipt binnen de bek
                 c.save();
                 c.clip(m);
                 var t = new Path2D();
@@ -808,7 +782,6 @@
                 c.fillStyle = tg;
                 c.fill(t);
 
-                // Middenlijn en glans op de tong
                 c.strokeStyle = 'rgba(120,30,45,0.45)';
                 c.lineWidth = 0.007 * s;
                 c.lineCap = 'round';
@@ -822,7 +795,6 @@
                 c.fill();
                 c.restore();
 
-                // Lippen
                 var lip = new Path2D();
                 lip.moveTo(X(-0.31), Y(0.585));
                 lip.bezierCurveTo(X(-0.2), Y(0.665), X(-0.07), Y(0.645), X(0), Y(0.56));
@@ -834,7 +806,6 @@
                 c.lineWidth = 0.026 * s;
                 c.stroke(lip);
 
-                // Onderlip, zachter
                 c.strokeStyle = 'rgba(15,7,6,0.55)';
                 c.lineWidth = 0.014 * s;
                 c.beginPath();
@@ -842,7 +813,6 @@
                 c.bezierCurveTo(X(-0.27), Y(0.86), X(0.27), Y(0.86), X(0.31), Y(0.585));
                 c.stroke();
 
-                // Natte glans op de lip
                 c.save();
                 c.translate(0, 0.012 * s);
                 c.strokeStyle = 'rgba(255,255,255,0.1)';
@@ -850,7 +820,6 @@
                 c.stroke(lip);
                 c.restore();
 
-                // Neusgroef naar de lip
                 c.strokeStyle = '#0f0706';
                 c.lineWidth = 0.014 * s;
                 c.beginPath();
@@ -858,7 +827,6 @@
                 c.lineTo(X(0), Y(0.57));
                 c.stroke();
 
-                // Snorhaarporiën
                 c.fillStyle = 'rgba(25,14,8,0.55)';
                 [-1, 1].forEach(function (sg) {
                     for (var r = 0; r < 3; r++) {
@@ -881,7 +849,6 @@
                 g.eyes.forEach(function (E) {
                     var ex = E.ex, ey = E.ey;
 
-                    // Lichte schaduw rond de oogkas
                     var sh = c.createRadialGradient(ex, ey, 0, ex, ey, 0.22 * s);
                     sh.addColorStop(0, 'rgba(40,20,8,0.32)');
                     sh.addColorStop(0.6, 'rgba(40,20,8,0.14)');
@@ -908,7 +875,6 @@
                     c.arc(px, py, ir, 0, TAU);
                     c.fill();
 
-                    // Structuur in de iris
                     c.lineWidth = Math.max(0.6, s * 0.002);
                     for (var i = 0; i < 30; i++) {
                         var an = (i / 30) * TAU + (i % 7) * 0.014;
@@ -924,21 +890,18 @@
                     c.arc(px, py, 0.04 * s, 0, TAU);
                     c.fill();
 
-                    // Zachtere schaduw van het bovenste ooglid
                     var lg = c.createLinearGradient(0, ey - 0.1 * s, 0, ey + 0.01 * s);
                     lg.addColorStop(0, 'rgba(0,0,0,0.55)');
                     lg.addColorStop(1, 'rgba(0,0,0,0)');
                     c.fillStyle = lg;
                     c.fillRect(ex - 0.2 * s, ey - 0.12 * s, 0.4 * s, 0.13 * s);
 
-                    // Glans van het hoornvlies
                     var gl = c.createLinearGradient(0, ey - 0.09 * s, 0, ey + 0.09 * s);
                     gl.addColorStop(0, 'rgba(255,255,255,0.2)');
                     gl.addColorStop(0.5, 'rgba(255,255,255,0)');
                     c.fillStyle = gl;
                     c.fillRect(ex - 0.2 * s, ey - 0.1 * s, 0.4 * s, 0.2 * s);
 
-                    // Lichtpuntjes: vriendelijke blik
                     c.fillStyle = 'rgba(255,255,255,0.97)';
                     c.beginPath();
                     c.ellipse(px - 0.03 * s, py - 0.033 * s, 0.019 * s, 0.016 * s, -0.4, 0, TAU);
@@ -949,7 +912,6 @@
                     c.fill();
                     c.restore();
 
-                    // Ooglidranden en traanklier
                     c.lineCap = 'round';
                     c.strokeStyle = '#120a05';
                     c.lineWidth = 0.012 * s;
@@ -969,14 +931,12 @@
             function buildFringe(c, g) {
                 var s = g.s, cx = g.cx, cy = g.cy, k = dpr;
 
-                // Ogen
                 g.eyes.forEach(function (E) {
                     var box = [E.ex - 0.17 * s, E.ey - 0.13 * s, E.ex + 0.17 * s, E.ey + 0.13 * s];
                     edgeHairs(c, E.full, box, Math.round(s * s * 0.1), 'in', s * 0.015,
                         function () { return rgba(palAt(0.1 + Math.random() * 0.25), 0.75, 10); },
                         s * 0.032, 1.0 * k);
 
-                    // Wenkbrauwhaartjes
                     for (var i = 0; i < 16; i++) {
                         var bx = E.ex + (Math.random() - 0.5) * 0.22 * s;
                         var by = E.ey - 0.125 * s - Math.random() * 0.02 * s;
@@ -986,14 +946,12 @@
                     }
                 });
 
-                // Neusrand
                 var np = nosePath(g);
                 edgeHairs(c, np, [cx - 0.26 * s, cy + 0.14 * s, cx + 0.26 * s, cy + 0.5 * s],
                     Math.round(s * s * 0.14), 'in', s * 0.014,
                     function () { return rgba(palAt(0.62 + Math.random() * 0.3), 0.85, 10); },
                     s * 0.045, 1.2 * k);
 
-                // Haartjes boven de lip
                 [-1, 1].forEach(function (sg) {
                     for (var i = 0; i < 70; i++) {
                         var t = Math.random();
@@ -1005,7 +963,6 @@
                     }
                 });
 
-                // Snorharen
                 c.lineCap = 'round';
                 [-1, 1].forEach(function (sg) {
                     for (var j = 0; j < 4; j++) {
@@ -1028,7 +985,7 @@
                 });
             }
 
-            /* ---------- Onthulling: de hele hond in één keer ---------- */
+            /* ---------- Onthulling: de hele hond in één keer, rustig ---------- */
 
             function setGaze(x, y) {
                 if (!complete) return;
@@ -1041,10 +998,9 @@
                 rafId = 0;
                 if (!complete || !base || !layers) return;
                 var t = now - animStart;
-                var a = ease(clamp01(t / 800));
+                var a = ease(clamp01(t / REVEAL_MS));
                 var c = ctx;
 
-                // Hele hond op één werkdoek samenstellen
                 var sc = layers.scratch.getContext('2d');
                 sc.setTransform(1, 0, 0, 1, 0, 0);
                 sc.globalAlpha = 1;
@@ -1059,7 +1015,6 @@
                 c.clearRect(0, 0, canvas.width, canvas.height);
                 c.drawImage(base, 0, 0);
 
-                // Daarna in één keer inbeelden
                 c.globalAlpha = a;
                 c.drawImage(layers.scratch, 0, 0);
                 c.globalAlpha = 1;
@@ -1067,7 +1022,7 @@
                 gaze.x += (gaze.tx - gaze.x) * 0.18;
                 gaze.y += (gaze.ty - gaze.y) * 0.18;
                 var moving = Math.abs(gaze.tx - gaze.x) > 0.002 || Math.abs(gaze.ty - gaze.y) > 0.002;
-                if (t < 900 || moving) rafId = requestAnimationFrame(frame);
+                if (t < REVEAL_MS + 100 || moving) rafId = requestAnimationFrame(frame);
             }
 
             function kick() {
