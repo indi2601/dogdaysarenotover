@@ -86,7 +86,6 @@
 
         .nav-link {
             font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            line-height: 1.2;
             font-weight: 400;
             color: var(--neon);
             text-transform: none;
@@ -112,7 +111,6 @@
             transform: translateX(-50%);
             z-index: 20;
             font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            line-height: 1.2;
             white-space: nowrap;
         }
 
@@ -126,7 +124,6 @@
             display: none;
             font-family: inherit;
             font-size: inherit;
-            line-height: inherit;
             font-weight: 400;
             color: var(--neon);
             background: none;
@@ -202,7 +199,7 @@
             var GX = 64, GY = 40, TOTAL = GX * GY;
             var grid = new Uint8Array(TOTAL);
             var covered = 0;
-            var THRESHOLD = 0.975;           // hoeveel van de pagina bedekt moet zijn voor het gezicht verschijnt
+            var THRESHOLD = 0.975;           // hoeveel van de pagina bedekt moet zijn voor de hond verschijnt
 
             var drawing = false, complete = false;
             var last = null, vx = 0, vy = 1, lastBuzz = 0;
@@ -305,7 +302,7 @@
                 }
             }
 
-            // Dikkere kwast dan eerst
+            // Dikkere kwast
             function rad() {
                 var m = Math.min(W, H);
                 return isPhone() ? Math.max(50, m * 0.14) : Math.max(42, m * 0.062);
@@ -395,22 +392,33 @@
                 if (updateProgress() >= THRESHOLD && !complete) finish();
             }
 
-            /* ---------- Afronden: gaatjes vullen, dan het gezicht ---------- */
+            /* ---------- Afronden: hele scherm vullen, dan de hond ---------- */
 
             function finish() {
                 complete = true;
                 drawing = false;
 
+                // 1. Donkerbruine ondergrond onder alle vacht: nergens meer wit
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = '#442712';
+                ctx.fillRect(0, 0, W, H);
+                ctx.restore();
+
+                // 2. Resterende gaatjes met extra haar vullen
                 var cw = W / GX, ch = H / GY;
                 for (var gy = 0; gy < GY; gy++) {
                     for (var gx = 0; gx < GX; gx++) {
                         if (!grid[gy * GX + gx]) {
-                            stamp((gx + 0.5) * cw, (gy + 0.5) * ch, Math.PI / 2 + (Math.random() - 0.5), Math.max(cw, ch) * 1.2, 30);
+                            var cx0 = (gx + 0.5) * cw, cy0 = (gy + 0.5) * ch;
+                            var ang = Math.PI / 2 + (Math.random() - 0.5);
+                            stamp(cx0, cy0, ang, Math.max(cw, ch) * 1.6, 44);
+                            stamp(cx0, cy0, ang, Math.max(cw, ch) * 1.1, 30);
                         }
                     }
                 }
 
-                // Diepte: donkerder naar de rand, licht op het voorhoofd
+                // 3. Diepte: donkerder naar de rand, licht op het voorhoofd
                 var vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.max(W, H) * 0.75);
                 vg.addColorStop(0, 'rgba(0,0,0,0)');
                 vg.addColorStop(1, 'rgba(20,10,3,0.3)');
@@ -449,7 +457,6 @@
                 return l;
             }
 
-            // Grotere, vriendelijkere ogen
             function eyeShape(g, sg) {
                 var s = g.s;
                 var ex = g.cx + sg * 0.40 * s, ey = g.cy - 0.12 * s;
@@ -473,18 +480,20 @@
                 return { sg: sg, ex: ex, ey: ey, ix: ix, iy: iy, ox: ox, oy: oy, top: top, low: low, full: full };
             }
 
+            // under = oren + gezicht, over = neus + bek + franje, scratch = werkdoek voor de hele hond
             function buildLayers() {
                 geo = computeGeo();
                 geo.eyes = [eyeShape(geo, -1), eyeShape(geo, 1)];
-                layers = {
-                    ears: mkLayer(), face: mkLayer(), nose: mkLayer(),
-                    mouth: mkLayer(), fringe: mkLayer()
-                };
-                buildEars(layers.ears.getContext('2d'), geo);
-                buildFace(layers.face.getContext('2d'), geo);
-                buildNose(layers.nose.getContext('2d'), geo);
-                buildMouth(layers.mouth.getContext('2d'), geo);
-                buildFringe(layers.fringe.getContext('2d'), geo);
+                layers = { under: mkLayer(), over: mkLayer(), scratch: mkLayer() };
+
+                var u = layers.under.getContext('2d');
+                buildEars(u, geo);
+                buildFace(u, geo);
+
+                var o = layers.over.getContext('2d');
+                buildNose(o, geo);
+                buildMouth(o, geo);
+                buildFringe(o, geo);
             }
 
             /* Haartjes langs de rand van een vorm.
@@ -631,7 +640,7 @@
             }
 
             function buildNose(c, g) {
-                var s = g.s, cx = g.cx, cy = g.cy, k = dpr;
+                var s = g.s, cx = g.cx, cy = g.cy;
                 var np = nosePath(g);
 
                 var ng = c.createRadialGradient(cx - 0.04 * s, cy + 0.29 * s, 0, cx, cy + 0.33 * s, 0.26 * s);
@@ -777,328 +786,3 @@
                 c.stroke();
                 c.fillStyle = 'rgba(255,255,255,0.3)';
                 c.beginPath();
-                c.ellipse(X(-0.05), Y(0.72), 0.04 * s, 0.016 * s, -0.4, 0, TAU);
-                c.fill();
-                c.restore();
-
-                // Lippen
-                var lip = new Path2D();
-                lip.moveTo(X(-0.31), Y(0.585));
-                lip.bezierCurveTo(X(-0.2), Y(0.665), X(-0.07), Y(0.645), X(0), Y(0.56));
-                lip.bezierCurveTo(X(0.07), Y(0.645), X(0.2), Y(0.665), X(0.31), Y(0.585));
-
-                c.lineCap = 'round';
-                c.lineJoin = 'round';
-                c.strokeStyle = '#0f0706';
-                c.lineWidth = 0.026 * s;
-                c.stroke(lip);
-
-                // Onderlip, zachter
-                c.strokeStyle = 'rgba(15,7,6,0.55)';
-                c.lineWidth = 0.014 * s;
-                c.beginPath();
-                c.moveTo(X(-0.31), Y(0.585));
-                c.bezierCurveTo(X(-0.27), Y(0.86), X(0.27), Y(0.86), X(0.31), Y(0.585));
-                c.stroke();
-
-                // Natte glans op de lip
-                c.save();
-                c.translate(0, 0.012 * s);
-                c.strokeStyle = 'rgba(255,255,255,0.1)';
-                c.lineWidth = 0.006 * s;
-                c.stroke(lip);
-                c.restore();
-
-                // Neusgroef naar de lip
-                c.strokeStyle = '#0f0706';
-                c.lineWidth = 0.014 * s;
-                c.beginPath();
-                c.moveTo(X(0), Y(0.46));
-                c.lineTo(X(0), Y(0.57));
-                c.stroke();
-
-                // Snorhaarporiën
-                c.fillStyle = 'rgba(25,14,8,0.55)';
-                [-1, 1].forEach(function (sg) {
-                    for (var r = 0; r < 3; r++) {
-                        for (var j = 0; j < 4; j++) {
-                            c.beginPath();
-                            c.arc(X(sg * (0.15 + 0.045 * j + 0.012 * r)), Y(0.47 + 0.035 * r + 0.012 * j), 0.005 * s, 0, TAU);
-                            c.fill();
-                        }
-                    }
-                });
-            }
-
-            /* Ogen: live getekend, zodat de pupillen de cursor volgen */
-            function drawEyes(c, g, a) {
-                if (a <= 0) return;
-                var s = g.s;
-                var lx = gaze.x * s * 0.035;
-                var ly = gaze.y * s * 0.02;
-                c.save();
-                c.globalAlpha = a;
-
-                g.eyes.forEach(function (E) {
-                    var ex = E.ex, ey = E.ey;
-
-                    // Lichte schaduw rond de oogkas
-                    var sh = c.createRadialGradient(ex, ey, 0, ex, ey, 0.22 * s);
-                    sh.addColorStop(0, 'rgba(40,20,8,0.32)');
-                    sh.addColorStop(0.6, 'rgba(40,20,8,0.14)');
-                    sh.addColorStop(1, 'rgba(40,20,8,0)');
-                    c.fillStyle = sh;
-                    c.beginPath();
-                    c.arc(ex, ey, 0.22 * s, 0, TAU);
-                    c.fill();
-
-                    c.save();
-                    c.clip(E.full);
-                    c.fillStyle = '#1c0f06';
-                    c.fillRect(ex - 0.2 * s, ey - 0.2 * s, 0.4 * s, 0.4 * s);
-
-                    var px = ex + lx, py = ey + ly + 0.004 * s;
-                    var ir = 0.082 * s;
-                    var ig = c.createRadialGradient(px, py, 0, px, py, ir);
-                    ig.addColorStop(0, '#7a4a14');
-                    ig.addColorStop(0.35, '#c48a34');
-                    ig.addColorStop(0.75, '#8a5718');
-                    ig.addColorStop(1, '#25130a');
-                    c.fillStyle = ig;
-                    c.beginPath();
-                    c.arc(px, py, ir, 0, TAU);
-                    c.fill();
-
-                    // Structuur in de iris
-                    c.lineWidth = Math.max(0.6, s * 0.002);
-                    for (var i = 0; i < 30; i++) {
-                        var an = (i / 30) * TAU + Math.random() * 0.1;
-                        c.strokeStyle = (i % 2) ? 'rgba(255,215,140,0.22)' : 'rgba(0,0,0,0.2)';
-                        c.beginPath();
-                        c.moveTo(px + Math.cos(an) * 0.04 * s, py + Math.sin(an) * 0.04 * s);
-                        c.lineTo(px + Math.cos(an) * 0.078 * s, py + Math.sin(an) * 0.078 * s);
-                        c.stroke();
-                    }
-
-                    c.fillStyle = '#000';
-                    c.beginPath();
-                    c.arc(px, py, 0.04 * s, 0, TAU);
-                    c.fill();
-
-                    // Zachtere schaduw van het bovenste ooglid
-                    var lg = c.createLinearGradient(0, ey - 0.1 * s, 0, ey + 0.01 * s);
-                    lg.addColorStop(0, 'rgba(0,0,0,0.55)');
-                    lg.addColorStop(1, 'rgba(0,0,0,0)');
-                    c.fillStyle = lg;
-                    c.fillRect(ex - 0.2 * s, ey - 0.12 * s, 0.4 * s, 0.13 * s);
-
-                    // Glans van het hoornvlies
-                    var gl = c.createLinearGradient(0, ey - 0.09 * s, 0, ey + 0.09 * s);
-                    gl.addColorStop(0, 'rgba(255,255,255,0.2)');
-                    gl.addColorStop(0.5, 'rgba(255,255,255,0)');
-                    c.fillStyle = gl;
-                    c.fillRect(ex - 0.2 * s, ey - 0.1 * s, 0.4 * s, 0.2 * s);
-
-                    // Grotere lichtpuntjes: vriendelijke blik
-                    c.fillStyle = 'rgba(255,255,255,0.97)';
-                    c.beginPath();
-                    c.ellipse(px - 0.03 * s, py - 0.033 * s, 0.019 * s, 0.016 * s, -0.4, 0, TAU);
-                    c.fill();
-                    c.fillStyle = 'rgba(255,255,255,0.55)';
-                    c.beginPath();
-                    c.arc(px + 0.03 * s, py + 0.028 * s, 0.009 * s, 0, TAU);
-                    c.fill();
-                    c.restore();
-
-                    // Ooglidranden en traanklier
-                    c.lineCap = 'round';
-                    c.strokeStyle = '#120a05';
-                    c.lineWidth = 0.012 * s;
-                    c.stroke(E.top);
-                    c.strokeStyle = 'rgba(80,36,28,0.7)';
-                    c.lineWidth = 0.007 * s;
-                    c.stroke(E.low);
-                    c.fillStyle = 'rgba(165,80,75,0.5)';
-                    c.beginPath();
-                    c.ellipse(E.ix, E.iy, 0.014 * s, 0.01 * s, 0, 0, TAU);
-                    c.fill();
-                });
-                c.restore();
-            }
-
-            /* Franje: haartjes die over de randen van ogen, neus en bek vallen, plus snorharen */
-            function buildFringe(c, g) {
-                var s = g.s, cx = g.cx, cy = g.cy, k = dpr;
-
-                // Ogen
-                g.eyes.forEach(function (E) {
-                    var box = [E.ex - 0.17 * s, E.ey - 0.13 * s, E.ex + 0.17 * s, E.ey + 0.13 * s];
-                    edgeHairs(c, E.full, box, Math.round(s * s * 0.1), 'in', s * 0.015,
-                        function () { return rgba(palAt(0.1 + Math.random() * 0.25), 0.75, 10); },
-                        s * 0.032, 1.0 * k);
-
-                    // Wenkbrauwhaartjes, lichter en zachter
-                    for (var i = 0; i < 16; i++) {
-                        var bx = E.ex + (Math.random() - 0.5) * 0.22 * s;
-                        var by = E.ey - 0.125 * s - Math.random() * 0.02 * s;
-                        var dir = -Math.PI / 2 + E.sg * (0.25 + Math.random() * 0.4) + (Math.random() - 0.5) * 0.3;
-                        hair(c, bx, by, dir, s * (0.04 + Math.random() * 0.04), 1.3 * k,
-                            rgba(palAt(0.6 + Math.random() * 0.3), 0.8, 10), (Math.random() - 0.5) * 0.3);
-                    }
-                });
-
-                // Neusrand
-                var np = nosePath(g);
-                edgeHairs(c, np, [cx - 0.26 * s, cy + 0.14 * s, cx + 0.26 * s, cy + 0.5 * s],
-                    Math.round(s * s * 0.14), 'in', s * 0.014,
-                    function () { return rgba(palAt(0.62 + Math.random() * 0.3), 0.85, 10); },
-                    s * 0.045, 1.2 * k);
-
-                // Haartjes boven de lip
-                [-1, 1].forEach(function (sg) {
-                    for (var i = 0; i < 70; i++) {
-                        var t = Math.random();
-                        var p = lipPoint(t, sg, s, cx, cy);
-                        var dir = Math.PI / 2 + (Math.random() - 0.5) * 0.8;
-                        hair(c, p[0] + (Math.random() - 0.5) * 0.01 * s, p[1] - (0.012 + Math.random() * 0.02) * s,
-                            dir, s * (0.03 + Math.random() * 0.03), 1.2 * k,
-                            rgba(palAt(0.62 + Math.random() * 0.3), 0.8, 10), (Math.random() - 0.5) * 0.3);
-                    }
-                });
-
-                // Snorharen
-                c.lineCap = 'round';
-                [-1, 1].forEach(function (sg) {
-                    for (var j = 0; j < 4; j++) {
-                        var rx = cx + sg * 0.2 * s, ry = cy + (0.5 + 0.02 * j) * s;
-                        var qx = cx + sg * (0.45 + 0.04 * j) * s, qy = cy + (0.5 + 0.06 * j) * s;
-                        var ex = cx + sg * (0.72 + 0.07 * j) * s, ey = cy + (0.6 + 0.13 * j) * s;
-                        c.strokeStyle = 'rgba(30,16,8,0.3)';
-                        c.lineWidth = 1.6 * k;
-                        c.beginPath();
-                        c.moveTo(rx, ry + 1.5 * k);
-                        c.quadraticCurveTo(qx, qy + 1.5 * k, ex, ey + 1.5 * k);
-                        c.stroke();
-                        c.strokeStyle = 'rgba(244,234,214,0.6)';
-                        c.lineWidth = 1.1 * k;
-                        c.beginPath();
-                        c.moveTo(rx, ry);
-                        c.quadraticCurveTo(qx, qy, ex, ey);
-                        c.stroke();
-                    }
-                });
-            }
-
-            /* ---------- Onthulling ---------- */
-
-            function setGaze(x, y) {
-                if (!complete) return;
-                gaze.tx = Math.max(-1, Math.min(1, (x - W / 2) / (W / 2)));
-                gaze.ty = Math.max(-1, Math.min(1, (y - H / 2) / (H / 2)));
-                kick();
-            }
-
-            function frame(now) {
-                rafId = 0;
-                if (!complete || !base) return;
-                var t = now - animStart;
-                var c = ctx;
-                c.setTransform(1, 0, 0, 1, 0, 0);
-                c.globalAlpha = 1;
-                c.clearRect(0, 0, canvas.width, canvas.height);
-                c.drawImage(base, 0, 0);
-
-                c.globalAlpha = ease(clamp01(t / 900));
-                c.drawImage(layers.ears, 0, 0);
-
-                c.globalAlpha = ease(clamp01((t - 700) / 900));
-                c.drawImage(layers.face, 0, 0);
-
-                c.globalAlpha = 1;
-                drawEyes(c, geo, ease(clamp01((t - 1500) / 900)));
-
-                c.globalAlpha = ease(clamp01((t - 2200) / 800));
-                c.drawImage(layers.nose, 0, 0);
-
-                c.globalAlpha = ease(clamp01((t - 2900) / 800));
-                c.drawImage(layers.mouth, 0, 0);
-
-                c.globalAlpha = ease(clamp01((t - 3000) / 900));
-                c.drawImage(layers.fringe, 0, 0);
-                c.globalAlpha = 1;
-
-                gaze.x += (gaze.tx - gaze.x) * 0.18;
-                gaze.y += (gaze.ty - gaze.y) * 0.18;
-                var moving = Math.abs(gaze.tx - gaze.x) > 0.002 || Math.abs(gaze.ty - gaze.y) > 0.002;
-                if (t < 4000 || moving) rafId = requestAnimationFrame(frame);
-            }
-
-            function kick() {
-                if (!rafId && complete) rafId = requestAnimationFrame(frame);
-            }
-
-            /* ---------- Opnieuw ---------- */
-
-            again.addEventListener('click', function () {
-                complete = false;
-                drawing = false;
-                if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
-                grid.fill(0);
-                covered = 0;
-                base = null;
-                layers = null;
-                gaze.x = gaze.y = gaze.tx = gaze.ty = 0;
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                ctx.globalAlpha = 1;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                document.body.classList.remove('done');
-                hint.classList.remove('hide');
-                updateProgress();
-            });
-
-            /* ---------- Formaat aanpassen ---------- */
-
-            function resize() {
-                var src = complete && base ? base : canvas;
-                var tmp = document.createElement('canvas');
-                tmp.width = src.width;
-                tmp.height = src.height;
-                tmp.getContext('2d').drawImage(src, 0, 0);
-
-                W = window.innerWidth;
-                H = window.innerHeight;
-                dpr = Math.min(window.devicePixelRatio || 1, 2);
-                canvas.width = Math.round(W * dpr);
-                canvas.height = Math.round(H * dpr);
-
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                if (tmp.width > 0 && tmp.height > 0) {
-                    ctx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
-                }
-
-                if (complete) {
-                    base = document.createElement('canvas');
-                    base.width = canvas.width;
-                    base.height = canvas.height;
-                    base.getContext('2d').drawImage(tmp, 0, 0, base.width, base.height);
-                    buildLayers();
-                    animStart = performance.now() - 10000;
-                    kick();
-                } else {
-                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                }
-            }
-
-            var resizeTimer = 0;
-            window.addEventListener('resize', function () {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(resize, 120);
-            });
-
-            resize();
-            updateProgress();
-        })();
-    </script>
-</body>
-</html>
