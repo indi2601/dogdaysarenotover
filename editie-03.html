@@ -24,8 +24,10 @@
         :root {
             --brown: #6b4423;
             --neon: #ff2fa8;
-            --background: #FFFFFF;
-            --gap: clamp(0.5rem, 0.9vw, 0.9rem);
+            --cream: #f3e7cf;
+            --pale: #ffc9e6;
+            --white: #FFFFFF;
+            --bar: 3.4rem;
         }
 
         html,
@@ -33,10 +35,11 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+            overscroll-behavior: none;
         }
 
         body {
-            background: var(--background);
+            background: var(--white);
             color: var(--brown);
             font-family: 'Neue Haas Grotesk', sans-serif;
         }
@@ -47,12 +50,25 @@
         }
 
         #app {
-            width: 100%;
-            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: var(--bar);
             animation: fadeIn 0.5s ease-out;
         }
 
-        /* ---------- Navigatie (zelfde als editie 1 en 2) ---------- */
+        /* ---------- Kleur per soort moment ---------- */
+
+        .t-sleep   { --bg: var(--brown); --fg: var(--cream); }
+        .t-walk    { --bg: var(--cream); --fg: var(--brown); }
+        .t-eat     { --bg: var(--neon);  --fg: var(--white); }
+        .t-nap     { --bg: var(--pale);  --fg: var(--brown); }
+        .t-play    { --bg: var(--white); --fg: var(--neon); }
+        .t-cuddle  { --bg: var(--pale);  --fg: var(--brown); }
+        .t-zoomies { --bg: var(--neon);  --fg: var(--white); }
+
+        /* ---------- Navigatie (zelfde als editie 1, 2 en 4) ---------- */
 
         .nav-links {
             position: fixed;
@@ -91,15 +107,6 @@
            Eén moment tegelijk, beeldvullend. Vegen is bladeren.
            ========================================================= */
 
-        .clock {
-            position: fixed;
-            top: clamp(0.8rem, 2vw, 1.5rem);
-            left: clamp(0.8rem, 2vw, 1.5rem);
-            z-index: 10;
-            font-size: 1rem;
-            font-variant-numeric: tabular-nums;
-        }
-
         .slides {
             display: flex;
             width: 100%;
@@ -121,208 +128,184 @@
             scroll-snap-align: start;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            padding: 4rem 1.4rem 5rem;
+            padding: 1.1rem 1.1rem 1.4rem;
+            background: var(--bg);
+            color: var(--fg);
         }
 
-        .slide .tag {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            min-height: 1.2em;
-            margin-bottom: 0.8rem;
+        .strip {
+            display: flex;
+            gap: 3px;
+            height: 6px;
+            flex: none;
         }
 
-        .slide.now .tag {
-            color: var(--neon);
+        .strip i {
+            display: block;
+            background: currentColor;
+            opacity: 0.25;
+            min-width: 2px;
         }
 
-        .slide .word {
-            font-size: clamp(4.5rem, 21vw, 9rem);
-            line-height: 0.9;
-            letter-spacing: -0.05em;
-            overflow-wrap: anywhere;
-        }
-
-        .slide.now .word {
-            color: var(--neon);
-        }
-
-        .slide .line {
-            font-size: 1.15rem;
-            line-height: 1.3;
-            margin-top: 1.2rem;
-            max-width: 22rem;
+        .strip i.on {
+            opacity: 1;
         }
 
         .slide .meta {
-            font-size: 0.85rem;
-            margin-top: 1.6rem;
-            opacity: 0.85;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 1.05rem;
             font-variant-numeric: tabular-nums;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
         }
 
-        .slide .count {
-            position: absolute;
-            top: clamp(0.8rem, 2vw, 1.5rem);
-            right: clamp(0.8rem, 2vw, 1.5rem);
-            font-size: 1rem;
-            font-variant-numeric: tabular-nums;
+        .slide .word {
+            margin-top: auto;
+            font-size: 18vw;
+            line-height: 0.85;
+            letter-spacing: -0.045em;
+            text-transform: uppercase;
         }
 
-        .slide {
+        /* =========================================================
+           LEZING 2: LAPTOP
+           De hele dag in één affiche. Baanhoogte = duur van het moment.
+           ========================================================= */
+
+        .board {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
+
+        .top {
+            flex: 0 0 22vh;
+            min-height: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: clamp(0.8rem, 2vw, 1.5rem) clamp(0.8rem, 2vw, 1.5rem) 0;
+            background: var(--white);
+        }
+
+        .top-tag {
+            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .top-word {
+            font-size: 15vh;
+            line-height: 0.85;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            color: var(--neon);
+            margin-top: 0.4rem;
+            white-space: nowrap;
+        }
+
+        .top-word.preview {
+            color: var(--brown);
+        }
+
+        .top-side {
+            text-align: right;
+            flex: none;
+        }
+
+        .top-time {
+            font-size: 15vh;
+            line-height: 0.85;
+            letter-spacing: -0.05em;
+            font-variant-numeric: tabular-nums;
+            color: var(--brown);
+        }
+
+        .top-next {
+            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 0.6rem;
+        }
+
+        .stack {
             position: relative;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .band {
+            flex: var(--d) 1 0;
+            min-height: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 0 clamp(0.8rem, 2vw, 1.5rem);
+            background: var(--bg);
+            color: var(--fg);
+            font-size: clamp(0.7rem, calc(var(--d) * 1.7vh), 15vh);
+            line-height: 1;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+            overflow: hidden;
+            cursor: default;
+            outline: none;
+            animation: fadeIn 0.6s ease-out backwards;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .band:hover,
+        .band:focus-visible {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
+        .nowline {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 4px;
+            margin-top: -2px;
+            background: var(--neon);
+            box-shadow: 0 0 0 2px var(--white);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .nowline span {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 0.25rem 0.7rem;
+            background: var(--neon);
+            color: var(--white);
+            border: 2px solid var(--white);
+            font-size: clamp(0.8rem, 1.3vw, 1rem);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
         }
 
         @media (max-width: 899px) {
-            .nav-links {
-                bottom: 0;
-                left: 0;
-                right: 0;
-                padding: 0.9rem clamp(1rem, 5vw, 1.5rem);
-                background: linear-gradient(to top, #fff 70%, rgba(255, 255, 255, 0));
-            }
-
             .nav-link {
                 font-size: 1rem;
             }
         }
 
-        /* =========================================================
-           LEZING 2: LAPTOP
-           De hele dag in één blik: twee rijen, 00-12 en 12-24.
-           ========================================================= */
-
-        @media (min-width: 900px) {
-            .day {
-                position: absolute;
-                top: 1.5rem;
-                bottom: 4.5rem;
-                left: 3vw;
-                right: 3vw;
-                display: flex;
-                flex-direction: column;
-                gap: var(--gap);
-            }
-
-            .readout {
-                flex: 1.4;
-                min-height: 0;
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                gap: 2rem;
-                padding-bottom: 0.5rem;
-            }
-
-            .readout-main {
-                min-width: 0;
-            }
-
-            .readout-tag {
-                font-size: clamp(0.8rem, 1.2vw, 1rem);
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-                margin-bottom: 0.5rem;
-            }
-
-            .readout-word {
-                font-size: clamp(5rem, 17vh, 15rem);
-                line-height: 0.85;
-                letter-spacing: -0.05em;
-                color: var(--neon);
-                white-space: nowrap;
-            }
-
-            .readout-word.preview {
-                color: var(--brown);
-            }
-
-            .readout-line {
-                font-size: clamp(1rem, 1.8vw, 1.6rem);
-                margin-top: 1rem;
-            }
-
-            .readout-side {
-                text-align: right;
-                flex: none;
-            }
-
-            .readout-time {
-                font-size: clamp(2.5rem, 7vw, 7rem);
-                line-height: 0.9;
-                letter-spacing: -0.04em;
-                font-variant-numeric: tabular-nums;
-            }
-
-            .readout-next {
-                font-size: clamp(0.85rem, 1.3vw, 1.1rem);
-                margin-top: 0.8rem;
-            }
-
-            .row {
-                flex: 1;
-                min-height: 0;
-                display: grid;
-                grid-template-columns: repeat(12, 1fr);
-                gap: var(--gap);
-            }
-
-            .block {
-                position: relative;
-                min-width: 0;
-                overflow: hidden;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                padding: 0.6rem 0.7rem;
-                border: 2px solid var(--brown);
-                border-radius: 4px;
-                background: #fff;
-                color: var(--brown);
-                cursor: default;
-                outline: none;
-                animation: fadeIn 0.6s ease-out backwards;
-                transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-            }
-
-            .block .range {
-                font-size: clamp(0.65rem, 0.95vw, 0.85rem);
-                font-variant-numeric: tabular-nums;
-                white-space: nowrap;
-            }
-
-            .block .bw {
-                font-size: clamp(0.9rem, 1.7vw, 1.5rem);
-                line-height: 1;
-                letter-spacing: -0.02em;
-                white-space: nowrap;
-            }
-
-            .block.wide .bw {
-                font-size: clamp(1.4rem, 3vw, 2.8rem);
-            }
-
-            .block:hover,
-            .block:focus-visible {
-                border-color: var(--neon);
-                color: var(--neon);
-            }
-
-            .block.now {
-                background: var(--neon);
-                border-color: var(--neon);
-                color: #fff;
-            }
-
-            .block.now .range::after {
-                content: " · now";
-            }
-        }
-
         @media (prefers-reduced-motion: reduce) {
             #app,
-            .block {
+            .band {
                 animation: none;
                 transition: none;
             }
@@ -341,21 +324,21 @@
     <script>
         (function () {
             // De dag van een hond. from/to zijn uren (0 tot 24).
-            // Pas gerust woorden en zinnen aan.
+            // De blokken moeten samen 0 tot 24 uur dekken.
             var BLOCKS = [
-                { from: 0,  to: 6,  word: 'Sleep',   line: 'Dreaming about squirrels. Do not disturb.' },
-                { from: 6,  to: 7,  word: 'Walk',    line: 'Bladder says now. Right now.' },
-                { from: 7,  to: 8,  word: 'Eat',     line: 'Breakfast. Yesterday\u2019s dinner is forgotten.' },
-                { from: 8,  to: 10, word: 'Walk',    line: 'Sniff every single lamppost.' },
-                { from: 10, to: 12, word: 'Nap',     line: 'Recovering from the walk.' },
-                { from: 12, to: 13, word: 'Eat',     line: 'A small snack. Just a tiny one. Please.' },
-                { from: 13, to: 15, word: 'Nap',     line: 'Hunting the one sunbeam in the room.' },
-                { from: 15, to: 16, word: 'Play',    line: 'Ball. Ball. Ball. Ball.' },
-                { from: 16, to: 18, word: 'Walk',    line: 'The long walk. The good one.' },
-                { from: 18, to: 19, word: 'Eat',     line: 'Dinner. Now. Immediately.' },
-                { from: 19, to: 21, word: 'Cuddle',  line: 'The couch. Your lap. Both.' },
-                { from: 21, to: 22, word: 'Zoomies', line: 'Sudden energy. Mind the furniture.' },
-                { from: 22, to: 24, word: 'Sleep',   line: 'Lights out. Back to the squirrels.' }
+                { from: 0,  to: 6,  word: 'Sleep',   type: 'sleep' },
+                { from: 6,  to: 7,  word: 'Walk',    type: 'walk' },
+                { from: 7,  to: 8,  word: 'Eat',     type: 'eat' },
+                { from: 8,  to: 10, word: 'Walk',    type: 'walk' },
+                { from: 10, to: 12, word: 'Nap',     type: 'nap' },
+                { from: 12, to: 13, word: 'Eat',     type: 'eat' },
+                { from: 13, to: 15, word: 'Nap',     type: 'nap' },
+                { from: 15, to: 16, word: 'Play',    type: 'play' },
+                { from: 16, to: 18, word: 'Walk',    type: 'walk' },
+                { from: 18, to: 19, word: 'Eat',     type: 'eat' },
+                { from: 19, to: 21, word: 'Cuddle',  type: 'cuddle' },
+                { from: 21, to: 22, word: 'Zoomies', type: 'zoomies' },
+                { from: 22, to: 24, word: 'Sleep',   type: 'sleep' }
             ];
 
             var app = document.getElementById('app');
@@ -374,7 +357,7 @@
                 for (var i = 0; i < BLOCKS.length; i++) {
                     if (mins >= BLOCKS[i].from * 60 && mins < BLOCKS[i].to * 60) { idx = i; break; }
                 }
-                return { d: d, mins: mins, idx: idx, clock: two(d.getHours()) + ':' + two(d.getMinutes()) };
+                return { mins: mins, idx: idx, clock: two(d.getHours()) + ':' + two(d.getMinutes()) };
             }
 
             function dur(m) {
@@ -383,96 +366,80 @@
                 return h + 'h ' + (r < 10 ? '0' : '') + r + 'm';
             }
 
-            // minuten tot het begin van blok i (kan morgen zijn)
             function until(i, mins) {
                 return (BLOCKS[i].from * 60 - mins + 1440) % 1440;
             }
 
             /* ---------- Telefoon ---------- */
 
+            function strip(active) {
+                var s = '<div class="strip" aria-hidden="true">';
+                BLOCKS.forEach(function (b, k) {
+                    s += '<i class="' + (k === active ? 'on' : '') + '" style="flex-grow:' + (b.to - b.from) + '"></i>';
+                });
+                return s + '</div>';
+            }
+
             function renderPhone() {
-                var html = '<div class="clock" id="clock"></div><div class="slides" id="slides">';
+                var html = '<div class="slides" id="slides">';
                 BLOCKS.forEach(function (b, i) {
                     html +=
-                        '<section class="slide" data-i="' + i + '">' +
-                            '<div class="count">' + two(i + 1) + ' / ' + two(BLOCKS.length) + '</div>' +
-                            '<div class="tag"></div>' +
-                            '<div class="word">' + b.word + '.</div>' +
-                            '<p class="line">' + b.line + '</p>' +
-                            '<div class="meta"></div>' +
+                        '<section class="slide t-' + b.type + '">' +
+                            strip(i) +
+                            '<div class="meta"><span>' + range(b) + '</span><span class="status"></span></div>' +
+                            '<div class="word">' + b.word + '</div>' +
                         '</section>';
                 });
                 html += '</div>';
                 app.innerHTML = html;
 
                 var slides = document.getElementById('slides');
-                var info = nowInfo();
-                slides.scrollLeft = info.idx * slides.clientWidth;
+                var idx = nowInfo().idx;
+                slides.scrollLeft = idx * slides.clientWidth;
+                requestAnimationFrame(function () { slides.scrollLeft = idx * slides.clientWidth; });
                 updatePhone();
             }
 
             function updatePhone() {
                 var info = nowInfo();
-                var clock = document.getElementById('clock');
-                if (clock) clock.textContent = info.clock;
-
-                var slides = app.querySelectorAll('.slide');
-                slides.forEach(function (s, i) {
-                    var b = BLOCKS[i];
-                    var isNow = i === info.idx;
-                    s.classList.toggle('now', isNow);
-                    var tag = s.querySelector('.tag');
-                    var meta = s.querySelector('.meta');
-                    if (isNow) {
-                        tag.textContent = 'Right now';
-                        var next = (i + 1) % BLOCKS.length;
-                        meta.textContent = 'Next: ' + BLOCKS[next].word + ' in ' + dur(until(next, info.mins));
-                    } else {
-                        tag.textContent = range(b);
-                        if (b.from * 60 > info.mins) {
-                            meta.textContent = 'Starts in ' + dur(until(i, info.mins));
-                        } else {
-                            meta.textContent = 'Earlier today';
-                        }
-                    }
+                app.querySelectorAll('.slide').forEach(function (s, i) {
+                    var st = s.querySelector('.status');
+                    if (i === info.idx) st.textContent = 'Now ' + info.clock;
+                    else if (BLOCKS[i].from * 60 > info.mins) st.textContent = 'In ' + dur(until(i, info.mins));
+                    else st.textContent = 'Earlier';
                 });
             }
 
             /* ---------- Laptop ---------- */
 
-            function blockHtml(b, i) {
-                var wide = (b.to - b.from) >= 3 ? ' wide' : '';
-                return '<div class="block' + wide + '" tabindex="0" data-i="' + i + '" ' +
-                        'style="grid-column: span ' + (b.to - b.from) + '; animation-delay:' + (i * 0.04).toFixed(2) + 's">' +
-                            '<span class="range">' + range(b) + '</span>' +
-                            '<span class="bw">' + b.word + '</span>' +
-                        '</div>';
-            }
-
             function renderLaptop() {
-                var am = '', pm = '';
+                var bands = '';
                 BLOCKS.forEach(function (b, i) {
-                    if (b.from < 12) am += blockHtml(b, i); else pm += blockHtml(b, i);
+                    bands +=
+                        '<div class="band t-' + b.type + '" tabindex="0" data-i="' + i + '" ' +
+                        'style="--d:' + (b.to - b.from) + ';animation-delay:' + (i * 0.04).toFixed(2) + 's">' +
+                            '<span>' + range(b) + '</span><span>' + b.word + '</span>' +
+                        '</div>';
                 });
 
                 app.innerHTML =
-                    '<div class="day">' +
-                        '<div class="readout">' +
-                            '<div class="readout-main">' +
-                                '<div class="readout-tag" id="r-tag"></div>' +
-                                '<div class="readout-word" id="r-word"></div>' +
-                                '<div class="readout-line" id="r-line"></div>' +
+                    '<div class="board">' +
+                        '<div class="top">' +
+                            '<div>' +
+                                '<div class="top-tag" id="r-tag"></div>' +
+                                '<div class="top-word" id="r-word"></div>' +
                             '</div>' +
-                            '<div class="readout-side">' +
-                                '<div class="readout-time" id="r-time"></div>' +
-                                '<div class="readout-next" id="r-next"></div>' +
+                            '<div class="top-side">' +
+                                '<div class="top-time" id="r-time"></div>' +
+                                '<div class="top-next" id="r-next"></div>' +
                             '</div>' +
                         '</div>' +
-                        '<div class="row">' + am + '</div>' +
-                        '<div class="row">' + pm + '</div>' +
+                        '<div class="stack" id="stack">' + bands +
+                            '<div class="nowline" id="nowline"><span id="nowtag"></span></div>' +
+                        '</div>' +
                     '</div>';
 
-                app.querySelectorAll('.block').forEach(function (el) {
+                app.querySelectorAll('.band').forEach(function (el) {
                     var i = parseInt(el.getAttribute('data-i'), 10);
                     function on() { previewIdx = i; updateLaptop(); }
                     function off() { previewIdx = -1; updateLaptop(); }
@@ -488,24 +455,21 @@
             function updateLaptop() {
                 var info = nowInfo();
                 var shown = previewIdx >= 0 ? previewIdx : info.idx;
-                var b = BLOCKS[shown];
                 var isNow = shown === info.idx;
+                var b = BLOCKS[shown];
 
-                document.getElementById('r-tag').textContent = isNow ? 'Your dog wants, right now' : 'Later: ' + range(b);
+                document.getElementById('r-tag').textContent = isNow ? 'Right now' : range(b);
                 var w = document.getElementById('r-word');
-                w.textContent = b.word + '.';
+                w.textContent = b.word;
                 w.classList.toggle('preview', !isNow);
-                document.getElementById('r-line').textContent = b.line;
                 document.getElementById('r-time').textContent = info.clock;
 
                 var next = (info.idx + 1) % BLOCKS.length;
                 document.getElementById('r-next').textContent =
                     'Next: ' + BLOCKS[next].word + ' in ' + dur(until(next, info.mins));
 
-                app.querySelectorAll('.block').forEach(function (el, k) {
-                    var i = parseInt(el.getAttribute('data-i'), 10);
-                    el.classList.toggle('now', i === info.idx);
-                });
+                document.getElementById('nowline').style.top = (info.mins / 1440 * 100).toFixed(3) + '%';
+                document.getElementById('nowtag').textContent = info.clock;
             }
 
             /* ---------- Kiezen en bijwerken ---------- */
