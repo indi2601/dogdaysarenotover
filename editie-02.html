@@ -137,6 +137,7 @@
         }
 
         .nav-link {
+            font-family: inherit;
             font-size: clamp(0.8rem, 1.5vw, 1.05rem);
             font-weight: 400;
             color: var(--neon);
@@ -144,6 +145,10 @@
             letter-spacing: 0;
             text-decoration: none;
             white-space: nowrap;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
             transition: opacity 0.25s ease;
             outline: none;
         }
@@ -199,8 +204,9 @@
     <main class="stage" id="stage"></main>
 
     <nav class="nav-links" aria-label="Edition navigation">
-        <a href="editie-01.html" class="nav-link">← edition 01</a>
-        <a href="editie-03.html" class="nav-link">edition 03 →</a>
+        <a href="editie-01.html" class="nav-link">← Edition 01</a>
+        <button type="button" class="nav-link" id="reset">reset</button>
+        <a href="editie-03.html" class="nav-link">Edition 03 →</a>
     </nav>
 
     <script>
@@ -215,7 +221,6 @@
                 'IMG_9072.jpeg', 'IMG_9077.jpeg', 'IMG_9178.jpeg', 'IMG_9379.jpeg'
             ];
 
-            var RESET_DELAY = 3500;   // milliseconden tot alles terugspringt naar pootjes
             var N = FILES.length;
 
             var stage = document.getElementById('stage');
@@ -300,25 +305,25 @@
                 var box = Math.min(H * 0.2, W * 0.12);
                 var size = Math.max(20, Math.min(30, W * 0.02));
                 var off = Math.min(W, H) * 0.07;
+                var m = box / 2 + off + 12;             // marge: de zijdelingse verschuiving past er altijd in
 
                 var sx = box / 2 + 140;                 // start rechts van de linkerknop
-                var sy = H - box / 2 - 10;              // helemaal onderin
-                var ex = W - box / 2 - 24;
-                var ey = box / 2 + 24;
+                var sy = H - m;                         // onderin
+                var ex = W - m;
+                var ey = m;
                 var tx = ex - sx, ty = ey - sy;
                 var L = Math.sqrt(tx * tx + ty * ty);
                 var ux = tx / L, uy = ty / L;           // looprichting
                 var nx = -uy, ny = ux;                  // loodrecht op het pad
                 var rot = Math.atan2(uy, ux) * 180 / Math.PI + 90;
 
+                // Geen klemmen: elk pootje volgt exact dezelfde spatiering
                 var pts = [];
                 for (i = 0; i < N; i++) {
                     var p = i / (N - 1);
                     var s = (i % 2 === 0) ? -1 : 1;     // links en rechts van de looplijn
                     cx = sx + tx * p + nx * s * off;
                     cy = sy + ty * p + ny * s * off;
-                    cx = Math.max(box / 2 + 6, Math.min(W - box / 2 - 6, cx));
-                    cy = Math.max(box / 2 + 6, Math.min(H - box / 2 - 6, cy));
                     pts.push([cx, cy]);
                 }
 
@@ -333,27 +338,17 @@
                 }
             }
 
-            /* ---------- Onthullen ---------- */
-
-            var shown = 0;
-            var locked = false;
+            /* ---------- Onthullen en resetten ---------- */
 
             function reveal(i) {
-                if (locked || shots[i].classList.contains('revealed')) return;
+                if (shots[i].classList.contains('revealed')) return;
                 shots[i].classList.add('revealed');
                 paws[i].classList.add('gone');
-                shown++;
-                if (shown === N) {
-                    locked = true;
-                    setTimeout(reset, RESET_DELAY);
-                }
             }
 
             function reset() {
                 shots.forEach(function (s) { s.classList.remove('revealed'); });
                 paws.forEach(function (p) { p.classList.remove('gone'); });
-                shown = 0;
-                locked = false;
             }
 
             paws.forEach(function (paw, i) {
@@ -361,6 +356,8 @@
                 paw.addEventListener('focus', function () { reveal(i); });
                 paw.addEventListener('click', function () { reveal(i); });
             });
+
+            document.getElementById('reset').addEventListener('click', reset);
 
             layout();
 
