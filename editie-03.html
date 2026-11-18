@@ -26,8 +26,10 @@
             --neon: #ff2fa8;
             --cream: #f3e7cf;
             --pale: #ffc9e6;
+            --tan: #d9b98f;
             --white: #FFFFFF;
-            --bar: 3.4rem;
+            --bar: 5.4rem;
+            --edge: clamp(0.8rem, 2vw, 1.5rem);
         }
 
         html,
@@ -58,23 +60,22 @@
             animation: fadeIn 0.5s ease-out;
         }
 
-        /* ---------- Kleur per soort moment ---------- */
+        /* ---------- Eén kleur per soort ---------- */
 
         .t-sleep   { --bg: var(--brown); --fg: var(--cream); }
         .t-walk    { --bg: var(--cream); --fg: var(--brown); }
         .t-eat     { --bg: var(--neon);  --fg: var(--white); }
-        .t-nap     { --bg: var(--pale);  --fg: var(--brown); }
-        .t-play    { --bg: var(--white); --fg: var(--neon); }
-        .t-cuddle  { --bg: var(--pale);  --fg: var(--brown); }
-        .t-zoomies { --bg: var(--neon);  --fg: var(--white); }
+        .t-play    { --bg: var(--pale);  --fg: var(--neon); }
+        .t-cuddle  { --bg: var(--tan);   --fg: var(--brown); }
+        .t-zoomies { --bg: var(--brown); --fg: var(--neon); }
 
         /* ---------- Navigatie (zelfde als editie 1, 2 en 4) ---------- */
 
         .nav-links {
             position: fixed;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            left: clamp(0.8rem, 2vw, 1.5rem);
-            right: clamp(0.8rem, 2vw, 1.5rem);
+            bottom: var(--edge);
+            left: var(--edge);
+            right: var(--edge);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -128,7 +129,9 @@
             scroll-snap-align: start;
             display: flex;
             flex-direction: column;
-            padding: 1.1rem 1.1rem 1.4rem;
+            align-items: flex-end;
+            text-align: right;
+            padding: var(--edge) var(--edge) 1.4rem;
             background: var(--bg);
             color: var(--fg);
         }
@@ -137,6 +140,7 @@
             display: flex;
             gap: 3px;
             height: 6px;
+            width: 100%;
             flex: none;
         }
 
@@ -153,9 +157,9 @@
 
         .slide .meta {
             display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            gap: 1rem;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.15rem;
             margin-top: 1rem;
             font-size: 1.05rem;
             font-variant-numeric: tabular-nums;
@@ -187,9 +191,10 @@
             flex: 0 0 22vh;
             min-height: 0;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: clamp(0.8rem, 2vw, 1.5rem) clamp(0.8rem, 2vw, 1.5rem) 0;
+            flex-direction: column;
+            align-items: flex-end;
+            text-align: right;
+            padding: var(--edge) var(--edge) 0;
             background: var(--white);
         }
 
@@ -197,6 +202,7 @@
             font-size: clamp(0.8rem, 1.5vw, 1.05rem);
             text-transform: uppercase;
             letter-spacing: 0.04em;
+            font-variant-numeric: tabular-nums;
         }
 
         .top-word {
@@ -205,32 +211,12 @@
             letter-spacing: -0.05em;
             text-transform: uppercase;
             color: var(--neon);
-            margin-top: 0.4rem;
+            margin-top: 0.5rem;
             white-space: nowrap;
         }
 
         .top-word.preview {
             color: var(--brown);
-        }
-
-        .top-side {
-            text-align: right;
-            flex: none;
-        }
-
-        .top-time {
-            font-size: 15vh;
-            line-height: 0.85;
-            letter-spacing: -0.05em;
-            font-variant-numeric: tabular-nums;
-            color: var(--brown);
-        }
-
-        .top-next {
-            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin-top: 0.6rem;
         }
 
         .stack {
@@ -245,15 +231,15 @@
             flex: var(--d) 1 0;
             min-height: 0;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-            gap: 1rem;
-            padding: 0 clamp(0.8rem, 2vw, 1.5rem);
+            gap: 1.5rem;
+            padding: 0 var(--edge);
             background: var(--bg);
             color: var(--fg);
-            font-size: clamp(0.7rem, calc(var(--d) * 1.7vh), 15vh);
+            font-size: clamp(0.6rem, 2.2vh, 1.4rem);
             line-height: 1;
-            letter-spacing: -0.03em;
+            letter-spacing: 0;
             text-transform: uppercase;
             font-variant-numeric: tabular-nums;
             white-space: nowrap;
@@ -264,37 +250,45 @@
             transition: background 0.2s ease, color 0.2s ease;
         }
 
+        .band .bt {
+            width: 11ch;
+            text-align: right;
+        }
+
+        .band .bw {
+            width: 9ch;
+            text-align: right;
+        }
+
         .band:hover,
         .band:focus-visible {
             background: var(--fg);
             color: var(--bg);
         }
 
+        /* Minimalistische lijn van de huidige tijd */
         .nowline {
             position: absolute;
             left: 0;
             right: 0;
-            height: 4px;
-            margin-top: -2px;
-            background: var(--neon);
-            box-shadow: 0 0 0 2px var(--white);
+            height: 2px;
+            margin-top: -1px;
+            background: #fff;
+            mix-blend-mode: difference;
             pointer-events: none;
             z-index: 5;
         }
 
-        .nowline span {
+        .nowline::before {
+            content: "";
             position: absolute;
-            left: 50%;
+            left: var(--edge);
             top: 50%;
-            transform: translate(-50%, -50%);
-            padding: 0.25rem 0.7rem;
-            background: var(--neon);
-            color: var(--white);
-            border: 2px solid var(--white);
-            font-size: clamp(0.8rem, 1.3vw, 1rem);
-            line-height: 1;
-            font-variant-numeric: tabular-nums;
-            white-space: nowrap;
+            width: 9px;
+            height: 9px;
+            margin-top: -4.5px;
+            border-radius: 50%;
+            background: #fff;
         }
 
         @media (max-width: 899px) {
@@ -330,9 +324,9 @@
                 { from: 6,  to: 7,  word: 'Walk',    type: 'walk' },
                 { from: 7,  to: 8,  word: 'Eat',     type: 'eat' },
                 { from: 8,  to: 10, word: 'Walk',    type: 'walk' },
-                { from: 10, to: 12, word: 'Nap',     type: 'nap' },
+                { from: 10, to: 12, word: 'Sleep',   type: 'sleep' },
                 { from: 12, to: 13, word: 'Eat',     type: 'eat' },
-                { from: 13, to: 15, word: 'Nap',     type: 'nap' },
+                { from: 13, to: 15, word: 'Sleep',   type: 'sleep' },
                 { from: 15, to: 16, word: 'Play',    type: 'play' },
                 { from: 16, to: 18, word: 'Walk',    type: 'walk' },
                 { from: 18, to: 19, word: 'Eat',     type: 'eat' },
@@ -418,24 +412,18 @@
                     bands +=
                         '<div class="band t-' + b.type + '" tabindex="0" data-i="' + i + '" ' +
                         'style="--d:' + (b.to - b.from) + ';animation-delay:' + (i * 0.04).toFixed(2) + 's">' +
-                            '<span>' + range(b) + '</span><span>' + b.word + '</span>' +
+                            '<span class="bt">' + range(b) + '</span><span class="bw">' + b.word + '</span>' +
                         '</div>';
                 });
 
                 app.innerHTML =
                     '<div class="board">' +
                         '<div class="top">' +
-                            '<div>' +
-                                '<div class="top-tag" id="r-tag"></div>' +
-                                '<div class="top-word" id="r-word"></div>' +
-                            '</div>' +
-                            '<div class="top-side">' +
-                                '<div class="top-time" id="r-time"></div>' +
-                                '<div class="top-next" id="r-next"></div>' +
-                            '</div>' +
+                            '<div class="top-tag" id="r-tag"></div>' +
+                            '<div class="top-word" id="r-word"></div>' +
                         '</div>' +
                         '<div class="stack" id="stack">' + bands +
-                            '<div class="nowline" id="nowline"><span id="nowtag"></span></div>' +
+                            '<div class="nowline" id="nowline"></div>' +
                         '</div>' +
                     '</div>';
 
@@ -457,19 +445,17 @@
                 var shown = previewIdx >= 0 ? previewIdx : info.idx;
                 var isNow = shown === info.idx;
                 var b = BLOCKS[shown];
+                var next = (info.idx + 1) % BLOCKS.length;
 
-                document.getElementById('r-tag').textContent = isNow ? 'Right now' : range(b);
+                document.getElementById('r-tag').textContent = isNow
+                    ? 'Now ' + info.clock + ' \u00B7 Next: ' + BLOCKS[next].word + ' in ' + dur(until(next, info.mins))
+                    : range(b);
+
                 var w = document.getElementById('r-word');
                 w.textContent = b.word;
                 w.classList.toggle('preview', !isNow);
-                document.getElementById('r-time').textContent = info.clock;
-
-                var next = (info.idx + 1) % BLOCKS.length;
-                document.getElementById('r-next').textContent =
-                    'Next: ' + BLOCKS[next].word + ' in ' + dur(until(next, info.mins));
 
                 document.getElementById('nowline').style.top = (info.mins / 1440 * 100).toFixed(3) + '%';
-                document.getElementById('nowtag').textContent = info.clock;
             }
 
             /* ---------- Kiezen en bijwerken ---------- */
