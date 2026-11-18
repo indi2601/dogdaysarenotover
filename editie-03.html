@@ -27,6 +27,7 @@
             --white: #FFFFFF;
             --bar: 5.4rem;
             --edge: clamp(0.8rem, 2vw, 1.5rem);
+            --line: 4px;
         }
 
         html,
@@ -64,7 +65,7 @@
         .t-eat     { --bg: var(--brown); --fg: var(--neon); }
         .t-play    { --bg: var(--neon);  --fg: var(--brown); }
         .t-cuddle  { --bg: var(--white); --fg: var(--neon); }
-        .t-zoomies { --bg: var(--neon);  --fg: var(--white); }
+        .t-rest    { --bg: var(--neon);  --fg: var(--white); }
 
         /* ---------- Navigatie (zelfde als editie 1, 2 en 4) ---------- */
 
@@ -141,7 +142,7 @@
         .strip {
             display: flex;
             gap: 3px;
-            height: 6px;
+            height: 8px;
             width: 100%;
             flex: none;
         }
@@ -161,9 +162,9 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 0.15rem;
+            gap: 0.2rem;
             margin-top: 1rem;
-            font-size: 1.05rem;
+            font-size: 1.3rem;
             font-variant-numeric: tabular-nums;
             text-transform: uppercase;
             letter-spacing: 0.02em;
@@ -171,7 +172,7 @@
 
         .slide .word {
             margin-top: auto;
-            font-size: 18vw;
+            font-size: 22vw;
             line-height: 0.85;
             letter-spacing: -0.045em;
             text-transform: uppercase;
@@ -179,7 +180,7 @@
 
         /* =========================================================
            LEZING 2: LAPTOP
-           De hele dag in één affiche. Baanhoogte = duur van het moment.
+           De hele dag in één affiche.
            ========================================================= */
 
         .board {
@@ -190,7 +191,7 @@
         }
 
         .top {
-            flex: 0 0 22vh;
+            flex: 0 0 20vh;
             min-height: 0;
             display: flex;
             flex-direction: column;
@@ -201,14 +202,14 @@
         }
 
         .top-tag {
-            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+            font-size: clamp(1rem, 1.9vw, 1.4rem);
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.03em;
             font-variant-numeric: tabular-nums;
         }
 
         .top-word {
-            font-size: 15vh;
+            font-size: 14vh;
             line-height: 0.85;
             letter-spacing: -0.05em;
             text-transform: uppercase;
@@ -227,8 +228,8 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
-            outline: 1px solid var(--brown);
-            outline-offset: -1px;
+            outline: var(--line) solid var(--brown);
+            outline-offset: calc(var(--line) * -1);
         }
 
         .band {
@@ -237,12 +238,12 @@
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            gap: 1.5rem;
-            padding: 0 var(--edge);
+            gap: 2rem;
+            padding: 0 calc(var(--edge) + var(--line));
             background: var(--bg);
             color: var(--fg);
-            box-shadow: inset 0 1px 0 var(--brown);
-            font-size: clamp(0.6rem, 2.2vh, 1.4rem);
+            box-shadow: inset 0 var(--line) 0 var(--brown);
+            font-size: clamp(0.7rem, 2.6vh, 2rem);
             line-height: 1;
             letter-spacing: 0;
             text-transform: uppercase;
@@ -265,7 +266,7 @@
         }
 
         .band .bw {
-            width: 9ch;
+            width: 8ch;
             text-align: left;
         }
 
@@ -275,15 +276,15 @@
             color: var(--bg);
         }
 
-        /* Minimalistische lijn van de huidige tijd: bruin met witte rand, zichtbaar op elke baan */
+        /* Tijdbalk: dik, zonder outline. Kleur wisselt als de baan dezelfde kleur heeft. */
         .nowline {
+            --nl: var(--brown);
             position: absolute;
             left: 0;
             right: 0;
-            height: 2px;
-            margin-top: -1px;
-            background: var(--brown);
-            box-shadow: 0 0 0 1px var(--white);
+            height: 6px;
+            margin-top: -3px;
+            background: var(--nl);
             pointer-events: none;
             z-index: 5;
         }
@@ -293,12 +294,11 @@
             position: absolute;
             left: var(--edge);
             top: 50%;
-            width: 9px;
-            height: 9px;
-            margin-top: -4.5px;
+            width: 16px;
+            height: 16px;
+            margin-top: -8px;
             border-radius: 50%;
-            background: var(--brown);
-            box-shadow: 0 0 0 1px var(--white);
+            background: var(--nl);
         }
 
         /* =========================================================
@@ -328,16 +328,10 @@
             color: var(--neon);
         }
 
-        .editor p {
-            margin-top: 1rem;
-            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            max-width: 32rem;
-        }
-
         .rows {
             margin-top: 1.5rem;
-            max-width: 32rem;
-            border-top: 1px solid var(--brown);
+            max-width: 34rem;
+            border-top: 2px solid var(--brown);
         }
 
         .erow {
@@ -345,16 +339,16 @@
             align-items: center;
             gap: 0.8rem;
             padding: 0.6rem 0;
-            border-bottom: 1px solid var(--brown);
+            border-bottom: 2px solid var(--brown);
         }
 
         .editor input,
         .editor select {
             font-family: inherit;
-            font-size: 1rem;
+            font-size: 1.15rem;
             color: var(--brown);
             background: var(--white);
-            border: 1px solid var(--brown);
+            border: 2px solid var(--brown);
             border-radius: 4px;
             padding: 0.45rem 0.6rem;
             outline: none;
@@ -371,7 +365,7 @@
 
         .editor .x {
             font-family: inherit;
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             line-height: 1;
             color: var(--neon);
             background: none;
@@ -412,7 +406,6 @@
 
     <section class="editor" id="editor" hidden aria-label="Edit rhythm">
         <h2>Your dog's<br>rhythm</h2>
-        <p>Pick when each activity starts. It runs until the next one begins.</p>
         <div class="rows" id="rows"></div>
         <div class="editor-actions">
             <button type="button" class="nav-link" id="e-add">+ Add</button>
@@ -424,27 +417,42 @@
 
     <nav class="nav-links" aria-label="Edition navigation">
         <a href="editie-02.html" class="nav-link">← Edition 02</a>
-        <button type="button" class="nav-link" id="edit">Edit rhythm</button>
+        <button type="button" class="nav-link" id="edit">edit rhythm</button>
         <a href="editie-04.html" class="nav-link">Edition 04 →</a>
     </nav>
 
     <script>
         (function () {
             var ACTS = [
-                ['sleep', 'Sleep'], ['walk', 'Walk'], ['eat', 'Eat'],
-                ['play', 'Play'], ['cuddle', 'Cuddle'], ['zoomies', 'Zoomies']
+                ['sleep', 'Sleep'], ['rest', 'Rest'], ['walk', 'Walk'],
+                ['eat', 'Eat'], ['play', 'Play'], ['cuddle', 'Cuddle']
             ];
             var WORD = {};
             ACTS.forEach(function (a) { WORD[a[0]] = a[1]; });
 
-            // Standaardritme: [starttijd in minuten, soort]. Elke activiteit loopt tot de volgende begint.
+            // Elke activiteit begint op [minuten sinds middernacht] en loopt tot de volgende begint.
+            // Richtlijn voor een volwassen hond: ongeveer 12 uur slaap, 7 uur rust, 5 uur actief.
             var DEFAULT = [
-                [0, 'sleep'], [360, 'walk'], [420, 'eat'], [480, 'walk'], [600, 'sleep'],
-                [720, 'eat'], [780, 'sleep'], [900, 'play'], [960, 'walk'], [1080, 'eat'],
-                [1140, 'cuddle'], [1260, 'zoomies'], [1320, 'sleep']
+                [0,    'sleep'],   // 00:00
+                [390,  'walk'],    // 06:30
+                [435,  'eat'],     // 07:15
+                [465,  'rest'],    // 07:45
+                [540,  'sleep'],   // 09:00
+                [660,  'walk'],    // 11:00
+                [690,  'play'],    // 11:30
+                [720,  'sleep'],   // 12:00
+                [840,  'rest'],    // 14:00
+                [960,  'play'],    // 16:00
+                [990,  'walk'],    // 16:30
+                [1035, 'eat'],     // 17:15
+                [1065, 'rest'],    // 17:45
+                [1170, 'cuddle'],  // 19:30
+                [1200, 'rest'],    // 20:00
+                [1320, 'walk'],    // 22:00
+                [1350, 'sleep']    // 22:30
             ];
 
-            var KEY = 'dogdays-rhythm';
+            var KEY = 'dogdays-rhythm-v2';
             var app = document.getElementById('app');
             var mq = window.matchMedia('(min-width: 900px)');
             var mode = null;
@@ -454,7 +462,7 @@
 
             function two(n) { return (n < 10 ? '0' : '') + n; }
             function hm(m) { return two(Math.floor(m / 60)) + ':' + two(m % 60); }
-            function range(b) { return hm(b.from) + '\u2013' + hm(b.to); }
+            function range(b) { return hm(b.from) + '\u2013' + hm(b.to === 1440 ? 0 : b.to); }
 
             /* ---------- Ritme laden en opbouwen ---------- */
 
@@ -485,7 +493,11 @@
                     var to = i + 1 < clean.length ? clean[i + 1][0] : 1440;
                     out.push({ from: e[0], to: to, type: e[1] });
                 });
-                out.forEach(function (b) { b.word = WORD[b.type]; });
+                out.forEach(function (b) {
+                    b.word = WORD[b.type];
+                    // Hoogte van de baan: niet te klein en niet te groot, zodat de tekst past
+                    b.w = Math.min(2.5, Math.max(1, (b.to - b.from) / 60));
+                });
                 return out;
             }
 
@@ -521,6 +533,18 @@
 
             function until(i, mins) {
                 return (BLOCKS[i].from - mins + 1440) % 1440;
+            }
+
+            // Plek van de tijdbalk, rekening houdend met de hoogte van de banen
+            function nowPercent(info) {
+                var total = 0, before = 0;
+                BLOCKS.forEach(function (b, i) {
+                    total += b.w;
+                    if (i < info.idx) before += b.w;
+                });
+                var b = BLOCKS[info.idx];
+                var frac = (info.mins - b.from) / (b.to - b.from);
+                return (before + frac * b.w) / total * 100;
             }
 
             /* ---------- Telefoon ---------- */
@@ -577,7 +601,7 @@
                 BLOCKS.forEach(function (b, i) {
                     bands +=
                         '<div class="band t-' + b.type + '" tabindex="0" data-i="' + i + '" ' +
-                        'style="--d:' + ((b.to - b.from) / 60).toFixed(3) + ';animation-delay:' + (i * 0.04).toFixed(2) + 's">' +
+                        'style="--d:' + b.w.toFixed(3) + ';animation-delay:' + (i * 0.03).toFixed(2) + 's">' +
                             '<span class="bt">' + range(b) + '</span><span class="bw">' + b.word + '</span>' +
                         '</div>';
                 });
@@ -621,7 +645,12 @@
                 w.textContent = b.word;
                 w.classList.toggle('preview', !isNow);
 
-                document.getElementById('nowline').style.top = (info.mins / 1440 * 100).toFixed(3) + '%';
+                // Tijdbalk: bruin, maar roze als de baan zelf bruin is
+                var nl = document.getElementById('nowline');
+                var cur = BLOCKS[info.idx].type;
+                var onBrown = (cur === 'sleep' || cur === 'eat');
+                nl.style.setProperty('--nl', onBrown ? '#ff2fa8' : '#6b4423');
+                nl.style.top = nowPercent(info).toFixed(3) + '%';
             }
 
             /* ---------- Kiezen en bijwerken ---------- */
