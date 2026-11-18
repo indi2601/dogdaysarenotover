@@ -24,9 +24,6 @@
         :root {
             --brown: #6b4423;
             --neon: #ff2fa8;
-            --cream: #f3e7cf;
-            --pale: #ffc9e6;
-            --tan: #d9b98f;
             --white: #FFFFFF;
             --bar: 5.4rem;
             --edge: clamp(0.8rem, 2vw, 1.5rem);
@@ -60,14 +57,14 @@
             animation: fadeIn 0.5s ease-out;
         }
 
-        /* ---------- Eén kleur per soort ---------- */
+        /* ---------- Eén combinatie per soort: alleen bruin, wit en roze ---------- */
 
-        .t-sleep   { --bg: var(--brown); --fg: var(--cream); }
-        .t-walk    { --bg: var(--cream); --fg: var(--brown); }
-        .t-eat     { --bg: var(--neon);  --fg: var(--white); }
-        .t-play    { --bg: var(--pale);  --fg: var(--neon); }
-        .t-cuddle  { --bg: var(--tan);   --fg: var(--brown); }
-        .t-zoomies { --bg: var(--brown); --fg: var(--neon); }
+        .t-sleep   { --bg: var(--brown); --fg: var(--white); }
+        .t-walk    { --bg: var(--white); --fg: var(--brown); }
+        .t-eat     { --bg: var(--brown); --fg: var(--neon); }
+        .t-play    { --bg: var(--neon);  --fg: var(--brown); }
+        .t-cuddle  { --bg: var(--white); --fg: var(--neon); }
+        .t-zoomies { --bg: var(--neon);  --fg: var(--white); }
 
         /* ---------- Navigatie (zelfde als editie 1, 2 en 4) ---------- */
 
@@ -84,6 +81,7 @@
         }
 
         .nav-link {
+            font-family: inherit;
             font-size: clamp(0.8rem, 1.5vw, 1.05rem);
             font-weight: 400;
             color: var(--neon);
@@ -91,6 +89,10 @@
             letter-spacing: 0;
             text-decoration: none;
             white-space: nowrap;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
             transition: opacity 0.25s ease;
             outline: none;
             pointer-events: auto;
@@ -129,8 +131,8 @@
             scroll-snap-align: start;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            text-align: right;
+            align-items: flex-start;
+            text-align: left;
             padding: var(--edge) var(--edge) 1.4rem;
             background: var(--bg);
             color: var(--fg);
@@ -158,7 +160,7 @@
         .slide .meta {
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
+            align-items: flex-start;
             gap: 0.15rem;
             margin-top: 1rem;
             font-size: 1.05rem;
@@ -192,8 +194,8 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            text-align: right;
+            align-items: flex-start;
+            text-align: left;
             padding: var(--edge) var(--edge) 0;
             background: var(--white);
         }
@@ -225,18 +227,21 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
+            outline: 1px solid var(--brown);
+            outline-offset: -1px;
         }
 
         .band {
             flex: var(--d) 1 0;
             min-height: 0;
             display: flex;
-            justify-content: flex-end;
+            justify-content: flex-start;
             align-items: center;
             gap: 1.5rem;
             padding: 0 var(--edge);
             background: var(--bg);
             color: var(--fg);
+            box-shadow: inset 0 1px 0 var(--brown);
             font-size: clamp(0.6rem, 2.2vh, 1.4rem);
             line-height: 1;
             letter-spacing: 0;
@@ -250,14 +255,18 @@
             transition: background 0.2s ease, color 0.2s ease;
         }
 
+        .band:first-child {
+            box-shadow: none;
+        }
+
         .band .bt {
             width: 11ch;
-            text-align: right;
+            text-align: left;
         }
 
         .band .bw {
             width: 9ch;
-            text-align: right;
+            text-align: left;
         }
 
         .band:hover,
@@ -266,15 +275,15 @@
             color: var(--bg);
         }
 
-        /* Minimalistische lijn van de huidige tijd */
+        /* Minimalistische lijn van de huidige tijd: bruin met witte rand, zichtbaar op elke baan */
         .nowline {
             position: absolute;
             left: 0;
             right: 0;
             height: 2px;
             margin-top: -1px;
-            background: #fff;
-            mix-blend-mode: difference;
+            background: var(--brown);
+            box-shadow: 0 0 0 1px var(--white);
             pointer-events: none;
             z-index: 5;
         }
@@ -288,7 +297,98 @@
             height: 9px;
             margin-top: -4.5px;
             border-radius: 50%;
-            background: #fff;
+            background: var(--brown);
+            box-shadow: 0 0 0 1px var(--white);
+        }
+
+        /* =========================================================
+           EDITOR: ritme aanpassen per hond
+           ========================================================= */
+
+        .editor {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            background: var(--white);
+            color: var(--brown);
+            overflow-y: auto;
+            padding: var(--edge) var(--edge) 6rem;
+        }
+
+        .editor[hidden] {
+            display: none;
+        }
+
+        .editor h2 {
+            font-size: clamp(2.4rem, 8vw, 6rem);
+            font-weight: 400;
+            line-height: 0.88;
+            letter-spacing: -0.045em;
+            text-transform: uppercase;
+            color: var(--neon);
+        }
+
+        .editor p {
+            margin-top: 1rem;
+            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+            max-width: 32rem;
+        }
+
+        .rows {
+            margin-top: 1.5rem;
+            max-width: 32rem;
+            border-top: 1px solid var(--brown);
+        }
+
+        .erow {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--brown);
+        }
+
+        .editor input,
+        .editor select {
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--brown);
+            background: var(--white);
+            border: 1px solid var(--brown);
+            border-radius: 4px;
+            padding: 0.45rem 0.6rem;
+            outline: none;
+        }
+
+        .editor input:focus,
+        .editor select:focus {
+            border-color: var(--neon);
+        }
+
+        .editor select {
+            flex: 1;
+        }
+
+        .editor .x {
+            font-family: inherit;
+            font-size: 1.4rem;
+            line-height: 1;
+            color: var(--neon);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 0.3rem;
+        }
+
+        .editor .x:hover {
+            opacity: 0.7;
+        }
+
+        .editor-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
         }
 
         @media (max-width: 899px) {
@@ -310,46 +410,91 @@
 <body>
     <main id="app"></main>
 
+    <section class="editor" id="editor" hidden aria-label="Edit rhythm">
+        <h2>Your dog's<br>rhythm</h2>
+        <p>Pick when each activity starts. It runs until the next one begins.</p>
+        <div class="rows" id="rows"></div>
+        <div class="editor-actions">
+            <button type="button" class="nav-link" id="e-add">+ Add</button>
+            <button type="button" class="nav-link" id="e-reset">Reset</button>
+            <button type="button" class="nav-link" id="e-cancel">Cancel</button>
+            <button type="button" class="nav-link" id="e-save">Save</button>
+        </div>
+    </section>
+
     <nav class="nav-links" aria-label="Edition navigation">
         <a href="editie-02.html" class="nav-link">← Edition 02</a>
+        <button type="button" class="nav-link" id="edit">Edit rhythm</button>
         <a href="editie-04.html" class="nav-link">Edition 04 →</a>
     </nav>
 
     <script>
         (function () {
-            // De dag van een hond. from/to zijn uren (0 tot 24).
-            // De blokken moeten samen 0 tot 24 uur dekken.
-            var BLOCKS = [
-                { from: 0,  to: 6,  word: 'Sleep',   type: 'sleep' },
-                { from: 6,  to: 7,  word: 'Walk',    type: 'walk' },
-                { from: 7,  to: 8,  word: 'Eat',     type: 'eat' },
-                { from: 8,  to: 10, word: 'Walk',    type: 'walk' },
-                { from: 10, to: 12, word: 'Sleep',   type: 'sleep' },
-                { from: 12, to: 13, word: 'Eat',     type: 'eat' },
-                { from: 13, to: 15, word: 'Sleep',   type: 'sleep' },
-                { from: 15, to: 16, word: 'Play',    type: 'play' },
-                { from: 16, to: 18, word: 'Walk',    type: 'walk' },
-                { from: 18, to: 19, word: 'Eat',     type: 'eat' },
-                { from: 19, to: 21, word: 'Cuddle',  type: 'cuddle' },
-                { from: 21, to: 22, word: 'Zoomies', type: 'zoomies' },
-                { from: 22, to: 24, word: 'Sleep',   type: 'sleep' }
+            var ACTS = [
+                ['sleep', 'Sleep'], ['walk', 'Walk'], ['eat', 'Eat'],
+                ['play', 'Play'], ['cuddle', 'Cuddle'], ['zoomies', 'Zoomies']
+            ];
+            var WORD = {};
+            ACTS.forEach(function (a) { WORD[a[0]] = a[1]; });
+
+            // Standaardritme: [starttijd in minuten, soort]. Elke activiteit loopt tot de volgende begint.
+            var DEFAULT = [
+                [0, 'sleep'], [360, 'walk'], [420, 'eat'], [480, 'walk'], [600, 'sleep'],
+                [720, 'eat'], [780, 'sleep'], [900, 'play'], [960, 'walk'], [1080, 'eat'],
+                [1140, 'cuddle'], [1260, 'zoomies'], [1320, 'sleep']
             ];
 
+            var KEY = 'dogdays-rhythm';
             var app = document.getElementById('app');
             var mq = window.matchMedia('(min-width: 900px)');
             var mode = null;
             var previewIdx = -1;
+            var entries = load();
+            var BLOCKS = build(entries);
 
             function two(n) { return (n < 10 ? '0' : '') + n; }
-            function hh(h) { return two(h % 24) + ':00'; }
-            function range(b) { return hh(b.from) + '\u2013' + hh(b.to); }
+            function hm(m) { return two(Math.floor(m / 60)) + ':' + two(m % 60); }
+            function range(b) { return hm(b.from) + '\u2013' + hm(b.to); }
+
+            /* ---------- Ritme laden en opbouwen ---------- */
+
+            function load() {
+                try {
+                    var raw = JSON.parse(localStorage.getItem(KEY));
+                    if (Array.isArray(raw) && raw.length) {
+                        var ok = raw.every(function (e) {
+                            return Array.isArray(e) && typeof e[0] === 'number' && e[0] >= 0 && e[0] < 1440 && WORD[e[1]];
+                        });
+                        if (ok) return raw;
+                    }
+                } catch (err) {}
+                return DEFAULT.map(function (e) { return e.slice(); });
+            }
+
+            function build(list) {
+                var s = list.slice().sort(function (a, b) { return a[0] - b[0]; });
+                var clean = [];
+                s.forEach(function (e) {
+                    if (!clean.length || clean[clean.length - 1][0] !== e[0]) clean.push(e);
+                });
+                var out = [];
+                if (clean[0][0] > 0) {
+                    out.push({ from: 0, to: clean[0][0], type: clean[clean.length - 1][1] });
+                }
+                clean.forEach(function (e, i) {
+                    var to = i + 1 < clean.length ? clean[i + 1][0] : 1440;
+                    out.push({ from: e[0], to: to, type: e[1] });
+                });
+                out.forEach(function (b) { b.word = WORD[b.type]; });
+                return out;
+            }
 
             function nowInfo() {
                 var d = new Date();
                 var mins = d.getHours() * 60 + d.getMinutes();
                 var idx = 0;
                 for (var i = 0; i < BLOCKS.length; i++) {
-                    if (mins >= BLOCKS[i].from * 60 && mins < BLOCKS[i].to * 60) { idx = i; break; }
+                    if (mins >= BLOCKS[i].from && mins < BLOCKS[i].to) { idx = i; break; }
                 }
                 return { mins: mins, idx: idx, clock: two(d.getHours()) + ':' + two(d.getMinutes()) };
             }
@@ -357,11 +502,25 @@
             function dur(m) {
                 var h = Math.floor(m / 60), r = m % 60;
                 if (h === 0) return r + 'm';
-                return h + 'h ' + (r < 10 ? '0' : '') + r + 'm';
+                return h + 'h ' + two(r) + 'm';
+            }
+
+            // Eerstvolgende blok met een andere activiteit dan nu
+            function nextInfo(info) {
+                var cur = BLOCKS[info.idx];
+                var n = BLOCKS.length;
+                for (var k = 1; k <= n; k++) {
+                    var j = (info.idx + k) % n;
+                    if (BLOCKS[j].type !== cur.type || n === 1) {
+                        var wait = (BLOCKS[j].from - info.mins + 1440) % 1440;
+                        return { word: BLOCKS[j].word, wait: wait };
+                    }
+                }
+                return { word: cur.word, wait: 0 };
             }
 
             function until(i, mins) {
-                return (BLOCKS[i].from * 60 - mins + 1440) % 1440;
+                return (BLOCKS[i].from - mins + 1440) % 1440;
             }
 
             /* ---------- Telefoon ---------- */
@@ -380,7 +539,7 @@
                     html +=
                         '<section class="slide t-' + b.type + '">' +
                             strip(i) +
-                            '<div class="meta"><span>' + range(b) + '</span><span class="status"></span></div>' +
+                            '<div class="meta"><span>' + range(b) + '</span><span class="status"></span><span class="count"></span></div>' +
                             '<div class="word">' + b.word + '</div>' +
                         '</section>';
                 });
@@ -396,11 +555,18 @@
 
             function updatePhone() {
                 var info = nowInfo();
+                var nx = nextInfo(info);
                 app.querySelectorAll('.slide').forEach(function (s, i) {
                     var st = s.querySelector('.status');
-                    if (i === info.idx) st.textContent = 'Now ' + info.clock;
-                    else if (BLOCKS[i].from * 60 > info.mins) st.textContent = 'In ' + dur(until(i, info.mins));
-                    else st.textContent = 'Earlier';
+                    var ct = s.querySelector('.count');
+                    if (i === info.idx) {
+                        st.textContent = 'Now ' + info.clock;
+                        ct.textContent = 'Next: ' + nx.word + ' in ' + dur(nx.wait);
+                    } else {
+                        ct.textContent = '';
+                        if (BLOCKS[i].from > info.mins) st.textContent = 'In ' + dur(until(i, info.mins));
+                        else st.textContent = 'Earlier';
+                    }
                 });
             }
 
@@ -411,7 +577,7 @@
                 BLOCKS.forEach(function (b, i) {
                     bands +=
                         '<div class="band t-' + b.type + '" tabindex="0" data-i="' + i + '" ' +
-                        'style="--d:' + (b.to - b.from) + ';animation-delay:' + (i * 0.04).toFixed(2) + 's">' +
+                        'style="--d:' + ((b.to - b.from) / 60).toFixed(3) + ';animation-delay:' + (i * 0.04).toFixed(2) + 's">' +
                             '<span class="bt">' + range(b) + '</span><span class="bw">' + b.word + '</span>' +
                         '</div>';
                 });
@@ -445,10 +611,10 @@
                 var shown = previewIdx >= 0 ? previewIdx : info.idx;
                 var isNow = shown === info.idx;
                 var b = BLOCKS[shown];
-                var next = (info.idx + 1) % BLOCKS.length;
+                var nx = nextInfo(info);
 
                 document.getElementById('r-tag').textContent = isNow
-                    ? 'Now ' + info.clock + ' \u00B7 Next: ' + BLOCKS[next].word + ' in ' + dur(until(next, info.mins))
+                    ? 'Now ' + info.clock + ' \u00B7 Next: ' + nx.word + ' in ' + dur(nx.wait)
                     : range(b);
 
                 var w = document.getElementById('r-word');
@@ -475,8 +641,75 @@
             if (mq.addEventListener) mq.addEventListener('change', render);
             else mq.addListener(render);
 
+            /* ---------- Editor ---------- */
+
+            var editor = document.getElementById('editor');
+            var rowsEl = document.getElementById('rows');
+            var draft = [];
+
+            function drawRows() {
+                var html = '';
+                draft.forEach(function (e, i) {
+                    var opts = '';
+                    ACTS.forEach(function (a) {
+                        opts += '<option value="' + a[0] + '"' + (a[0] === e[1] ? ' selected' : '') + '>' + a[1] + '</option>';
+                    });
+                    html +=
+                        '<div class="erow" data-i="' + i + '">' +
+                            '<input type="time" value="' + hm(e[0]) + '" aria-label="Start time">' +
+                            '<select aria-label="Activity">' + opts + '</select>' +
+                            '<button type="button" class="x" aria-label="Remove">\u00D7</button>' +
+                        '</div>';
+                });
+                rowsEl.innerHTML = html;
+
+                rowsEl.querySelectorAll('.erow').forEach(function (row) {
+                    var i = parseInt(row.getAttribute('data-i'), 10);
+                    row.querySelector('input').addEventListener('change', function (ev) {
+                        var p = ev.target.value.split(':');
+                        if (p.length === 2) draft[i][0] = parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+                    });
+                    row.querySelector('select').addEventListener('change', function (ev) {
+                        draft[i][1] = ev.target.value;
+                    });
+                    row.querySelector('.x').addEventListener('click', function () {
+                        if (draft.length > 1) { draft.splice(i, 1); drawRows(); }
+                    });
+                });
+            }
+
+            function openEditor() {
+                draft = entries.map(function (e) { return e.slice(); });
+                drawRows();
+                editor.hidden = false;
+                editor.scrollTop = 0;
+            }
+
+            function closeEditor() { editor.hidden = true; }
+
+            document.getElementById('edit').addEventListener('click', openEditor);
+            document.getElementById('e-cancel').addEventListener('click', closeEditor);
+            document.getElementById('e-add').addEventListener('click', function () {
+                draft.push([720, 'walk']);
+                drawRows();
+            });
+            document.getElementById('e-reset').addEventListener('click', function () {
+                draft = DEFAULT.map(function (e) { return e.slice(); });
+                drawRows();
+            });
+            document.getElementById('e-save').addEventListener('click', function () {
+                var valid = draft.filter(function (e) { return !isNaN(e[0]) && e[0] >= 0 && e[0] < 1440; });
+                if (!valid.length) return;
+                entries = valid;
+                try { localStorage.setItem(KEY, JSON.stringify(entries)); } catch (err) {}
+                BLOCKS = build(entries);
+                closeEditor();
+                mode = null;
+                render();
+            });
+
             render();
-            setInterval(tick, 20000);
+            setInterval(tick, 15000);
         })();
     </script>
 </body>
