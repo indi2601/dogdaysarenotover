@@ -58,6 +58,17 @@
             animation: fadeIn 0.5s ease-out;
         }
 
+        #err {
+            position: fixed;
+            top: 0.5rem;
+            left: 0.5rem;
+            right: 0.5rem;
+            z-index: 100;
+            font-size: 0.75rem;
+            color: #b00020;
+            pointer-events: none;
+        }
+
         /* ---------- Eén combinatie per soort: alleen bruin, wit en roze ----------
            --ol = kleur van de outline bij hover (roze op bruin, anders bruin) */
 
@@ -109,7 +120,6 @@
 
         /* =========================================================
            LEZING 1: TELEFOON
-           Eén moment tegelijk, beeldvullend. Vegen is bladeren.
            ========================================================= */
 
         .slides {
@@ -181,7 +191,6 @@
 
         /* =========================================================
            LEZING 2: LAPTOP
-           De hele dag in één affiche.
            ========================================================= */
 
         .board {
@@ -256,7 +265,6 @@
             overflow: hidden;
             cursor: default;
             outline: none;
-            animation: fadeIn 0.6s ease-out backwards;
             transition: flex-grow 0.45s ease, background 0.25s ease, color 0.25s ease;
         }
 
@@ -330,7 +338,7 @@
             filter: invert(1);
         }
 
-        /* Tijdbalk: dik, zonder outline. Kleur wisselt als de baan dezelfde kleur heeft. */
+        /* Tijdbalk */
         .nowline {
             --nl: var(--brown);
             position: absolute;
@@ -356,7 +364,7 @@
         }
 
         /* =========================================================
-           EDITOR-PAGINA: ritme aanpassen per hond (paginavullend)
+           EDITOR-PAGINA
            ========================================================= */
 
         .editor {
@@ -491,1400 +499,498 @@
         <a href="editie-04.html" class="nav-link">Edition 04 →</a>
     </nav>
 
+    <div id="err"></div>
+
     <script>
-        (function () {
-            var ACTS = [
-                ['sleep', 'Sleep'], ['rest', 'Rest'], ['walk', 'Walk'],
-                ['eat', 'Eat'], ['play', 'Play'], ['cuddle', 'Cuddle']
-            ];
-            var WORD = {};
-            ACTS.forEach(function (a) { WORD[a[0]] = a[1]; });
-
-            // Elke activiteit begint op [minuten sinds middernacht] en loopt tot de volgende begint.
-            // Richtlijn voor een volwassen hond: ongeveer 12 uur slaap, 7 uur rust, 5 uur actief.
-            var DEFAULT = [
-                [0,    'sleep'],   // 00:00
-                [390,  'walk'],    // 06:30
-                [435,  'eat'],     // 07:15
-                [465,  'rest'],    // 07:45
-                [540,  'sleep'],   // 09:00
-                [660,  'walk'],    // 11:00
-                [690,  'play'],    // 11:30
-                [720,  'sleep'],   // 12:00
-                [840,  'rest'],    // 14:00
-                [960,  'play'],    // 16:00
-                [990,  'walk'],    // 16:30
-                [1035, 'eat'],     // 17:15
-                [1065, 'rest'],    // 17:45
-                [1170, 'cuddle'],  // 19:30
-                [1200, 'rest'],    // 20:00
-                [1320, 'walk'],    // 22:00
-                [1350, 'sleep']    // 22:30
-            ];
-
-            var KEY = 'dogdays-rhythm-v2';
-            var app = document.getElementById('app');
-            var mq = window.matchMedia('(min-width: 900px)');
-            var mode = null;
-            var previewIdx = -1;
-            var editIdx = -1;
-            var entries = load();
-            var BLOCKS = build(entries);
-
-            function two(n) { return (n < 10 ? '0' : '') + n; }
-            function hm(m) { return two(Math.floor(m / 60)) + ':' + two(m % 60); }
-            function range(b) { return hm(b.from) + '\u2013' + hm(b.to === 1440 ? 0 : b.to); }
-
-            /* ---------- Ritme laden, opschonen en opbouwen ---------- */
-
-            // Gesorteerd, geen dubbele starttijden en altijd een start om 00:00
-            function norm(list) {
-                var s = list.map(function (e) { return [e[0], e[1]]; })
-                            .sort(function (a, b) { return a[0] - b[0]; });
-                var out = [];
-                s.forEach(function (e) {
-                    if (out.length && out[out.length - 1][0] === e[0]) out[out.length - 1] = e;
-                    else out.push(e);
-                });
-                if (!out.length || out[0][0] > 0) {
-                    out.unshift([0, out.length ? out[out.length - 1][1] : 'sleep']);
-                }
-                return out;
-            }
-
-            function load() {
-                try {
-                    var raw = JSON.parse(localStorage.getItem(KEY));
-                    if (Array.isArray(raw) && raw.length) {
-                        var ok = raw.every(function (e) {
-                            return Array.isArray(e) && typeof e[0] === 'number' && e[0] >= 0 && e[0] < 1440 && WORD[e[1]];
-                        });
-                        if (ok) return norm(raw);
-                    }
-                } catch (err) {}
-                return norm(DEFAULT);
-            }
-
-            function save() {
-                try { localStorage.setItem(KEY, JSON.stringify(entries)); } catch (err) {}
-            }
-
-            function build(list) {
-                var out = [];
-                list.forEach(function (e, i) {
-                    var to = i + 1 < list.length ? list[i + 1][0] : 1440;
-                    out.push({ from: e[0], to: to, type: e[1] });
-                });
-                out.forEach(function (b) {
-                    b.word = WORD[b.type];
-                    // Hoogte van de baan: niet te klein en niet te groot, zodat de tekst past
-                    b.w = Math.min(2.5, Math.max(1, (b.to - b.from) / 60));
-                });
-                return out;
-            }
-
-            function nowInfo() {
-                var d = new Date();
-                var mins = d.getHours() * 60 + d.getMinutes();
-                var idx = 0;
-                for (var i = 0; i < BLOCKS.length; i++) {
-                    if (mins >= BLOCKS[i].from && mins < BLOCKS[i].to) { idx = i; break; }
-                }
-                return { mins: mins, idx: idx, clock: two(d.getHours()) + ':' + two(d.getMinutes()) };
-            }
-
-            function dur(m) {
-                var h = Math.floor(m / 60), r = m % 60;
-                if (h === 0) return r + 'm';
-                return h + 'h ' + two(r) + 'm';
-            }
-
-            // Eerstvolgende blok met een andere activiteit dan nu
-            function nextInfo(info) {
-                var cur = BLOCKS[info.idx];
-                var n = BLOCKS.length;
-                for (var k = 1; k <= n; k++) {
-                    var j = (info.idx + k) % n;
-                    if (BLOCKS[j].type !== cur.type || n === 1) {
-                        var wait = (BLOCKS[j].from - info.mins + 1440) % 1440;
-                        return { word: BLOCKS[j].word, wait: wait };
-                    }
-                }
-                return { word: cur.word, wait: 0 };
-            }
-
-            function until(i, mins) {
-                return (BLOCKS[i].from - mins + 1440) % 1440;
-            }
-
-            // Plek van de tijdbalk, rekening houdend met de hoogte van de banen
-            function nowPercent(info) {
-                var total = 0, before = 0;
-                BLOCKS.forEach(function (b, i) {
-                    total += b.w;
-                    if (i < info.idx) before += b.w;
-                });
-                var b = BLOCKS[info.idx];
-                var frac = (info.mins - b.from) / (b.to - b.from);
-                return (before + frac * b.w) / total * 100;
-            }
-
-            /* ---------- Telefoon ---------- */
-
-            function strip(active) {
-                var s = '<div class="strip" aria-hidden="true">';
-                BLOCKS.forEach(function (b, k) {
-                    s += '<i class="' + (k === active ? 'on' : '') + '" style="flex-grow:' + (b.to - b.from) + '"></i>';
-                });
-                return s + '</div>';
-            }
-
-            function renderPhone() {
-                var html = '<div class="slides" id="slides">';
-                BLOCKS.forEach(function (b, i) {
-                    html +=
-                        '<section class="slide t-' + b.type + '">' +
-                            strip(i) +
-                            '<div class="meta"><span>' + range(b) + '</span><span class="status"></span><span class="count"></span></div>' +
-                            '<div class="word">' + b.word + '</div>' +
-                        '</section>';
-                });
-                html += '</div>';
-                app.innerHTML = html;
-
-                var slides = document.getElementById('slides');
-                var idx = nowInfo().idx;
-                slides.scrollLeft = idx * slides.clientWidth;
-                requestAnimationFrame(function () { slides.scrollLeft = idx * slides.clientWidth; });
-                slides.addEventListener('dblclick', openEditor);
-                updatePhone();
-            }
-
-            function updatePhone() {
-                var info = nowInfo();
-                var nx = nextInfo(info);
-                app.querySelectorAll('.slide').forEach(function (s, i) {
-                    var st = s.querySelector('.status');
-                    var ct = s.querySelector('.count');
-                    if (i === info.idx) {
-                        st.textContent = 'Now ' + info.clock;
-                        ct.textContent = 'Next: ' + nx.word + ' in ' + dur(nx.wait);
-                    } else {
-                        ct.textContent = '';
-                        if (BLOCKS[i].from > info.mins) st.textContent = 'In ' + dur(until(i, info.mins));
-                        else st.textContent = 'Earlier';
-                    }
-                });
-            }
-
-            /* ---------- Laptop ---------- */
-
-            function bandInner(b, i) {
-                if (editIdx === i) {
-                    var opts = '';
-                    ACTS.forEach(function (a) {
-                        opts += '<option value="' + a[0] + '"' + (a[0] === b.type ? ' selected' : '') + '>' + a[1] + '</option>';
-                    });
-                    return '<span class="bt"><input type="time" value="' + hm(b.from) + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="Start time"></span>' +
-                           '<span class="bw"><select aria-label="Activity">' + opts + '</select></span>' +
-                           (i > 0 ? '<button type="button" class="bx" aria-label="Remove">\u00D7</button>' : '');
-                }
-                return '<span class="bt">' + range(b) + '</span><span class="bw">' + b.word + '</span>';
-            }
-
-            function renderLaptop() {
-                editIdx = -1;
-                var bands = '';
-                BLOCKS.forEach(function (b, i) {
-                    bands +=
-                        '<div class="band t-' + b.type + '" tabindex="0" data-i="' + i + '" ' +
-                        'style="--d:' + b.w.toFixed(3) + ';animation-delay:' + (i * 0.03).toFixed(2) + 's">' +
-                            bandInner(b, i) +
-                        '</div>';
-                });
-
-                app.innerHTML =
-                    '<div class="board">' +
-                        '<div class="top">' +
-                            '<div class="top-word" id="r-word"></div>' +
-                            '<div class="top-tag" id="r-tag"></div>' +
-                        '</div>' +
-                        '<div class="stack" id="stack">' + bands +
-                            '<div class="nowline" id="nowline"></div>' +
-                        '</div>' +
-                    '</div>';
-
-                var stack = document.getElementById('stack');
-
-                app.querySelectorAll('.band').forEach(function (el) {
-                    var i = parseInt(el.getAttribute('data-i'), 10);
-                    function on() { previewIdx = i; updateLaptop(); }
-                    function off() { previewIdx = -1; updateLaptop(); }
-                    el.addEventListener('mouseenter', on);
-                    el.addEventListener('mouseleave', off);
-                    el.addEventListener('focus', on);
-                    el.addEventListener('blur', off);
-                });
-
-                // Aanpassen: dubbelklik (of Enter op een gefocust blok)
-                stack.addEventListener('dblclick', function (e) {
-                    var band = e.target.closest ? e.target.closest('.band') : null;
-                    if (band) startEdit(parseInt(band.getAttribute('data-i'), 10));
-                });
-
-                stack.addEventListener('keydown', function (e) {
-                    var band = e.target.closest ? e.target.closest('.band') : null;
-                    if (!band) return;
-                    var i = parseInt(band.getAttribute('data-i'), 10);
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (editIdx === i) commit(); else startEdit(i);
-                    } else if (e.key === 'Escape' && editIdx === i) {
-                        cancel();
-                    }
-                });
-
-                // Andere activiteit gekozen: blok krijgt meteen de kleur van die categorie
-                stack.addEventListener('change', function (e) {
-                    if (e.target.tagName !== 'SELECT' || editIdx < 0) return;
-                    var band = e.target.closest('.band');
-                    band.className = 'band editing t-' + e.target.value;
-                });
-
-                stack.addEventListener('click', function (e) {
-                    if (!e.target.classList || !e.target.classList.contains('bx')) return;
-                    var i = parseInt(e.target.closest('.band').getAttribute('data-i'), 10);
-                    editIdx = -1;
-                    if (i > 0) {
-                        entries.splice(i, 1);
-                        entries = norm(entries);
-                        save();
-                    }
-                    refreshLaptop();
-                });
-
-                // Klik of tab buiten het blok: opslaan
-                stack.addEventListener('focusout', function (e) {
-                    if (editIdx < 0) return;
-                    var band = e.target.closest ? e.target.closest('.band') : null;
-                    if (band && e.relatedTarget && band.contains(e.relatedTarget)) return;
-                    commit();
-                });
-
-                updateLaptop();
-            }
-
-            function bandEls() { return app.querySelectorAll('.band'); }
-
-            function startEdit(i) {
-                if (editIdx >= 0 && editIdx !== i) commit();
-                if (editIdx === i) return;
-                editIdx = i;
-                var band = bandEls()[i];
-                if (!band) { editIdx = -1; return; }
-                band.classList.add('editing');
-                band.innerHTML = bandInner(BLOCKS[i], i);
-                var first = band.querySelector('input:not(:disabled)') || band.querySelector('select');
-                if (first) first.focus();
-            }
-
-            function commit() {
-                if (editIdx < 0) return;
-                var i = editIdx;
-                var band = bandEls()[i];
-                editIdx = -1;
-                if (band) {
-                    var t = band.querySelector('input');
-                    var s = band.querySelector('select');
-                    if (s && WORD[s.value]) entries[i][1] = s.value;
-                    if (t && !t.disabled && t.value) {
-                        var p = t.value.split(':');
-                        var m = parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
-                        if (!isNaN(m) && m > 0 && m < 1440) entries[i][0] = m;
-                    }
-                }
-                entries = norm(entries);
-                save();
-                refreshLaptop();
-            }
-
-            function cancel() {
-                editIdx = -1;
-                refreshLaptop();
-            }
-
-            // Bijwerken zonder alles opnieuw te tekenen, zodat de hoogte zacht verandert
-            function refreshLaptop() {
-                BLOCKS = build(entries);
-                var bands = bandEls();
-                if (!bands.length || bands.length !== BLOCKS.length) {
-                    renderLaptop();
-                    return;
-                }
-                bands.forEach(function (el, i) {
-                    var b = BLOCKS[i];
-                    el.className = 'band t-' + b.type + (editIdx === i ? ' editing' : '');
-                    el.style.setProperty('--d', b.w.toFixed(3));
-                    el.setAttribute('data-i', i);
-                    if (editIdx !== i) el.innerHTML = bandInner(b, i);
-                });
-                updateLaptop();
-            }
-
-            function updateLaptop() {
-                var info = nowInfo();
-                var shown = previewIdx >= 0 && previewIdx < BLOCKS.length ? previewIdx : info.idx;
-                var isNow = shown === info.idx;
-                var b = BLOCKS[shown];
-                var nx = nextInfo(info);
-
-                document.getElementById('r-tag').textContent = isNow
-                    ? 'next: ' + nx.word.toLowerCase() + ' in ' + dur(nx.wait)
-                    : range(b);
-
-                var w = document.getElementById('r-word');
-                w.textContent = b.word;
-                w.classList.toggle('preview', !isNow);
-
-                // Tijdbalk: bruin, maar roze als de baan zelf bruin is
-                var nl = document.getElementById('nowline');
-                var cur = BLOCKS[info.idx].type;
-                var onBrown = (cur === 'sleep' || cur === 'eat');
-                nl.style.setProperty('--nl', onBrown ? '#ff2fa8' : '#6b4423');
-                nl.style.top = nowPercent(info).toFixed(3) + '%';
-            }
-
-            /* ---------- Kiezen en bijwerken ---------- */
-
-            function render() {
-                var next = mq.matches ? 'laptop' : 'phone';
-                if (next === mode) return;
-                mode = next;
-                previewIdx = -1;
-                if (mode === 'laptop') renderLaptop(); else renderPhone();
-            }
-
-            function tick() {
-                if (mode === 'laptop') updateLaptop(); else updatePhone();
-            }
-
-            if (mq.addEventListener) mq.addEventListener('change', render);
-            else mq.addListener(render);
-
-            /* ---------- Editor-pagina ---------- */
-
-            var editor = document.getElementById('editor');
-            var rowsEl = document.getElementById('rows');
-            var draft = [];
-
-            function drawRows() {
-                var html = '';
-                draft.forEach(function (e, i) {
-                    var opts = '';
-                    ACTS.forEach(function (a) {
-                        opts += '<option value="' + a[0] + '"' + (a[0] === e[1] ? ' selected' : '') + '>' + a[1] + '</option>';
-                    });
-                    html +=
-                        '<div class="erow" data-i="' + i + '">' +
-                            '<input type="time" value="' + hm(e[0]) + '" aria-label="Start time">' +
-                            '<select aria-label="Activity">' + opts + '</select>' +
-                            '<button type="button" class="x" aria-label="Remove">\u00D7</button>' +
-                        '</div>';
-                });
-                rowsEl.innerHTML = html;
-
-                rowsEl.querySelectorAll('.erow').forEach(function (row) {
-                    var i = parseInt(row.getAttribute('data-i'), 10);
-                    row.querySelector('input').addEventListener('change', function (ev) {
-                        var p = ev.target.value.split(':');
-                        if (p.length === 2) draft[i][0] = parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
-                    });
-                    row.querySelector('select').addEventListener('change', function (ev) {
-                        draft[i][1] = ev.target.value;
-                    });
-                    row.querySelector('.x').addEventListener('click', function () {
-                        if (draft.length > 1) { draft.splice(i, 1); drawRows(); }
-                    });
-                });
-            }
-
-            function openEditor() {
-                draft = entries.map(function (e) { return e.slice(); });
-                drawRows();
-                editor.hidden = false;
-                rowsEl.scrollTop = 0;
-            }
-
-            function closeEditor() { editor.hidden = true; }
-
-            document.getElementById('edit').addEventListener('click', openEditor);
-            document.getElementById('e-cancel').addEventListener('click', closeEditor);
-            document.getElementById('e-add').addEventListener('click', function () {
-                draft.push([720, 'walk']);
-                drawRows();
-            });
-            document.getElementById('e-reset').addEventListener('click', function () {
-                draft = DEFAULT.map(function (e) { return e.slice(); });
-                drawRows();
-            });
-            document.getElementById('e-save').addEventListener('click', function () {
-                var valid = draft.filter(function (e) { return !isNaN(e[0]) && e[0] >= 0 && e[0] < 1440; });
-                if (!valid.length) return;
-                entries = norm(valid);
-                save();
-                BLOCKS = build(entries);
-                closeEditor();
-                mode = null;
-                render();
-            });
-
-            render();
-            setInterval(tick, 15000);
-        })();
+        window.addEventListener('error', function (e) {
+            var el = document.getElementById('err');
+            if (el) el.textContent = 'Error: ' + e.message + ' (line ' + e.lineno + ')';
+        });
     </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dog Days Are Not Over – Edition 03</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        @font-face {
-            font-family: 'Neue Haas Grotesk';
-            src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2'),
-                 url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff') format('woff');
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        :root {
-            --brown: #6b4423;
-            --neon: #ff2fa8;
-            --white: #FFFFFF;
-            --bar: 5.4rem;
-            --edge: clamp(0.8rem, 2vw, 1.5rem);
-            --line: 2px;
-        }
-
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            overscroll-behavior: none;
-        }
-
-        body {
-            background: var(--white);
-            color: var(--brown);
-            font-family: 'Neue Haas Grotesk', sans-serif;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-
-        #app {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: var(--bar);
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        /* ---------- Eén combinatie per soort: alleen bruin, wit en roze ----------
-           --ol = kleur van de outline bij hover (roze op bruin, anders bruin) */
-
-        .t-sleep   { --bg: var(--brown); --fg: var(--white); --ol: var(--neon); }
-        .t-walk    { --bg: var(--white); --fg: var(--brown); --ol: var(--brown); }
-        .t-eat     { --bg: var(--brown); --fg: var(--neon);  --ol: var(--neon); }
-        .t-play    { --bg: var(--neon);  --fg: var(--brown); --ol: var(--brown); }
-        .t-cuddle  { --bg: var(--white); --fg: var(--neon);  --ol: var(--brown); }
-        .t-rest    { --bg: var(--neon);  --fg: var(--white); --ol: var(--brown); }
-
-        /* ---------- Navigatie (zelfde als editie 1, 2 en 4) ---------- */
-
-        .nav-links {
-            position: fixed;
-            bottom: var(--edge);
-            left: var(--edge);
-            right: var(--edge);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 20;
-            pointer-events: none;
-        }
-
-        .nav-link {
-            font-family: inherit;
-            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            font-weight: 400;
-            color: var(--neon);
-            text-transform: none;
-            letter-spacing: 0;
-            text-decoration: none;
-            white-space: nowrap;
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            transition: opacity 0.25s ease;
-            outline: none;
-            pointer-events: auto;
-        }
-
-        .nav-link:hover,
-        .nav-link:focus,
-        .nav-link:focus-visible {
-            opacity: 0.7;
-            outline: none;
-        }
-
-        /* =========================================================
-           LEZING 1: TELEFOON
-           Eén moment tegelijk, beeldvullend. Vegen is bladeren.
-           ========================================================= */
-
-        .slides {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scroll-snap-type: x mandatory;
-            overscroll-behavior-x: contain;
-            scrollbar-width: none;
-        }
-
-        .slides::-webkit-scrollbar {
-            display: none;
-        }
-
-        .slide {
-            flex: 0 0 100%;
-            height: 100%;
-            scroll-snap-align: start;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
-            padding: var(--edge) var(--edge) 1.4rem;
-            background: var(--bg);
-            color: var(--fg);
-        }
-
-        .strip {
-            display: flex;
-            gap: 3px;
-            height: 8px;
-            width: 100%;
-            flex: none;
-        }
-
-        .strip i {
-            display: block;
-            background: currentColor;
-            opacity: 0.25;
-            min-width: 2px;
-        }
-
-        .strip i.on {
-            opacity: 1;
-        }
-
-        .slide .meta {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.2rem;
-            margin-top: 1rem;
-            font-size: 1.3rem;
-            font-variant-numeric: tabular-nums;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-        }
-
-        .slide .word {
-            margin-top: auto;
-            font-size: 22vw;
-            line-height: 0.85;
-            letter-spacing: -0.045em;
-            text-transform: uppercase;
-        }
-
-        /* =========================================================
-           LEZING 2: LAPTOP
-           De hele dag in één affiche.
-           ========================================================= */
-
-        .board {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            height: 100%;
-        }
-
-        .top {
-            flex: 0 0 20vh;
-            min-height: 0;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 2rem;
-            padding: var(--edge) var(--edge) 0;
-            background: var(--white);
-        }
-
-        .top-word {
-            font-size: 14vh;
-            line-height: 0.85;
-            letter-spacing: -0.05em;
-            text-transform: uppercase;
-            color: var(--neon);
-            white-space: nowrap;
-        }
-
-        .top-word.preview {
-            color: var(--brown);
-        }
-
-        .top-tag {
-            flex: none;
-            text-align: right;
-            font-size: clamp(1rem, 1.9vw, 1.4rem);
-            line-height: 1.2;
-            text-transform: none;
-            letter-spacing: 0;
-            white-space: nowrap;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .stack {
-            position: relative;
-            flex: 1;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .band {
-            flex-grow: var(--d);
-            flex-shrink: 1;
-            flex-basis: 0;
-            min-height: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-            padding: 0;
-            background: var(--bg);
-            color: var(--fg);
-            font-size: clamp(0.7rem, 2.6vh, 2rem);
-            line-height: 1;
-            letter-spacing: 0;
-            text-transform: uppercase;
-            font-variant-numeric: tabular-nums;
-            white-space: nowrap;
-            overflow: hidden;
-            cursor: default;
-            outline: none;
-            animation: fadeIn 0.6s ease-out backwards;
-            transition: flex-grow 0.45s ease, background 0.25s ease, color 0.25s ease;
-        }
-
-        .band .bt {
-            width: 11ch;
-            text-align: center;
-        }
-
-        .band .bw {
-            width: 9ch;
-            text-align: center;
-        }
-
-        /* Hover: alleen een outline boven en onder het blok */
-        .band:hover,
-        .band:focus-visible,
-        .band.editing {
-            box-shadow:
-                inset 0 var(--line) 0 var(--ol),
-                inset 0 calc(var(--line) * -1) 0 var(--ol);
-        }
-
-        /* Aanpassen met dubbelklik */
-        .band.editing .bt,
-        .band.editing .bw {
-            width: 8.5rem;
-        }
-
-        .band input,
-        .band select {
-            width: 100%;
-            height: 1.45em;
-            font-family: inherit;
-            font-size: 0.8em;
-            line-height: 1;
-            text-transform: none;
-            color: inherit;
-            background: transparent;
-            border: 2px solid currentColor;
-            border-radius: 4px;
-            padding: 0 4px;
-            outline: none;
-        }
-
-        .band input:disabled {
-            opacity: 0.55;
-        }
-
-        .band option {
-            color: var(--brown);
-            background: var(--white);
-        }
-
-        .band .bx {
-            font-family: inherit;
-            font-size: 1em;
-            line-height: 1;
-            color: inherit;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0 0.3rem;
-        }
-
-        .band .bx:hover {
-            opacity: 0.7;
-        }
-
-        .t-sleep input::-webkit-calendar-picker-indicator,
-        .t-eat input::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-        }
-
-        /* Tijdbalk: dik, zonder outline. Kleur wisselt als de baan dezelfde kleur heeft. */
-        .nowline {
-            --nl: var(--brown);
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 6px;
-            margin-top: -3px;
-            background: var(--nl);
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .nowline::before {
-            content: "";
-            position: absolute;
-            left: var(--edge);
-            top: 50%;
-            width: 16px;
-            height: 16px;
-            margin-top: -8px;
-            border-radius: 50%;
-            background: var(--nl);
-        }
-
-        /* =========================================================
-           EDITOR-PAGINA: ritme aanpassen per hond (paginavullend)
-           ========================================================= */
-
-        .editor {
-            position: fixed;
-            inset: 0;
-            z-index: 40;
-            display: flex;
-            flex-direction: column;
-            background: var(--white);
-            color: var(--brown);
-            overflow: hidden;
-            padding: var(--edge);
-        }
-
-        .editor[hidden] {
-            display: none;
-        }
-
-        .editor h2 {
-            flex: none;
-            font-size: min(14vh, 16vw);
-            font-weight: 400;
-            line-height: 0.85;
-            letter-spacing: -0.05em;
-            text-transform: uppercase;
-            color: var(--neon);
-        }
-
-        .rows {
-            flex: 1;
-            min-height: 0;
-            margin-top: 1rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
-            column-gap: 2rem;
-            align-content: start;
-            border-top: 2px solid var(--brown);
-            overflow-y: auto;
-            scrollbar-width: none;
-        }
-
-        .rows::-webkit-scrollbar {
-            display: none;
-        }
-
-        .erow {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            padding: 0.35rem 0;
-            border-bottom: 2px solid var(--brown);
-        }
-
-        .editor input,
-        .editor select {
-            font-family: inherit;
-            font-size: 1rem;
-            color: var(--brown);
-            background: var(--white);
-            border: 2px solid var(--brown);
-            border-radius: 4px;
-            padding: 0.3rem 0.5rem;
-            outline: none;
-        }
-
-        .editor input:focus,
-        .editor select:focus {
-            border-color: var(--neon);
-        }
-
-        .editor select {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .editor .x {
-            font-family: inherit;
-            font-size: 1.5rem;
-            line-height: 1;
-            color: var(--neon);
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0 0.3rem;
-        }
-
-        .editor .x:hover {
-            opacity: 0.7;
-        }
-
-        .editor-actions {
-            flex: none;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            padding-top: 1rem;
-        }
-
-        @media (max-width: 899px) {
-            .nav-link {
-                font-size: 1rem;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            #app,
-            .band {
-                animation: none;
-                transition: none;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <main id="app"></main>
-
-    <section class="editor" id="editor" hidden aria-label="Edit rhythm">
-        <h2>Your dog's rhythm</h2>
-        <div class="rows" id="rows"></div>
-        <div class="editor-actions">
-            <button type="button" class="nav-link" id="e-add">+ Add</button>
-            <button type="button" class="nav-link" id="e-reset">Reset</button>
-            <button type="button" class="nav-link" id="e-cancel">Cancel</button>
-            <button type="button" class="nav-link" id="e-save">Save</button>
-        </div>
-    </section>
-
-    <nav class="nav-links" aria-label="Edition navigation">
-        <a href="editie-02.html" class="nav-link">← Edition 02</a>
-        <button type="button" class="nav-link" id="edit">edit rhythm</button>
-        <a href="editie-04.html" class="nav-link">Edition 04 →</a>
-    </nav>
 
     <script>
         (function () {
-            var ACTS = [
-                ['sleep', 'Sleep'], ['rest', 'Rest'], ['walk', 'Walk'],
-                ['eat', 'Eat'], ['play', 'Play'], ['cuddle', 'Cuddle']
-            ];
-            var WORD = {};
-            ACTS.forEach(function (a) { WORD[a[0]] = a[1]; });
+            try {
+                var ACTS = [
+                    ['sleep', 'Sleep'], ['rest', 'Rest'], ['walk', 'Walk'],
+                    ['eat', 'Eat'], ['play', 'Play'], ['cuddle', 'Cuddle']
+                ];
+                var WORD = {};
+                ACTS.forEach(function (a) { WORD[a[0]] = a[1]; });
 
-            // Elke activiteit begint op [minuten sinds middernacht] en loopt tot de volgende begint.
-            // Richtlijn voor een volwassen hond: ongeveer 12 uur slaap, 7 uur rust, 5 uur actief.
-            var DEFAULT = [
-                [0,    'sleep'],   // 00:00
-                [390,  'walk'],    // 06:30
-                [435,  'eat'],     // 07:15
-                [465,  'rest'],    // 07:45
-                [540,  'sleep'],   // 09:00
-                [660,  'walk'],    // 11:00
-                [690,  'play'],    // 11:30
-                [720,  'sleep'],   // 12:00
-                [840,  'rest'],    // 14:00
-                [960,  'play'],    // 16:00
-                [990,  'walk'],    // 16:30
-                [1035, 'eat'],     // 17:15
-                [1065, 'rest'],    // 17:45
-                [1170, 'cuddle'],  // 19:30
-                [1200, 'rest'],    // 20:00
-                [1320, 'walk'],    // 22:00
-                [1350, 'sleep']    // 22:30
-            ];
+                // Elke activiteit begint op [minuten sinds middernacht] en loopt tot de volgende begint.
+                // Richtlijn voor een volwassen hond: ongeveer 12 uur slaap, 7 uur rust, 5 uur actief.
+                var DEFAULT = [
+                    [0,    'sleep'],
+                    [390,  'walk'],
+                    [435,  'eat'],
+                    [465,  'rest'],
+                    [540,  'sleep'],
+                    [660,  'walk'],
+                    [690,  'play'],
+                    [720,  'sleep'],
+                    [840,  'rest'],
+                    [960,  'play'],
+                    [990,  'walk'],
+                    [1035, 'eat'],
+                    [1065, 'rest'],
+                    [1170, 'cuddle'],
+                    [1200, 'rest'],
+                    [1320, 'walk'],
+                    [1350, 'sleep']
+                ];
 
-            var KEY = 'dogdays-rhythm-v2';
-            var app = document.getElementById('app');
-            var mq = window.matchMedia('(min-width: 900px)');
-            var mode = null;
-            var previewIdx = -1;
-            var editIdx = -1;
-            var entries = load();
-            var BLOCKS = build(entries);
+                var KEY = 'dogdays-rhythm-v3';
+                var app = document.getElementById('app');
+                var mq = window.matchMedia('(min-width: 900px)');
+                var mode = null;
+                var previewIdx = -1;
+                var editIdx = -1;
+                var entries = [];
+                var BLOCKS = [];
 
-            function two(n) { return (n < 10 ? '0' : '') + n; }
-            function hm(m) { return two(Math.floor(m / 60)) + ':' + two(m % 60); }
-            function range(b) { return hm(b.from) + '\u2013' + hm(b.to === 1440 ? 0 : b.to); }
+                function two(n) { return (n < 10 ? '0' : '') + n; }
+                function hm(m) { return two(Math.floor(m / 60)) + ':' + two(m % 60); }
+                function range(b) { return hm(b.from) + '\u2013' + hm(b.to === 1440 ? 0 : b.to); }
 
-            /* ---------- Ritme laden, opschonen en opbouwen ---------- */
+                /* ---------- Ritme laden, opschonen en opbouwen ---------- */
 
-            // Gesorteerd, geen dubbele starttijden en altijd een start om 00:00
-            function norm(list) {
-                var s = list.map(function (e) { return [e[0], e[1]]; })
-                            .sort(function (a, b) { return a[0] - b[0]; });
-                var out = [];
-                s.forEach(function (e) {
-                    if (out.length && out[out.length - 1][0] === e[0]) out[out.length - 1] = e;
-                    else out.push(e);
-                });
-                if (!out.length || out[0][0] > 0) {
-                    out.unshift([0, out.length ? out[out.length - 1][1] : 'sleep']);
+                function norm(list) {
+                    var s = list.map(function (e) { return [e[0], e[1]]; })
+                                .sort(function (a, b) { return a[0] - b[0]; });
+                    var out = [];
+                    s.forEach(function (e) {
+                        if (out.length && out[out.length - 1][0] === e[0]) out[out.length - 1] = e;
+                        else out.push(e);
+                    });
+                    if (!out.length || out[0][0] > 0) {
+                        out.unshift([0, out.length ? out[out.length - 1][1] : 'sleep']);
+                    }
+                    return out;
                 }
-                return out;
-            }
 
-            function load() {
-                try {
-                    var raw = JSON.parse(localStorage.getItem(KEY));
-                    if (Array.isArray(raw) && raw.length) {
-                        var ok = raw.every(function (e) {
-                            return Array.isArray(e) && typeof e[0] === 'number' && e[0] >= 0 && e[0] < 1440 && WORD[e[1]];
+                function load() {
+                    try {
+                        var raw = JSON.parse(localStorage.getItem(KEY));
+                        if (Array.isArray(raw) && raw.length) {
+                            var ok = raw.every(function (e) {
+                                return Array.isArray(e) && typeof e[0] === 'number' && e[0] >= 0 && e[0] < 1440 && WORD[e[1]];
+                            });
+                            if (ok) return norm(raw);
+                        }
+                    } catch (err) {}
+                    return norm(DEFAULT);
+                }
+
+                function save() {
+                    try { localStorage.setItem(KEY, JSON.stringify(entries)); } catch (err) {}
+                }
+
+                function build(list) {
+                    var out = [];
+                    list.forEach(function (e, i) {
+                        var to = i + 1 < list.length ? list[i + 1][0] : 1440;
+                        out.push({ from: e[0], to: to, type: e[1] });
+                    });
+                    out.forEach(function (b) {
+                        b.word = WORD[b.type];
+                        b.w = Math.min(2.5, Math.max(1, (b.to - b.from) / 60));
+                    });
+                    return out;
+                }
+
+                function nowInfo() {
+                    var d = new Date();
+                    var mins = d.getHours() * 60 + d.getMinutes();
+                    var idx = 0;
+                    for (var i = 0; i < BLOCKS.length; i++) {
+                        if (mins >= BLOCKS[i].from && mins < BLOCKS[i].to) { idx = i; break; }
+                    }
+                    return { mins: mins, idx: idx, clock: two(d.getHours()) + ':' + two(d.getMinutes()) };
+                }
+
+                function dur(m) {
+                    var h = Math.floor(m / 60), r = m % 60;
+                    if (h === 0) return r + 'm';
+                    return h + 'h ' + two(r) + 'm';
+                }
+
+                function nextInfo(info) {
+                    var cur = BLOCKS[info.idx];
+                    var n = BLOCKS.length;
+                    for (var k = 1; k <= n; k++) {
+                        var j = (info.idx + k) % n;
+                        if (BLOCKS[j].type !== cur.type || n === 1) {
+                            return { word: BLOCKS[j].word, wait: (BLOCKS[j].from - info.mins + 1440) % 1440 };
+                        }
+                    }
+                    return { word: cur.word, wait: 0 };
+                }
+
+                function until(i, mins) {
+                    return (BLOCKS[i].from - mins + 1440) % 1440;
+                }
+
+                function nowPercent(info) {
+                    var total = 0, before = 0;
+                    BLOCKS.forEach(function (b, i) {
+                        total += b.w;
+                        if (i < info.idx) before += b.w;
+                    });
+                    var b = BLOCKS[info.idx];
+                    var frac = (info.mins - b.from) / (b.to - b.from);
+                    return (before + frac * b.w) / total * 100;
+                }
+
+                /* ---------- Telefoon ---------- */
+
+                function strip(active) {
+                    var s = '<div class="strip" aria-hidden="true">';
+                    BLOCKS.forEach(function (b, k) {
+                        s += '<i class="' + (k === active ? 'on' : '') + '" style="flex-grow:' + (b.to - b.from) + '"></i>';
+                    });
+                    return s + '</div>';
+                }
+
+                function renderPhone() {
+                    var html = '<div class="slides" id="slides">';
+                    BLOCKS.forEach(function (b, i) {
+                        html +=
+                            '<section class="slide t-' + b.type + '">' +
+                                strip(i) +
+                                '<div class="meta"><span>' + range(b) + '</span><span class="status"></span><span class="count"></span></div>' +
+                                '<div class="word">' + b.word + '</div>' +
+                            '</section>';
+                    });
+                    html += '</div>';
+                    app.innerHTML = html;
+
+                    var slides = document.getElementById('slides');
+                    var idx = nowInfo().idx;
+                    slides.scrollLeft = idx * slides.clientWidth;
+                    requestAnimationFrame(function () { slides.scrollLeft = idx * slides.clientWidth; });
+                    slides.addEventListener('dblclick', openEditor);
+                    updatePhone();
+                }
+
+                function updatePhone() {
+                    var info = nowInfo();
+                    var nx = nextInfo(info);
+                    var list = app.querySelectorAll('.slide');
+                    for (var i = 0; i < list.length; i++) {
+                        var s = list[i];
+                        var st = s.querySelector('.status');
+                        var ct = s.querySelector('.count');
+                        if (!st || !ct) continue;
+                        if (i === info.idx) {
+                            st.textContent = 'Now ' + info.clock;
+                            ct.textContent = 'Next: ' + nx.word + ' in ' + dur(nx.wait);
+                        } else {
+                            ct.textContent = '';
+                            st.textContent = BLOCKS[i].from > info.mins ? 'In ' + dur(until(i, info.mins)) : 'Earlier';
+                        }
+                    }
+                }
+
+                /* ---------- Laptop ---------- */
+
+                function bandInner(b, i) {
+                    if (editIdx === i) {
+                        var opts = '';
+                        ACTS.forEach(function (a) {
+                            opts += '<option value="' + a[0] + '"' + (a[0] === b.type ? ' selected' : '') + '>' + a[1] + '</option>';
                         });
-                        if (ok) return norm(raw);
+                        return '<span class="bt"><input type="time" value="' + hm(b.from) + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="Start time"></span>' +
+                               '<span class="bw"><select aria-label="Activity">' + opts + '</select></span>' +
+                               (i > 0 ? '<button type="button" class="bx" aria-label="Remove">\u00D7</button>' : '');
                     }
-                } catch (err) {}
-                return norm(DEFAULT);
-            }
-
-            function save() {
-                try { localStorage.setItem(KEY, JSON.stringify(entries)); } catch (err) {}
-            }
-
-            function build(list) {
-                var out = [];
-                list.forEach(function (e, i) {
-                    var to = i + 1 < list.length ? list[i + 1][0] : 1440;
-                    out.push({ from: e[0], to: to, type: e[1] });
-                });
-                out.forEach(function (b) {
-                    b.word = WORD[b.type];
-                    // Hoogte van de baan: niet te klein en niet te groot, zodat de tekst past
-                    b.w = Math.min(2.5, Math.max(1, (b.to - b.from) / 60));
-                });
-                return out;
-            }
-
-            function nowInfo() {
-                var d = new Date();
-                var mins = d.getHours() * 60 + d.getMinutes();
-                var idx = 0;
-                for (var i = 0; i < BLOCKS.length; i++) {
-                    if (mins >= BLOCKS[i].from && mins < BLOCKS[i].to) { idx = i; break; }
+                    return '<span class="bt">' + range(b) + '</span><span class="bw">' + b.word + '</span>';
                 }
-                return { mins: mins, idx: idx, clock: two(d.getHours()) + ':' + two(d.getMinutes()) };
-            }
 
-            function dur(m) {
-                var h = Math.floor(m / 60), r = m % 60;
-                if (h === 0) return r + 'm';
-                return h + 'h ' + two(r) + 'm';
-            }
-
-            // Eerstvolgende blok met een andere activiteit dan nu
-            function nextInfo(info) {
-                var cur = BLOCKS[info.idx];
-                var n = BLOCKS.length;
-                for (var k = 1; k <= n; k++) {
-                    var j = (info.idx + k) % n;
-                    if (BLOCKS[j].type !== cur.type || n === 1) {
-                        var wait = (BLOCKS[j].from - info.mins + 1440) % 1440;
-                        return { word: BLOCKS[j].word, wait: wait };
+                function bandOf(target) {
+                    var el = target && target.nodeType === 1 ? target : (target ? target.parentNode : null);
+                    while (el && el !== app) {
+                        if (el.classList && el.classList.contains('band')) return el;
+                        el = el.parentNode;
                     }
+                    return null;
                 }
-                return { word: cur.word, wait: 0 };
-            }
 
-            function until(i, mins) {
-                return (BLOCKS[i].from - mins + 1440) % 1440;
-            }
+                function bandEls() { return app.querySelectorAll('.band'); }
 
-            // Plek van de tijdbalk, rekening houdend met de hoogte van de banen
-            function nowPercent(info) {
-                var total = 0, before = 0;
-                BLOCKS.forEach(function (b, i) {
-                    total += b.w;
-                    if (i < info.idx) before += b.w;
-                });
-                var b = BLOCKS[info.idx];
-                var frac = (info.mins - b.from) / (b.to - b.from);
-                return (before + frac * b.w) / total * 100;
-            }
-
-            /* ---------- Telefoon ---------- */
-
-            function strip(active) {
-                var s = '<div class="strip" aria-hidden="true">';
-                BLOCKS.forEach(function (b, k) {
-                    s += '<i class="' + (k === active ? 'on' : '') + '" style="flex-grow:' + (b.to - b.from) + '"></i>';
-                });
-                return s + '</div>';
-            }
-
-            function renderPhone() {
-                var html = '<div class="slides" id="slides">';
-                BLOCKS.forEach(function (b, i) {
-                    html +=
-                        '<section class="slide t-' + b.type + '">' +
-                            strip(i) +
-                            '<div class="meta"><span>' + range(b) + '</span><span class="status"></span><span class="count"></span></div>' +
-                            '<div class="word">' + b.word + '</div>' +
-                        '</section>';
-                });
-                html += '</div>';
-                app.innerHTML = html;
-
-                var slides = document.getElementById('slides');
-                var idx = nowInfo().idx;
-                slides.scrollLeft = idx * slides.clientWidth;
-                requestAnimationFrame(function () { slides.scrollLeft = idx * slides.clientWidth; });
-                slides.addEventListener('dblclick', openEditor);
-                updatePhone();
-            }
-
-            function updatePhone() {
-                var info = nowInfo();
-                var nx = nextInfo(info);
-                app.querySelectorAll('.slide').forEach(function (s, i) {
-                    var st = s.querySelector('.status');
-                    var ct = s.querySelector('.count');
-                    if (i === info.idx) {
-                        st.textContent = 'Now ' + info.clock;
-                        ct.textContent = 'Next: ' + nx.word + ' in ' + dur(nx.wait);
-                    } else {
-                        ct.textContent = '';
-                        if (BLOCKS[i].from > info.mins) st.textContent = 'In ' + dur(until(i, info.mins));
-                        else st.textContent = 'Earlier';
-                    }
-                });
-            }
-
-            /* ---------- Laptop ---------- */
-
-            function bandInner(b, i) {
-                if (editIdx === i) {
-                    var opts = '';
-                    ACTS.forEach(function (a) {
-                        opts += '<option value="' + a[0] + '"' + (a[0] === b.type ? ' selected' : '') + '>' + a[1] + '</option>';
-                    });
-                    return '<span class="bt"><input type="time" value="' + hm(b.from) + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="Start time"></span>' +
-                           '<span class="bw"><select aria-label="Activity">' + opts + '</select></span>' +
-                           (i > 0 ? '<button type="button" class="bx" aria-label="Remove">\u00D7</button>' : '');
-                }
-                return '<span class="bt">' + range(b) + '</span><span class="bw">' + b.word + '</span>';
-            }
-
-            function renderLaptop() {
-                editIdx = -1;
-                var bands = '';
-                BLOCKS.forEach(function (b, i) {
-                    bands +=
-                        '<div class="band t-' + b.type + '" tabindex="0" data-i="' + i + '" ' +
-                        'style="--d:' + b.w.toFixed(3) + ';animation-delay:' + (i * 0.03).toFixed(2) + 's">' +
-                            bandInner(b, i) +
-                        '</div>';
-                });
-
-                app.innerHTML =
-                    '<div class="board">' +
-                        '<div class="top">' +
-                            '<div class="top-word" id="r-word"></div>' +
-                            '<div class="top-tag" id="r-tag"></div>' +
-                        '</div>' +
-                        '<div class="stack" id="stack">' + bands +
-                            '<div class="nowline" id="nowline"></div>' +
-                        '</div>' +
-                    '</div>';
-
-                var stack = document.getElementById('stack');
-
-                app.querySelectorAll('.band').forEach(function (el) {
-                    var i = parseInt(el.getAttribute('data-i'), 10);
-                    function on() { previewIdx = i; updateLaptop(); }
-                    function off() { previewIdx = -1; updateLaptop(); }
-                    el.addEventListener('mouseenter', on);
-                    el.addEventListener('mouseleave', off);
-                    el.addEventListener('focus', on);
-                    el.addEventListener('blur', off);
-                });
-
-                // Aanpassen: dubbelklik (of Enter op een gefocust blok)
-                stack.addEventListener('dblclick', function (e) {
-                    var band = e.target.closest ? e.target.closest('.band') : null;
-                    if (band) startEdit(parseInt(band.getAttribute('data-i'), 10));
-                });
-
-                stack.addEventListener('keydown', function (e) {
-                    var band = e.target.closest ? e.target.closest('.band') : null;
-                    if (!band) return;
-                    var i = parseInt(band.getAttribute('data-i'), 10);
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (editIdx === i) commit(); else startEdit(i);
-                    } else if (e.key === 'Escape' && editIdx === i) {
-                        cancel();
-                    }
-                });
-
-                // Andere activiteit gekozen: blok krijgt meteen de kleur van die categorie
-                stack.addEventListener('change', function (e) {
-                    if (e.target.tagName !== 'SELECT' || editIdx < 0) return;
-                    var band = e.target.closest('.band');
-                    band.className = 'band editing t-' + e.target.value;
-                });
-
-                stack.addEventListener('click', function (e) {
-                    if (!e.target.classList || !e.target.classList.contains('bx')) return;
-                    var i = parseInt(e.target.closest('.band').getAttribute('data-i'), 10);
+                function renderLaptop() {
                     editIdx = -1;
-                    if (i > 0) {
-                        entries.splice(i, 1);
-                        entries = norm(entries);
-                        save();
-                    }
-                    refreshLaptop();
-                });
-
-                // Klik of tab buiten het blok: opslaan
-                stack.addEventListener('focusout', function (e) {
-                    if (editIdx < 0) return;
-                    var band = e.target.closest ? e.target.closest('.band') : null;
-                    if (band && e.relatedTarget && band.contains(e.relatedTarget)) return;
-                    commit();
-                });
-
-                updateLaptop();
-            }
-
-            function bandEls() { return app.querySelectorAll('.band'); }
-
-            function startEdit(i) {
-                if (editIdx >= 0 && editIdx !== i) commit();
-                if (editIdx === i) return;
-                editIdx = i;
-                var band = bandEls()[i];
-                if (!band) { editIdx = -1; return; }
-                band.classList.add('editing');
-                band.innerHTML = bandInner(BLOCKS[i], i);
-                var first = band.querySelector('input:not(:disabled)') || band.querySelector('select');
-                if (first) first.focus();
-            }
-
-            function commit() {
-                if (editIdx < 0) return;
-                var i = editIdx;
-                var band = bandEls()[i];
-                editIdx = -1;
-                if (band) {
-                    var t = band.querySelector('input');
-                    var s = band.querySelector('select');
-                    if (s && WORD[s.value]) entries[i][1] = s.value;
-                    if (t && !t.disabled && t.value) {
-                        var p = t.value.split(':');
-                        var m = parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
-                        if (!isNaN(m) && m > 0 && m < 1440) entries[i][0] = m;
-                    }
-                }
-                entries = norm(entries);
-                save();
-                refreshLaptop();
-            }
-
-            function cancel() {
-                editIdx = -1;
-                refreshLaptop();
-            }
-
-            // Bijwerken zonder alles opnieuw te tekenen, zodat de hoogte zacht verandert
-            function refreshLaptop() {
-                BLOCKS = build(entries);
-                var bands = bandEls();
-                if (!bands.length || bands.length !== BLOCKS.length) {
-                    renderLaptop();
-                    return;
-                }
-                bands.forEach(function (el, i) {
-                    var b = BLOCKS[i];
-                    el.className = 'band t-' + b.type + (editIdx === i ? ' editing' : '');
-                    el.style.setProperty('--d', b.w.toFixed(3));
-                    el.setAttribute('data-i', i);
-                    if (editIdx !== i) el.innerHTML = bandInner(b, i);
-                });
-                updateLaptop();
-            }
-
-            function updateLaptop() {
-                var info = nowInfo();
-                var shown = previewIdx >= 0 && previewIdx < BLOCKS.length ? previewIdx : info.idx;
-                var isNow = shown === info.idx;
-                var b = BLOCKS[shown];
-                var nx = nextInfo(info);
-
-                document.getElementById('r-tag').textContent = isNow
-                    ? 'next: ' + nx.word.toLowerCase() + ' in ' + dur(nx.wait)
-                    : range(b);
-
-                var w = document.getElementById('r-word');
-                w.textContent = b.word;
-                w.classList.toggle('preview', !isNow);
-
-                // Tijdbalk: bruin, maar roze als de baan zelf bruin is
-                var nl = document.getElementById('nowline');
-                var cur = BLOCKS[info.idx].type;
-                var onBrown = (cur === 'sleep' || cur === 'eat');
-                nl.style.setProperty('--nl', onBrown ? '#ff2fa8' : '#6b4423');
-                nl.style.top = nowPercent(info).toFixed(3) + '%';
-            }
-
-            /* ---------- Kiezen en bijwerken ---------- */
-
-            function render() {
-                var next = mq.matches ? 'laptop' : 'phone';
-                if (next === mode) return;
-                mode = next;
-                previewIdx = -1;
-                if (mode === 'laptop') renderLaptop(); else renderPhone();
-            }
-
-            function tick() {
-                if (mode === 'laptop') updateLaptop(); else updatePhone();
-            }
-
-            if (mq.addEventListener) mq.addEventListener('change', render);
-            else mq.addListener(render);
-
-            /* ---------- Editor-pagina ---------- */
-
-            var editor = document.getElementById('editor');
-            var rowsEl = document.getElementById('rows');
-            var draft = [];
-
-            function drawRows() {
-                var html = '';
-                draft.forEach(function (e, i) {
-                    var opts = '';
-                    ACTS.forEach(function (a) {
-                        opts += '<option value="' + a[0] + '"' + (a[0] === e[1] ? ' selected' : '') + '>' + a[1] + '</option>';
+                    var bands = '';
+                    BLOCKS.forEach(function (b, i) {
+                        bands +=
+                            '<div class="band t-' + b.type + '" tabindex="0" data-i="' + i + '" style="--d:' + b.w.toFixed(3) + '">' +
+                                bandInner(b, i) +
+                            '</div>';
                     });
-                    html +=
-                        '<div class="erow" data-i="' + i + '">' +
-                            '<input type="time" value="' + hm(e[0]) + '" aria-label="Start time">' +
-                            '<select aria-label="Activity">' + opts + '</select>' +
-                            '<button type="button" class="x" aria-label="Remove">\u00D7</button>' +
+
+                    app.innerHTML =
+                        '<div class="board">' +
+                            '<div class="top">' +
+                                '<div class="top-word" id="r-word"></div>' +
+                                '<div class="top-tag" id="r-tag"></div>' +
+                            '</div>' +
+                            '<div class="stack" id="stack">' + bands +
+                                '<div class="nowline" id="nowline"></div>' +
+                            '</div>' +
                         '</div>';
-                });
-                rowsEl.innerHTML = html;
 
-                rowsEl.querySelectorAll('.erow').forEach(function (row) {
+                    var stack = document.getElementById('stack');
+
+                    // Hover via één luisteraar op het hele overzicht
+                    stack.addEventListener('mouseover', function (e) {
+                        var band = bandOf(e.target);
+                        var i = band ? parseInt(band.getAttribute('data-i'), 10) : -1;
+                        if (i !== previewIdx) { previewIdx = i; updateLaptop(); }
+                    });
+
+                    stack.addEventListener('mouseleave', function () {
+                        previewIdx = -1;
+                        updateLaptop();
+                    });
+
+                    stack.addEventListener('focusin', function (e) {
+                        var band = bandOf(e.target);
+                        if (band && editIdx < 0) {
+                            previewIdx = parseInt(band.getAttribute('data-i'), 10);
+                            updateLaptop();
+                        }
+                    });
+
+                    // Aanpassen: dubbelklik
+                    stack.addEventListener('dblclick', function (e) {
+                        var band = bandOf(e.target);
+                        if (band) startEdit(parseInt(band.getAttribute('data-i'), 10));
+                    });
+
+                    stack.addEventListener('keydown', function (e) {
+                        var band = bandOf(e.target);
+                        if (!band) return;
+                        var i = parseInt(band.getAttribute('data-i'), 10);
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (editIdx === i) commit(); else startEdit(i);
+                        } else if (e.key === 'Escape' && editIdx === i) {
+                            cancel();
+                        }
+                    });
+
+                    // Andere activiteit gekozen: blok krijgt meteen de kleur van die categorie
+                    stack.addEventListener('change', function (e) {
+                        if (e.target.tagName !== 'SELECT' || editIdx < 0) return;
+                        var band = bandOf(e.target);
+                        if (band) band.className = 'band editing t-' + e.target.value;
+                    });
+
+                    stack.addEventListener('click', function (e) {
+                        if (!e.target.classList || !e.target.classList.contains('bx')) return;
+                        var band = bandOf(e.target);
+                        var i = band ? parseInt(band.getAttribute('data-i'), 10) : -1;
+                        editIdx = -1;
+                        if (i > 0) {
+                            entries.splice(i, 1);
+                            entries = norm(entries);
+                            save();
+                        }
+                        refreshLaptop();
+                    });
+
+                    // Klik of tab buiten het blok: opslaan
+                    stack.addEventListener('focusout', function (e) {
+                        if (editIdx < 0) return;
+                        var band = bandOf(e.target);
+                        if (band && e.relatedTarget && band.contains(e.relatedTarget)) return;
+                        commit();
+                    });
+
+                    updateLaptop();
+                }
+
+                function startEdit(i) {
+                    if (editIdx >= 0 && editIdx !== i) commit();
+                    if (editIdx === i) return;
+                    var band = bandEls()[i];
+                    if (!band || !BLOCKS[i]) return;
+                    editIdx = i;
+                    band.classList.add('editing');
+                    band.innerHTML = bandInner(BLOCKS[i], i);
+                    var first = band.querySelector('input:not(:disabled)') || band.querySelector('select');
+                    if (first) first.focus();
+                }
+
+                function commit() {
+                    if (editIdx < 0) return;
+                    var i = editIdx;
+                    var band = bandEls()[i];
+                    editIdx = -1;
+                    if (band && entries[i]) {
+                        var t = band.querySelector('input');
+                        var s = band.querySelector('select');
+                        if (s && WORD[s.value]) entries[i][1] = s.value;
+                        if (t && !t.disabled && t.value) {
+                            var p = t.value.split(':');
+                            var m = parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+                            if (!isNaN(m) && m > 0 && m < 1440) entries[i][0] = m;
+                        }
+                    }
+                    entries = norm(entries);
+                    save();
+                    refreshLaptop();
+                }
+
+                function cancel() {
+                    editIdx = -1;
+                    refreshLaptop();
+                }
+
+                // Bijwerken zonder alles opnieuw te tekenen, zodat de hoogte zacht verandert
+                function refreshLaptop() {
+                    BLOCKS = build(entries);
+                    var bands = bandEls();
+                    if (!bands.length || bands.length !== BLOCKS.length) {
+                        renderLaptop();
+                        return;
+                    }
+                    for (var i = 0; i < bands.length; i++) {
+                        var el = bands[i], b = BLOCKS[i];
+                        el.className = 'band t-' + b.type + (editIdx === i ? ' editing' : '');
+                        el.style.setProperty('--d', b.w.toFixed(3));
+                        el.setAttribute('data-i', i);
+                        if (editIdx !== i) el.innerHTML = bandInner(b, i);
+                    }
+                    updateLaptop();
+                }
+
+                function updateLaptop() {
+                    var info = nowInfo();
+                    var shown = previewIdx >= 0 && previewIdx < BLOCKS.length ? previewIdx : info.idx;
+                    var isNow = shown === info.idx;
+                    var b = BLOCKS[shown];
+                    var nx = nextInfo(info);
+
+                    document.getElementById('r-tag').textContent = isNow
+                        ? 'next: ' + nx.word.toLowerCase() + ' in ' + dur(nx.wait)
+                        : range(b);
+
+                    var w = document.getElementById('r-word');
+                    w.textContent = b.word;
+                    w.classList.toggle('preview', !isNow);
+
+                    // Tijdbalk: bruin, maar roze als de baan zelf bruin is
+                    var nl = document.getElementById('nowline');
+                    var cur = BLOCKS[info.idx].type;
+                    var onBrown = (cur === 'sleep' || cur === 'eat');
+                    nl.style.setProperty('--nl', onBrown ? '#ff2fa8' : '#6b4423');
+                    nl.style.top = nowPercent(info).toFixed(3) + '%';
+                }
+
+                /* ---------- Kiezen en bijwerken ---------- */
+
+                function render() {
+                    var next = mq.matches ? 'laptop' : 'phone';
+                    if (next === mode) return;
+                    mode = next;
+                    previewIdx = -1;
+                    if (mode === 'laptop') renderLaptop(); else renderPhone();
+                }
+
+                function tick() {
+                    try {
+                        if (editIdx >= 0) return;
+                        if (mode === 'laptop') updateLaptop(); else updatePhone();
+                    } catch (err) {}
+                }
+
+                if (mq.addEventListener) mq.addEventListener('change', render);
+                else if (mq.addListener) mq.addListener(render);
+
+                /* ---------- Editor-pagina ---------- */
+
+                var editor = document.getElementById('editor');
+                var rowsEl = document.getElementById('rows');
+                var draft = [];
+
+                function drawRows() {
+                    var html = '';
+                    draft.forEach(function (e, i) {
+                        var opts = '';
+                        ACTS.forEach(function (a) {
+                            opts += '<option value="' + a[0] + '"' + (a[0] === e[1] ? ' selected' : '') + '>' + a[1] + '</option>';
+                        });
+                        html +=
+                            '<div class="erow" data-i="' + i + '">' +
+                                '<input type="time" value="' + hm(e[0]) + '" aria-label="Start time">' +
+                                '<select aria-label="Activity">' + opts + '</select>' +
+                                '<button type="button" class="x" aria-label="Remove">\u00D7</button>' +
+                            '</div>';
+                    });
+                    rowsEl.innerHTML = html;
+                }
+
+                rowsEl.addEventListener('change', function (e) {
+                    var row = e.target.closest ? e.target.closest('.erow') : null;
+                    if (!row) return;
                     var i = parseInt(row.getAttribute('data-i'), 10);
-                    row.querySelector('input').addEventListener('change', function (ev) {
-                        var p = ev.target.value.split(':');
+                    if (!draft[i]) return;
+                    if (e.target.tagName === 'INPUT') {
+                        var p = e.target.value.split(':');
                         if (p.length === 2) draft[i][0] = parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
-                    });
-                    row.querySelector('select').addEventListener('change', function (ev) {
-                        draft[i][1] = ev.target.value;
-                    });
-                    row.querySelector('.x').addEventListener('click', function () {
-                        if (draft.length > 1) { draft.splice(i, 1); drawRows(); }
-                    });
+                    } else if (e.target.tagName === 'SELECT') {
+                        draft[i][1] = e.target.value;
+                    }
                 });
-            }
 
-            function openEditor() {
-                draft = entries.map(function (e) { return e.slice(); });
-                drawRows();
-                editor.hidden = false;
-                rowsEl.scrollTop = 0;
-            }
+                rowsEl.addEventListener('click', function (e) {
+                    if (!e.target.classList || !e.target.classList.contains('x')) return;
+                    var row = e.target.closest('.erow');
+                    var i = row ? parseInt(row.getAttribute('data-i'), 10) : -1;
+                    if (i >= 0 && draft.length > 1) { draft.splice(i, 1); drawRows(); }
+                });
 
-            function closeEditor() { editor.hidden = true; }
+                function openEditor() {
+                    draft = entries.map(function (e) { return e.slice(); });
+                    drawRows();
+                    editor.hidden = false;
+                    rowsEl.scrollTop = 0;
+                }
 
-            document.getElementById('edit').addEventListener('click', openEditor);
-            document.getElementById('e-cancel').addEventListener('click', closeEditor);
-            document.getElementById('e-add').addEventListener('click', function () {
-                draft.push([720, 'walk']);
-                drawRows();
-            });
-            document.getElementById('e-reset').addEventListener('click', function () {
-                draft = DEFAULT.map(function (e) { return e.slice(); });
-                drawRows();
-            });
-            document.getElementById('e-save').addEventListener('click', function () {
-                var valid = draft.filter(function (e) { return !isNaN(e[0]) && e[0] >= 0 && e[0] < 1440; });
-                if (!valid.length) return;
-                entries = norm(valid);
-                save();
+                function closeEditor() { editor.hidden = true; }
+
+                document.getElementById('edit').addEventListener('click', openEditor);
+                document.getElementById('e-cancel').addEventListener('click', closeEditor);
+                document.getElementById('e-add').addEventListener('click', function () {
+                    draft.push([720, 'walk']);
+                    drawRows();
+                });
+                document.getElementById('e-reset').addEventListener('click', function () {
+                    draft = DEFAULT.map(function (e) { return e.slice(); });
+                    drawRows();
+                });
+                document.getElementById('e-save').addEventListener('click', function () {
+                    var valid = draft.filter(function (e) { return !isNaN(e[0]) && e[0] >= 0 && e[0] < 1440; });
+                    if (!valid.length) return;
+                    entries = norm(valid);
+                    save();
+                    BLOCKS = build(entries);
+                    closeEditor();
+                    mode = null;
+                    render();
+                });
+
+                /* ---------- Start ---------- */
+
+                entries = load();
                 BLOCKS = build(entries);
-                closeEditor();
-                mode = null;
                 render();
-            });
-
-            render();
-            setInterval(tick, 15000);
+                setInterval(tick, 15000);
+            } catch (err) {
+                var el = document.getElementById('err');
+                if (el) el.textContent = 'Error: ' + err.message;
+            }
         })();
     </script>
 </body>
