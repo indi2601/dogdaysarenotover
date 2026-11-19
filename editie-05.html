@@ -2,797 +2,278 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Dog Days Are Not Over – Edition 05</title>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
 <style>
 @font-face {
     font-family: 'Neue Haas Grotesk';
-    src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2');
+    src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff') format('woff');
     font-weight: 400;
+    font-style: normal;
     font-display: swap;
 }
 
 :root {
     --brown: #6b4423;
     --neon: #ff2fa8;
-    --bg: #FFFFFF;
-    --border: rgba(107, 68, 35, .45);
+    --background: #fff;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html,
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { min-height: 100%; scroll-behavior: smooth; }
 body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    overscroll-behavior: none;
-}
-
-body {
-    background: var(--bg);
+    min-height: 100%;
+    background: var(--background);
     color: var(--brown);
     font-family: 'Neue Haas Grotesk', sans-serif;
+    overscroll-behavior-y: contain;
 }
 
-button,
-a {
-    font: inherit;
-}
-
-/* Onzichtbare SVG met het bruin/wit-filter voor de kaart */
-.filters {
-    position: absolute;
-    width: 0;
-    height: 0;
-    overflow: hidden;
-}
-
-/* DESKTOP LAYOUT */
-
-.desktop-layout {
+/* The long page turns scrolling into eating: each scroll step lowers the food. */
+.eating-stage { height: 300vh; height: 300dvh; position: relative; }
+.scene {
+    position: sticky;
+    top: 0;
     width: 100%;
     height: 100vh;
     height: 100dvh;
-    display: grid;
-    grid-template-columns: minmax(190px, 27%) minmax(0, 1fr) minmax(220px, 25%);
+    min-height: 420px;
     overflow: hidden;
+    background: var(--background);
 }
-
-.left-panel {
-    min-width: 0;
-    min-height: 0;
-    padding: clamp(1.5rem, 4vh, 2.5rem) 1.5rem 4.5rem clamp(1rem, 3vw, 3rem);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow: hidden;
-}
-
-.left-panel h1 {
-    font-size: clamp(3rem, 6.2vw, 7.5rem);
+.title {
+    position: absolute;
+    top: clamp(1.25rem, 3vh, 2.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--brown);
+    font-size: 14vh;
     line-height: .8;
     font-weight: 400;
     letter-spacing: -.06em;
+    text-align: center;
+    z-index: 2;
 }
-
-.map-wrapper {
-    min-width: 0;
-    min-height: 0;
-    padding: clamp(1rem, 3vh, 2rem) .75rem 4.5rem;
+.bowl-wrap {
+    position: absolute;
+    inset: 18vh 0 7vh;
+    display: grid;
+    place-items: center;
 }
-
-#map {
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-    background: #FFFFFF;
-    border: 1px solid var(--border);
+.bowl {
+    display: block;
+    width: min(94vw, 1050px);
+    height: min(76vh, 680px);
+    overflow: visible;
 }
-
-/* KAART: ALLEEN BRUIN EN WIT */
-
-.leaflet-container {
-    background: #FFFFFF;
-    font-family: 'Neue Haas Grotesk', sans-serif;
-}
-
-.leaflet-tile-pane {
-    filter: grayscale(1) sepia(1);
-    filter: url(#brown-white);
-}
-
-.leaflet-control-attribution {
-    font-size: 9px !important;
-    background: rgba(255,255,255,.9) !important;
-    color: var(--brown) !important;
-}
-
-.leaflet-control-attribution a {
-    color: var(--brown) !important;
-}
-
-.leaflet-tooltip {
-    background: #FFFFFF;
+.scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(4.5rem, 8vh, 6rem);
+    transform: translateX(-50%);
     color: var(--brown);
-    border: 1px solid var(--brown);
-    border-radius: 0;
-    box-shadow: none;
-    font-family: 'Neue Haas Grotesk', sans-serif;
-}
-
-.leaflet-tooltip-top:before,
-.leaflet-tooltip-bottom:before,
-.leaflet-tooltip-left:before,
-.leaflet-tooltip-right:before {
-    border-color: transparent;
-}
-
-/* LOCATION PANEL */
-
-.right-panel {
-    min-width: 0;
-    min-height: 0;
-    padding: clamp(1.5rem, 4vh, 2.5rem) clamp(1rem, 2.5vw, 2.5rem) 4.5rem;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.location-number {
-    color: var(--neon);
-    font-size: clamp(3.5rem, 6vw, 6rem);
-    line-height: .95;
-    margin-bottom: 1rem;
-    font-weight: 400;
-}
-
-.location-name {
-    font-size: clamp(1.8rem, 3vw, 3.5rem);
-    line-height: .95;
-    font-weight: 400;
-    letter-spacing: -.04em;
-    overflow-wrap: anywhere;
-}
-
-.location-type {
-    color: var(--brown);
-    font-size: .75rem;
-    line-height: 1.4;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-top: 1rem;
-}
-
-.location-description {
-    margin-top: .65rem;
     font-size: .85rem;
-    line-height: 1.5;
-    opacity: .8;
-}
-
-/* LOCATION ARROWS: GELIJK AAN DE KAARTBOLLETJES */
-
-.location-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .5rem;
-    margin-top: auto;
-    padding-top: 1.5rem;
-}
-
-.arrow-button {
-    width: 2.8rem;
-    height: 2.8rem;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #FFFFFF;
-    border: 2px solid var(--neon);
-    border-radius: 50%;
-    color: var(--neon);
-    font-size: 1.4rem;
-    font-weight: 400;
-    cursor: pointer;
-    transition: background .2s, color .2s, border-color .2s, transform .2s;
-}
-
-.arrow-button:hover,
-.arrow-button:focus-visible {
-    background: var(--neon);
-    border-color: var(--neon);
-    color: #FFFFFF;
-    transform: scale(1.08);
-    outline: none;
-}
-
-.arrow-button:disabled {
-    opacity: .25;
-    cursor: default;
-    transform: none;
-}
-
-.control-counter {
-    font-size: .8rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
     white-space: nowrap;
-    font-variant-numeric: tabular-nums;
+    opacity: .75;
 }
-
-/* MAP MARKERS */
-
-.dog-marker {
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #FFFFFF;
-    border: 2px solid var(--neon);
-    color: var(--neon);
-    font-family: 'Neue Haas Grotesk', sans-serif;
-    font-size: .75rem;
-    font-weight: 400;
-    cursor: pointer;
-    transition: background .2s, color .2s, transform .2s;
-}
-
-.dog-marker:hover,
-.dog-marker.active {
-    background: var(--neon);
-    border-color: var(--neon);
-    color: #FFFFFF;
-    transform: scale(1.15);
-}
-
-/* EDITION NAVIGATION: ZELFDE ALS EDITIE 1 EN 2 */
-
 .nav-links {
     position: fixed;
-    bottom: clamp(0.8rem, 2vw, 1.5rem);
-    left: clamp(0.8rem, 2vw, 1.5rem);
-    right: clamp(0.8rem, 2vw, 1.5rem);
+    bottom: clamp(.8rem, 2vw, 1.5rem);
+    left: clamp(.8rem, 2vw, 1.5rem);
+    right: clamp(.8rem, 2vw, 1.5rem);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 10001;
+    z-index: 20;
     pointer-events: none;
 }
-
 .nav-link {
-    font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+    font-family: inherit;
+    font-size: clamp(.8rem, 1.5vw, 1.05rem);
     font-weight: 400;
     color: var(--neon);
-    text-transform: none;
-    letter-spacing: 0;
     text-decoration: none;
     white-space: nowrap;
-    transition: opacity 0.25s ease;
-    outline: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity .25s ease;
     pointer-events: auto;
 }
+.nav-link:hover, .nav-link:focus-visible { opacity: .7; outline: none; }
 
-.nav-link:hover,
-.nav-link:focus,
-.nav-link:focus-visible {
-    opacity: 0.7;
-    outline: none;
+@media (max-width: 700px) {
+    .eating-stage { height: 260vh; height: 260dvh; }
+    .scene { min-height: 380px; }
+    .title { top: 8vh; font-size: 22vw; }
+    .bowl-wrap { inset: 23vh 0 10vh; }
+    .bowl { width: 112vw; height: auto; max-height: 58vh; }
+    .scroll-cue { bottom: 5.2rem; font-size: .72rem; }
+    .nav-links { bottom: max(.8rem, env(safe-area-inset-bottom)); }
+    .nav-link { font-size: 1rem; }
 }
-
-/* MOBILE: ONE LOCATION AT A TIME */
-
-.mobile-route {
-    display: none;
-}
-
-@media (max-width: 900px) {
-    .desktop-layout {
-        display: none;
-    }
-
-    .mobile-route {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100vh;
-        height: 100dvh;
-        overflow: hidden;
-    }
-
-    .mobile-stop {
-        display: none;
-        width: 100%;
-        height: 100%;
-        min-height: 0;
-        padding: 2.5rem clamp(1.25rem, 7vw, 2.5rem) 8rem;
-        flex-direction: column;
-        justify-content: center;
-        overflow: hidden;
-    }
-
-    .mobile-stop.active {
-        display: flex;
-    }
-
-    .mobile-number {
-        color: var(--neon);
-        font-size: clamp(4rem, 14vw, 6rem);
-        line-height: .9;
-        margin-bottom: 1.5rem;
-    }
-
-    .mobile-stop h2 {
-        font-size: clamp(2.5rem, 10vw, 5.5rem);
-        line-height: .9;
-        letter-spacing: -.05em;
-        font-weight: 400;
-        overflow-wrap: anywhere;
-    }
-
-    .mobile-type {
-        color: var(--brown);
-        font-size: .75rem;
-        letter-spacing: .1em;
-        line-height: 1.4;
-        text-transform: uppercase;
-        margin-top: 1rem;
-    }
-
-    .mobile-description {
-        font-size: .85rem;
-        line-height: 1.5;
-        margin-top: .65rem;
-        max-width: 25rem;
-        opacity: .8;
-    }
-
-    .mobile-controls {
-        position: fixed;
-        left: 1.25rem;
-        right: 1.25rem;
-        bottom: 4.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: .75rem;
-        z-index: 5;
-    }
-
-    .mobile-controls .arrow-button {
-        width: 3rem;
-        height: 3rem;
-    }
-
-    .mobile-controls .control-counter {
-        font-size: .85rem;
-    }
-
-    .nav-link {
-        font-size: 1rem;
-    }
-}
-
-/* SHORT DESKTOP WINDOWS */
-
-@media (min-width: 901px) and (max-height: 600px) {
-    .left-panel {
-        padding-top: 1.5rem;
-        padding-bottom: 3.5rem;
-    }
-
-    .left-panel h1 {
-        font-size: clamp(2.8rem, 5vw, 4.5rem);
-    }
-
-    .map-wrapper {
-        padding-top: 1rem;
-        padding-bottom: 3.5rem;
-    }
-
-    .right-panel {
-        padding-top: 1.5rem;
-        padding-bottom: 3.5rem;
-    }
-
-    .location-number {
-        font-size: 3.5rem;
-        margin-bottom: .6rem;
-    }
-
-    .location-name {
-        font-size: clamp(1.6rem, 2.4vw, 2.5rem);
-    }
-
-    .location-type {
-        margin-top: .6rem;
-    }
-
-    .location-description {
-        margin-top: .4rem;
-        font-size: .75rem;
-    }
-
-    .location-controls {
-        padding-top: .7rem;
-    }
-
-    .arrow-button {
-        width: 2.3rem;
-        height: 2.3rem;
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        transition: none !important;
-    }
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition: none !important; }
 }
 </style>
 </head>
-
 <body>
+<main class="eating-stage" id="eating-stage">
+    <section class="scene" aria-label="A dog’s-eye view of a bowl of food being eaten as you scroll">
+        <h1 class="title">EAT</h1>
+        <div class="bowl-wrap">
+            <svg class="bowl" viewBox="0 0 1000 700" role="img" aria-labelledby="bowl-title bowl-description">
+                <title id="bowl-title">Dog food bowl</title>
+                <desc id="bowl-description">A realistic, stylized bowl of kibble. Scroll down to eat the food.</desc>
+                <defs>
+                    <linearGradient id="ceramic" x1="0" y1="0" x2="0.85" y2="1">
+                        <stop offset="0" stop-color="#fff"/>
+                        <stop offset=".28" stop-color="#f3eee7"/>
+                        <stop offset=".68" stop-color="#d5c6b5"/>
+                        <stop offset="1" stop-color="#a98769"/>
+                    </linearGradient>
+                    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#fff"/>
+                        <stop offset=".45" stop-color="#e8ddd0"/>
+                        <stop offset="1" stop-color="#b99d82"/>
+                    </linearGradient>
+                    <linearGradient id="food" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#a66d37"/>
+                        <stop offset="1" stop-color="#57351d"/>
+                    </linearGradient>
+                    <radialGradient id="bowl-shadow" cx="50%" cy="30%" r="70%">
+                        <stop offset="0" stop-color="#4a2d18" stop-opacity=".35"/>
+                        <stop offset="1" stop-color="#4a2d18" stop-opacity="0"/>
+                    </radialGradient>
+                    <linearGradient id="kibble" x1="0" y1="0" x2=".8" y2="1">
+                        <stop offset="0" stop-color="#c58b4b"/>
+                        <stop offset=".45" stop-color="#96602f"/>
+                        <stop offset="1" stop-color="#603a20"/>
+                    </linearGradient>
+                    <clipPath id="inside-bowl">
+                        <path d="M195 270 C225 235 775 235 805 270 C790 355 750 455 690 505 C625 555 375 555 310 505 C250 455 210 355 195 270Z"/>
+                    </clipPath>
+                    <clipPath id="food-clip">
+                        <path id="food-shape" d="M220 345 C320 310 680 310 780 345 L735 485 C675 525 325 525 265 485Z"/>
+                    </clipPath>
+                    <filter id="soft-shadow" x="-30%" y="-30%" width="160%" height="180%">
+                        <feGaussianBlur stdDeviation="17"/>
+                    </filter>
+                </defs>
 
-<!-- Filter: zet de kaart om naar alleen bruin (#6b4423) en wit -->
-<svg class="filters" aria-hidden="true" focusable="false">
-    <defs>
-        <filter id="brown-white" color-interpolation-filters="sRGB">
-            <!-- eerst grijstinten -->
-            <feColorMatrix type="matrix"
-                values="0.33 0.59 0.11 0 0
-                        0.33 0.59 0.11 0 0
-                        0.33 0.59 0.11 0 0
-                        0    0    0    1 0"/>
-            <!-- meer contrast, zodat wegen en vlakken goed leesbaar blijven -->
-            <feComponentTransfer>
-                <feFuncR type="linear" slope="2.1" intercept="-1.05"/>
-                <feFuncG type="linear" slope="2.1" intercept="-1.05"/>
-                <feFuncB type="linear" slope="2.1" intercept="-1.05"/>
-            </feComponentTransfer>
-            <!-- dan van bruin (donker) naar wit (licht) -->
-            <feComponentTransfer>
-                <feFuncR type="table" tableValues="0.4196 1"/>
-                <feFuncG type="table" tableValues="0.2667 1"/>
-                <feFuncB type="table" tableValues="0.1373 1"/>
-            </feComponentTransfer>
-        </filter>
-    </defs>
-</svg>
-
-<!-- DESKTOP -->
-
-<div class="desktop-layout">
-
-    <aside class="left-panel">
-        <h1>DOG<br>MAP<br>GHENT</h1>
-    </aside>
-
-    <div class="map-wrapper">
-        <div id="map"></div>
-    </div>
-
-    <aside class="right-panel">
-        <div id="desktop-number" class="location-number">01</div>
-        <h2 id="desktop-name" class="location-name">Molenaarsstraat</h2>
-        <div id="desktop-type" class="location-type">Off-leash Area</div>
-        <p id="desktop-description" class="location-description"></p>
-
-        <div class="location-controls">
-            <button class="arrow-button" id="desktop-prev"
-                    aria-label="Previous location">←</button>
-            <span class="control-counter" id="desktop-counter">01 / 12</span>
-            <button class="arrow-button" id="desktop-next"
-                    aria-label="Next location">→</button>
+                <!-- Soft grounding shadow -->
+                <ellipse cx="500" cy="570" rx="330" ry="44" fill="#6b4423" opacity=".16" filter="url(#soft-shadow)"/>
+                <!-- Bowl body -->
+                <path d="M160 265 C185 420 255 570 350 612 C425 645 575 645 650 612 C745 570 815 420 840 265Z" fill="url(#ceramic)" stroke="#8c6a4b" stroke-width="5"/>
+                <path d="M198 315 C225 444 280 548 365 578 C430 603 570 603 635 578 C720 548 775 444 802 315" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="9"/>
+                <ellipse cx="500" cy="585" rx="153" ry="30" fill="none" stroke="#8c6a4b" stroke-opacity=".48" stroke-width="7"/>
+                <!-- Interior and changing food level -->
+                <ellipse cx="500" cy="282" rx="330" ry="100" fill="#55371f"/>
+                <g clip-path="url(#inside-bowl)">
+                    <path id="food-fill" d="M220 345 C320 310 680 310 780 345 L735 485 C675 525 325 525 265 485Z" fill="url(#food)"/>
+                    <g id="kibble-layer" clip-path="url(#food-clip)">
+                        <g fill="url(#kibble)" stroke="#58371e" stroke-width="4">
+                            <path d="M290 367 Q298 348 318 354 L337 361 Q347 378 333 390 L312 398 Q293 391 290 367Z"/>
+                            <path d="M365 341 Q373 322 393 329 L413 338 Q422 354 407 367 L384 373 Q366 365 365 341Z"/>
+                            <path d="M444 360 Q448 339 469 338 L492 344 Q505 359 494 376 L473 387 Q452 383 444 360Z"/>
+                            <path d="M534 338 Q545 321 563 329 L583 340 Q590 358 574 369 L552 371 Q536 359 534 338Z"/>
+                            <path d="M615 363 Q621 343 641 345 L663 354 Q673 371 660 386 L637 393 Q619 385 615 363Z"/>
+                            <path d="M700 382 Q708 365 727 369 L745 381 Q750 397 735 409 L715 414 Q699 403 700 382Z"/>
+                            <path d="M327 428 Q337 409 356 415 L375 426 Q379 444 363 454 L342 457 Q326 447 327 428Z"/>
+                            <path d="M408 409 Q419 391 438 398 L456 410 Q461 428 445 438 L424 442 Q407 430 408 409Z"/>
+                            <path d="M492 428 Q500 407 521 411 L541 423 Q546 440 530 452 L508 456 Q492 447 492 428Z"/>
+                            <path d="M574 407 Q585 390 604 398 L622 411 Q625 429 608 439 L588 441 Q573 430 574 407Z"/>
+                            <path d="M666 438 Q676 420 694 425 L711 437 Q714 454 698 464 L678 465 Q664 455 666 438Z"/>
+                            <path d="M286 451 Q296 434 315 439 L331 451 Q333 467 318 477 L299 477 Q285 468 286 451Z"/>
+                        </g>
+                        <g fill="#f0c184" opacity=".45">
+                            <ellipse cx="306" cy="363" rx="9" ry="3" transform="rotate(-22 306 363)"/>
+                            <ellipse cx="381" cy="338" rx="9" ry="3" transform="rotate(-18 381 338)"/>
+                            <ellipse cx="460" cy="348" rx="9" ry="3" transform="rotate(-12 460 348)"/>
+                            <ellipse cx="550" cy="337" rx="8" ry="3" transform="rotate(-20 550 337)"/>
+                            <ellipse cx="632" cy="355" rx="9" ry="3" transform="rotate(-16 632 355)"/>
+                            <ellipse cx="344" cy="421" rx="8" ry="3" transform="rotate(-18 344 421)"/>
+                            <ellipse cx="426" cy="404" rx="8" ry="3" transform="rotate(-14 426 404)"/>
+                            <ellipse cx="510" cy="418" rx="9" ry="3" transform="rotate(-15 510 418)"/>
+                            <ellipse cx="589" cy="402" rx="8" ry="3" transform="rotate(-20 589 402)"/>
+                            <ellipse cx="681" cy="435" rx="8" ry="3" transform="rotate(-17 681 435)"/>
+                        </g>
+                    </g>
+                    <path id="food-surface" d="M220 345 C320 310 680 310 780 345 C680 390 320 390 220 345Z" fill="#a66d37" stroke="#d5a26c" stroke-width="5"/>
+                    <path d="M280 348 C360 326 640 326 720 348" fill="none" stroke="#e1b77f" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
+                </g>
+                <!-- Broad ceramic lip drawn over the contents -->
+                <ellipse cx="500" cy="280" rx="355" ry="116" fill="url(#rim)" stroke="#8c6a4b" stroke-width="6"/>
+                <ellipse cx="500" cy="282" rx="326" ry="91" fill="#4a301b" stroke="#fff" stroke-opacity=".75" stroke-width="5"/>
+                <!-- Repeat the visible food surface above the dark interior of the rim. -->
+                <path id="visible-food-surface" d="M220 345 C320 310 680 310 780 345 C680 390 320 390 220 345Z" fill="#a66d37" stroke="#d5a26c" stroke-width="5"/>
+                <path d="M280 348 C360 326 640 326 720 348" fill="none" stroke="#e1b77f" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
+                <ellipse cx="500" cy="280" rx="355" ry="116" fill="none" stroke="#8c6a4b" stroke-width="6"/>
+            </svg>
         </div>
-    </aside>
-
-</div>
-
-<!-- MOBILE -->
-
-<div class="mobile-route" id="mobile-route">
-
-    <section class="mobile-stop active">
-        <div class="mobile-number">01</div>
-        <h2>Molenaarsstraat</h2>
-        <div class="mobile-type">Off-leash Area</div>
+        <p class="scroll-cue" id="scroll-cue">Scroll to eat</p>
     </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">02</div>
-        <h2>Rozebroeken</h2>
-        <div class="mobile-type">Off-leash Area</div>
-    </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">03</div>
-        <h2>Morekstraat</h2>
-        <div class="mobile-type">Off-leash Area</div>
-    </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">04</div>
-        <h2>Europalaan</h2>
-        <div class="mobile-type">Off-leash Area</div>
-    </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">05</div>
-        <h2>Normandiëlaan</h2>
-        <div class="mobile-type">Off-leash Area</div>
-    </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">06</div>
-        <h2>Blaarmeersen</h2>
-        <div class="mobile-type">Green Area · Leash Required</div>
-    </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">07</div>
-        <h2>Bourgoyen</h2>
-        <div class="mobile-type">Green Area · Leash Required</div>
-    </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">08</div>
-        <h2>Citadelpark</h2>
-        <div class="mobile-type">Green Area · Leash Required</div>
-    </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">09</div>
-        <h2>Keizerpark</h2>
-        <div class="mobile-type">Green Area · Leash Required</div>
-    </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">10</div>
-        <h2>Muinkpark</h2>
-        <div class="mobile-type">Green Area · Leash Required</div>
-    </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">11</div>
-        <h2>Parkbos</h2>
-        <div class="mobile-type">Green Area · Leash Required</div>
-    </section>
-
-    <section class="mobile-stop">
-        <div class="mobile-number">12</div>
-        <h2>Yachtdreef</h2>
-        <div class="mobile-type">Water</div>
-    </section>
-
-    <div class="mobile-controls">
-        <button class="arrow-button" id="mobile-prev"
-                aria-label="Previous location">←</button>
-        <span class="control-counter" id="mobile-counter">01 / 12</span>
-        <button class="arrow-button" id="mobile-next"
-                aria-label="Next location">→</button>
-    </div>
-
-</div>
-
-<!-- EDITION NAVIGATION -->
+</main>
 
 <nav class="nav-links" aria-label="Edition navigation">
-    <a href="editie-04.html" class="nav-link">← Edition 04</a>
-    <a href="editie-06.html" class="nav-link">Edition 06 →</a>
+    <a href="editie-04.html" class="nav-link">← edition 04</a>
+    <button type="button" class="nav-link" id="reset">reset</button>
+    <a href="editie-06.html" class="nav-link">edition 06 →</a>
 </nav>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 (function () {
-    const locations = [
-        {
-            name: "Molenaarsstraat",
-            type: "Off-leash Area",
-            coords: [51.0638, 3.7178],
-            description: ""
-        },
-        {
-            name: "Rozebroeken",
-            type: "Off-leash Area",
-            coords: [51.0585, 3.7565],
-            description: ""
-        },
-        {
-            name: "Morekstraat",
-            type: "Off-leash Area",
-            coords: [51.0763, 3.7156],
-            description: ""
-        },
-        {
-            name: "Europalaan",
-            type: "Off-leash Area",
-            coords: [51.0470, 3.7060],
-            description: ""
-        },
-        {
-            name: "Normandiëlaan",
-            type: "Off-leash Area",
-            coords: [51.0800, 3.6800],
-            description: ""
-        },
-        {
-            name: "Blaarmeersen",
-            type: "Green Area · Leash Required",
-            coords: [51.0438, 3.6897],
-            description: ""
-        },
-        {
-            name: "Bourgoyen",
-            type: "Green Area · Leash Required",
-            coords: [51.0735, 3.6835],
-            description: ""
-        },
-        {
-            name: "Citadelpark",
-            type: "Green Area · Leash Required",
-            coords: [51.0418, 3.7248],
-            description: ""
-        },
-        {
-            name: "Keizerpark",
-            type: "Green Area · Leash Required",
-            coords: [51.0377, 3.7375],
-            description: ""
-        },
-        {
-            name: "Muinkpark",
-            type: "Green Area · Leash Required",
-            coords: [51.0464, 3.7306],
-            description: ""
-        },
-        {
-            name: "Parkbos",
-            type: "Green Area · Leash Required",
-            coords: [51.0060, 3.6870],
-            description: ""
-        },
-        {
-            name: "Yachtdreef",
-            type: "Water",
-            coords: [51.0420, 3.6940],
-            description: ""
-        }
-    ];
+    const stage = document.getElementById('eating-stage');
+    const foodFill = document.getElementById('food-fill');
+    const foodShape = document.getElementById('food-shape');
+    const foodSurface = document.getElementById('food-surface');
+    const visibleFoodSurface = document.getElementById('visible-food-surface');
+    const kibbleLayer = document.getElementById('kibble-layer');
+    const cue = document.getElementById('scroll-cue');
+    const resetButton = document.getElementById('reset');
 
-    let current = 0;
-    let map = null;
-    const markers = [];
+    const fullFood = { top: 335, bottom: 525 };
+    const emptyFood = { top: 490, bottom: 525 };
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-    const $ = id => document.getElementById(id);
-    const twoDigits = n => String(n).padStart(2, "0");
+    function updateFood() {
+        const maxScroll = Math.max(1, stage.offsetHeight - window.innerHeight);
+        const progress = clamp(window.scrollY / maxScroll, 0, 1);
+        const top = fullFood.top + (emptyFood.top - fullFood.top) * progress;
+        const low = fullFood.bottom;
+        const left = top - 35;
+        const right = top - 35;
+        const path = `M220 ${top} C320 ${left} 680 ${left} 780 ${top} L735 ${low - 40} C675 ${low} 325 ${low} 265 ${low - 40}Z`;
+        const surface = `M220 ${top} C320 ${left - 35} 680 ${left - 35} 780 ${top} C680 ${top + 45} 320 ${top + 45} 220 ${top}Z`;
 
-    function updateLocation(index) {
-        current = Math.max(0, Math.min(locations.length - 1, index));
-
-        const place = locations[current];
-        const number = twoDigits(current + 1);
-        const counter = number + " / " + twoDigits(locations.length);
-
-        $("desktop-number").textContent = number;
-        $("desktop-name").textContent = place.name;
-        $("desktop-type").textContent = place.type;
-        $("desktop-description").textContent = place.description;
-        $("desktop-description").style.display =
-            place.description ? "" : "none";
-        $("desktop-counter").textContent = counter;
-
-        $("desktop-prev").disabled = current === 0;
-        $("desktop-next").disabled = current === locations.length - 1;
-
-        document.querySelectorAll(".mobile-stop").forEach((section, i) => {
-            section.classList.toggle("active", i === current);
-            section.setAttribute(
-                "aria-hidden",
-                i === current ? "false" : "true"
-            );
-        });
-
-        $("mobile-counter").textContent = counter;
-        $("mobile-prev").disabled = current === 0;
-        $("mobile-next").disabled = current === locations.length - 1;
-
-        markers.forEach((marker, i) => {
-            const el = marker.getElement();
-            if (el) {
-                const dot = el.querySelector(".dog-marker");
-                if (dot) dot.classList.toggle("active", i === current);
-            }
-        });
-
-        if (map && markers[current]) {
-            map.panTo(place.coords, {
-                animate: true,
-                duration: 0.35
-            });
-        }
+        foodFill.setAttribute('d', path);
+        foodShape.setAttribute('d', path);
+        foodSurface.setAttribute('d', surface);
+        visibleFoodSurface.setAttribute('d', surface);
+        kibbleLayer.style.opacity = String(clamp(1 - progress * 1.08, 0, 1));
+        cue.style.opacity = String(progress > .96 ? 0 : .75);
+        cue.textContent = progress > .96 ? 'All gone' : 'Scroll to eat';
     }
 
-    function previous() {
-        if (current > 0) updateLocation(current - 1);
-    }
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(() => { updateFood(); ticking = false; });
+    }, { passive: true });
+    window.addEventListener('resize', updateFood);
 
-    function next() {
-        if (current < locations.length - 1) updateLocation(current + 1);
-    }
-
-    $("desktop-prev").addEventListener("click", previous);
-    $("desktop-next").addEventListener("click", next);
-    $("mobile-prev").addEventListener("click", previous);
-    $("mobile-next").addEventListener("click", next);
-
-    document.addEventListener("keydown", event => {
-        if (event.altKey || event.ctrlKey || event.metaKey) return;
-
-        if (event.key === "ArrowRight") {
-            event.preventDefault();
-            next();
-        } else if (event.key === "ArrowLeft") {
-            event.preventDefault();
-            previous();
-        }
+    resetButton.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     });
 
-    if (window.matchMedia("(min-width: 901px)").matches) {
-        map = L.map("map", {
-            zoomControl: false,
-            scrollWheelZoom: false
-        }).setView([51.0543, 3.7174], 11.8);
-
-        L.tileLayer(
-            "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            {
-                maxZoom: 19,
-                attribution:
-                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }
-        ).addTo(map);
-
-        locations.forEach((place, i) => {
-            const icon = L.divIcon({
-                className: "",
-                html:
-                    '<div class="dog-marker' +
-                    (i === 0 ? ' active' : '') +
-                    '">' + twoDigits(i + 1) + '</div>',
-                iconSize: [32, 32],
-                iconAnchor: [16, 16]
-            });
-
-            const marker = L.marker(place.coords, { icon }).addTo(map);
-
-            marker.on("click", () => updateLocation(i));
-            marker.bindTooltip(place.name);
-
-            markers.push(marker);
-        });
-
-        updateLocation(0);
-
-        window.addEventListener("resize", () => {
-            map.invalidateSize();
-        });
-    } else {
-        updateLocation(0);
-    }
+    updateFood();
 })();
 </script>
-
 </body>
 </html>
