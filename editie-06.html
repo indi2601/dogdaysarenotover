@@ -6,163 +6,78 @@
 <title>Dog Days Are Not Over – Edition 06</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-@font-face { font-family: 'Neue Haas Grotesk'; src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
-:root { --brown:#6b4423; --neon:#ff2fa8; --bg:#fff; --border:rgba(107,68,35,.45); }
-* { margin:0; padding:0; box-sizing:border-box; }
-html,body { width:100%; height:100%; overflow:hidden; overscroll-behavior:none; }
-body { background:var(--bg); color:var(--brown); font-family:'Neue Haas Grotesk',sans-serif; }
-button,a { font:inherit; }
-.filters { position:absolute; width:0; height:0; overflow:hidden; }
-.desktop-layout { width:100%; height:100vh; height:100dvh; display:grid; grid-template-columns:minmax(190px,27%) minmax(0,1fr) minmax(220px,25%); overflow:hidden; }
-.left-panel { min-width:0; min-height:0; padding:clamp(1.5rem,4vh,2.5rem) 1.5rem 4.5rem clamp(1rem,3vw,3rem); display:flex; flex-direction:column; overflow:hidden; }
-.left-panel h1 { font-size:14vh; line-height:.8; font-weight:400; letter-spacing:-.06em; }
-.map-wrapper { min-width:0; min-height:0; padding:clamp(1rem,3vh,2rem) .75rem 4.5rem; }
-#map { width:100%; height:100%; min-height:0; overflow:hidden; background:#fff; border:1px solid var(--border); }
-.leaflet-container { background:#fff; font-family:'Neue Haas Grotesk',sans-serif; }
-.leaflet-tile-pane { filter:grayscale(1) sepia(1); filter:url(#brown-white); }
-.leaflet-control-attribution { font-size:9px!important; background:rgba(255,255,255,.9)!important; color:var(--brown)!important; }
-.leaflet-control-attribution a { color:var(--brown)!important; }
-.leaflet-tooltip { background:#fff; color:var(--brown); border:1px solid var(--brown); border-radius:0; box-shadow:none; font-family:'Neue Haas Grotesk',sans-serif; }
-.leaflet-tooltip-top:before,.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before { border-color:transparent; }
-.legend { margin-top:auto; padding-top:2rem; }
-.legend h2 { margin-bottom:.8rem; font-size:.75rem; font-weight:400; letter-spacing:.1em; text-transform:uppercase; }
-.legend-list { display:grid; gap:.65rem; list-style:none; }
-.legend-item { display:flex; align-items:center; gap:.65rem; font-size:.82rem; line-height:1.3; }
-.legend-dot { width:.9rem; height:.9rem; flex:0 0 .9rem; border:1px solid var(--brown); border-radius:50%; }
-.legend-dot--off-leash { background:var(--neon); border-color:var(--neon); }
-.legend-dot--green { background:var(--brown); border-color:var(--brown); }
-.legend-dot--water { background:#fff; border-color:var(--brown); }
-.right-panel { min-width:0; min-height:0; padding:clamp(1.5rem,4vh,2.5rem) clamp(1rem,2.5vw,2.5rem) 4.5rem; display:flex; flex-direction:column; overflow:hidden; }
-.location-number { color:var(--neon); font-size:clamp(3.5rem,6vw,6rem); line-height:.95; margin-bottom:1rem; font-weight:400; }
-.location-name { font-size:clamp(1.8rem,3vw,3.5rem); line-height:.95; font-weight:400; letter-spacing:-.04em; overflow-wrap:anywhere; }
-.location-info { margin-top:1rem; font-size:.85rem; line-height:1.5; opacity:.8; }
-.location-controls { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-top:auto; padding-top:1.5rem; }
-.arrow-button { width:2.8rem; height:2.8rem; flex-shrink:0; display:flex; justify-content:center; align-items:center; background:#fff; border:2px solid var(--neon); border-radius:50%; color:var(--neon); font-size:1.4rem; cursor:pointer; transition:background .2s,color .2s,transform .2s; }
-.arrow-button:hover,.arrow-button:focus-visible { background:var(--neon); color:#fff; transform:scale(1.08); outline:none; }
-.arrow-button:disabled { opacity:.25; cursor:default; transform:none; }
-.control-counter { font-size:.8rem; white-space:nowrap; font-variant-numeric:tabular-nums; }
-.dog-marker { width:32px!important; height:32px!important; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid; font-family:'Neue Haas Grotesk',sans-serif; font-size:.65rem; font-weight:400; cursor:pointer; transition:transform .2s,box-shadow .2s; }
-.dog-marker--off-leash { background:var(--neon); border-color:var(--neon); color:#fff; }
-.dog-marker--green { background:var(--brown); border-color:var(--brown); color:#fff; }
-.dog-marker--water { background:#fff; border-color:var(--brown); color:var(--brown); }
-.dog-marker:hover,.dog-marker.active { transform:scale(1.15); box-shadow:0 0 0 3px rgba(255,255,255,.8); }
-.nav-links { position:fixed; bottom:clamp(.8rem,2vw,1.5rem); left:clamp(.8rem,2vw,1.5rem); right:clamp(.8rem,2vw,1.5rem); display:flex; justify-content:space-between; align-items:center; z-index:10001; pointer-events:none; }
-.nav-link { font-size:clamp(.8rem,1.5vw,1.05rem); color:var(--neon); text-decoration:none; white-space:nowrap; transition:opacity .25s ease; pointer-events:auto; }
-.nav-link:hover,.nav-link:focus-visible { opacity:.7; outline:none; }
-.mobile-route { display:none; }
-@media(max-width:900px) {
- .desktop-layout { display:none; }
- .mobile-route { display:flex; flex-direction:column; width:100%; height:100vh; height:100dvh; overflow:hidden; }
- .mobile-stops { width:100%; height:100%; min-height:0; }
- .mobile-stop { display:none; width:100%; height:100%; min-height:0; padding:8rem clamp(1.25rem,7vw,2.5rem); flex-direction:column; justify-content:center; overflow:hidden; }
- .mobile-stop.active { display:flex; }
- .mobile-number { color:var(--neon); font-size:clamp(4rem,14vw,6rem); line-height:.9; margin-bottom:1.5rem; }
- .mobile-stop h2 { font-size:clamp(2.5rem,10vw,5.5rem); line-height:.9; letter-spacing:-.05em; font-weight:400; overflow-wrap:anywhere; }
- .mobile-info { margin-top:1rem; font-size:.85rem; line-height:1.5; opacity:.8; }
- .mobile-legend { position:fixed; top:1rem; left:1.25rem; right:1.25rem; padding:.8rem 1rem; background:rgba(255,255,255,.96); z-index:4; }
- .mobile-legend h2 { margin-bottom:.45rem; }
- .mobile-legend .legend-list { grid-template-columns:repeat(3,minmax(0,1fr)); gap:.5rem; }
- .mobile-legend .legend-item { align-items:flex-start; gap:.4rem; font-size:.68rem; }
- .mobile-legend .legend-dot { margin-top:.1rem; }
- .mobile-controls { position:fixed; left:1.25rem; right:1.25rem; bottom:4.2rem; display:flex; align-items:center; justify-content:space-between; gap:.75rem; z-index:5; }
- .mobile-controls .arrow-button { width:3rem; height:3rem; }
- .mobile-controls .control-counter { font-size:.85rem; }
-}
-@media(max-width:700px) { .left-panel h1 { font-size:22vw; } .nav-link { font-size:1rem; } }
-@media(min-width:901px) and (max-height:600px) {
- .left-panel { padding-top:1.5rem; padding-bottom:3.5rem; } .left-panel h1 { font-size:14vh; }
- .map-wrapper { padding-top:1rem; padding-bottom:3.5rem; } .right-panel { padding-top:1.5rem; padding-bottom:3.5rem; }
- .location-number { font-size:3.5rem; margin-bottom:.6rem; } .location-name { font-size:clamp(1.6rem,2.4vw,2.5rem); }
- .location-controls { padding-top:.7rem; } .arrow-button { width:2.3rem; height:2.3rem; }
-}
-@media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none!important; } }
+@font-face{font-family:'Neue Haas Grotesk';src:url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2');font-weight:400;font-display:swap}
+:root{--brown:#6b4423;--neon:#ff2fa8;--bg:#fff;--border:rgba(107,68,35,.45)}
+*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}body{background:var(--bg);color:var(--brown);font-family:'Neue Haas Grotesk',sans-serif}button,a{font:inherit}.filters{position:absolute;width:0;height:0;overflow:hidden}
+.desktop-layout{width:100%;height:100vh;height:100dvh;display:grid;grid-template-columns:minmax(190px,27%) minmax(0,1fr) minmax(220px,25%);overflow:hidden}.left-panel{min-width:0;min-height:0;padding:clamp(1.5rem,4vh,2.5rem) 1.5rem 4.5rem clamp(1rem,3vw,3rem);display:flex;flex-direction:column;overflow:hidden}.left-panel h1{font-size:14vh;line-height:.8;font-weight:400;letter-spacing:-.06em}.map-wrapper{min-width:0;min-height:0;padding:clamp(1rem,3vh,2rem) .75rem 4.5rem}#map{width:100%;height:100%;min-height:0;overflow:hidden;background:#fff;border:1px solid var(--border)}.leaflet-container{background:#fff;font-family:'Neue Haas Grotesk',sans-serif}.leaflet-tile-pane{filter:grayscale(1) sepia(1);filter:url(#brown-white)}.leaflet-control-attribution{font-size:9px!important;background:rgba(255,255,255,.9)!important;color:var(--brown)!important}.leaflet-control-attribution a{color:var(--brown)!important}.leaflet-tooltip{background:#fff;color:var(--brown);border:1px solid var(--brown);border-radius:0;box-shadow:none;font-family:'Neue Haas Grotesk',sans-serif}.leaflet-tooltip-top:before,.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{border-color:transparent}
+.legend{margin-top:auto;padding-top:2rem}.legend h2{margin-bottom:.8rem;font-size:.75rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase}.legend-list{display:grid;gap:.65rem;list-style:none}.legend-item{display:flex;align-items:center;gap:.65rem;font-size:.82rem;line-height:1.3}.legend-dot{width:.9rem;height:.9rem;flex:0 0 .9rem;border:1px solid var(--brown);border-radius:50%}.legend-dot--off-leash{background:var(--neon);border-color:var(--neon)}.legend-dot--green{background:var(--brown);border-color:var(--brown)}.legend-dot--water{background:#fff;border-color:var(--brown)}
+.right-panel{min-width:0;min-height:0;padding:clamp(1.5rem,4vh,2.5rem) clamp(1rem,2.5vw,2.5rem) 4.5rem;display:flex;flex-direction:column;overflow:hidden}.location-number{color:var(--neon);font-size:clamp(3.5rem,6vw,6rem);line-height:.95;margin-bottom:1rem;font-weight:400}.location-name{font-size:clamp(1.8rem,3vw,3.5rem);line-height:.95;font-weight:400;letter-spacing:-.04em;overflow-wrap:anywhere}.location-info{margin-top:1rem;font-size:.85rem;line-height:1.5;opacity:.85}.location-controls{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:auto;padding-top:1.5rem}.arrow-button{width:2.8rem;height:2.8rem;flex-shrink:0;display:flex;justify-content:center;align-items:center;background:#fff;border:2px solid var(--neon);border-radius:50%;color:var(--neon);font-size:1.4rem;cursor:pointer;transition:background .2s,color .2s,transform .2s}.arrow-button:hover,.arrow-button:focus-visible{background:var(--neon);color:#fff;transform:scale(1.08);outline:none}.arrow-button:disabled{opacity:.25;cursor:default;transform:none}.control-counter{font-size:.8rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dog-marker{width:32px!important;height:32px!important;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid;font-family:'Neue Haas Grotesk',sans-serif;font-size:.65rem;font-weight:400;cursor:pointer;transition:transform .2s,box-shadow .2s}.dog-marker--off-leash{background:var(--neon);border-color:var(--neon);color:#fff}.dog-marker--green{background:var(--brown);border-color:var(--brown);color:#fff}.dog-marker--water{background:#fff;border-color:var(--brown);color:var(--brown)}.dog-marker:hover,.dog-marker.active{transform:scale(1.15);box-shadow:0 0 0 3px rgba(255,255,255,.8)}
+.nav-links{position:fixed;bottom:clamp(.8rem,2vw,1.5rem);left:clamp(.8rem,2vw,1.5rem);right:clamp(.8rem,2vw,1.5rem);display:flex;justify-content:space-between;align-items:center;z-index:10001;pointer-events:none}.nav-link{font-size:clamp(.8rem,1.5vw,1.05rem);color:var(--neon);text-decoration:none;white-space:nowrap;transition:opacity .25s ease;pointer-events:auto}.nav-link:hover,.nav-link:focus-visible{opacity:.7;outline:none}.mobile-route{display:none}
+@media(max-width:900px){.desktop-layout{display:none}.mobile-route{display:flex;flex-direction:column;width:100%;height:100vh;height:100dvh;overflow:hidden}.mobile-stops{width:100%;height:100%;min-height:0}.mobile-stop{display:none;width:100%;height:100%;min-height:0;padding:8rem clamp(1.25rem,7vw,2.5rem);flex-direction:column;justify-content:center;overflow:hidden}.mobile-stop.active{display:flex}.mobile-number{color:var(--neon);font-size:clamp(4rem,14vw,6rem);line-height:.9;margin-bottom:1.5rem}.mobile-stop h2{font-size:clamp(2.5rem,10vw,5.5rem);line-height:.9;letter-spacing:-.05em;font-weight:400;overflow-wrap:anywhere}.mobile-details{margin-top:1.25rem;font-size:.9rem;line-height:1.5}.mobile-detail-label{display:block;margin-top:.7rem;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;opacity:.65}.mobile-address{overflow-wrap:anywhere}.mobile-category{font-size:.85rem}.mobile-location-link{display:inline-block;margin-top:.5rem;color:var(--neon);text-underline-offset:.2em}.mobile-accuracy{display:block;margin-top:.45rem;font-size:.72rem;line-height:1.4;opacity:.7}.mobile-legend{position:fixed;top:1rem;left:1.25rem;right:1.25rem;padding:.8rem 1rem;background:rgba(255,255,255,.96);z-index:4}.mobile-legend h2{margin-bottom:.45rem}.mobile-legend .legend-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}.mobile-legend .legend-item{align-items:flex-start;gap:.4rem;font-size:.68rem}.mobile-legend .legend-dot{margin-top:.1rem}.mobile-controls{position:fixed;left:1.25rem;right:1.25rem;bottom:4.2rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;z-index:5}.mobile-controls .arrow-button{width:3rem;height:3rem}.mobile-controls .control-counter{font-size:.85rem}}
+@media(max-width:700px){.left-panel h1{font-size:22vw}.nav-link{font-size:1rem}}@media(min-width:901px) and (max-height:600px){.left-panel{padding-top:1.5rem;padding-bottom:3.5rem}.left-panel h1{font-size:14vh}.map-wrapper{padding-top:1rem;padding-bottom:3.5rem}.right-panel{padding-top:1.5rem;padding-bottom:3.5rem}.location-number{font-size:3.5rem;margin-bottom:.6rem}.location-name{font-size:clamp(1.6rem,2.4vw,2.5rem)}.location-controls{padding-top:.7rem}.arrow-button{width:2.3rem;height:2.3rem}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
 </style>
 </head>
 <body>
 <svg class="filters" aria-hidden="true" focusable="false"><defs><filter id="brown-white" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.33 0.59 0.11 0 0 0.33 0.59 0.11 0 0 0.33 0.59 0.11 0 0 0 0 0 1 0"/><feComponentTransfer><feFuncR type="linear" slope="2.1" intercept="-1.05"/><feFuncG type="linear" slope="2.1" intercept="-1.05"/><feFuncB type="linear" slope="2.1" intercept="-1.05"/></feComponentTransfer><feComponentTransfer><feFuncR type="table" tableValues="0.4196 1"/><feFuncG type="table" tableValues="0.2667 1"/><feFuncB type="table" tableValues="0.1373 1"/></feComponentTransfer></filter></defs></svg>
-<div class="desktop-layout">
- <aside class="left-panel"><h1>DOG<br>MAP<br>GHENT</h1><section class="legend" aria-labelledby="desktop-legend-title"><h2 id="desktop-legend-title">Map key</h2><ul class="legend-list"><li class="legend-item"><span class="legend-dot legend-dot--off-leash" aria-hidden="true"></span>Off-leash area</li><li class="legend-item"><span class="legend-dot legend-dot--water" aria-hidden="true"></span>Dog swimming area</li></ul></section></aside>
- <div class="map-wrapper"><div id="map" aria-label="Map of dog off-leash areas in Ghent"></div></div>
- <aside class="right-panel"><div id="desktop-number" class="location-number">01</div><h2 id="desktop-name" class="location-name"></h2><p id="desktop-info" class="location-info"></p><div class="location-controls"><button class="arrow-button" id="desktop-prev" aria-label="Previous location">←</button><span class="control-counter" id="desktop-counter"></span><button class="arrow-button" id="desktop-next" aria-label="Next location">→</button></div></aside>
-</div>
-<div class="mobile-route"><div class="mobile-stops" id="mobile-stops"></div><section class="legend mobile-legend" aria-labelledby="mobile-legend-title"><h2 id="mobile-legend-title">Map key</h2><ul class="legend-list"><li class="legend-item"><span class="legend-dot legend-dot--off-leash" aria-hidden="true"></span>Off-leash area</li><li class="legend-item"><span class="legend-dot legend-dot--water" aria-hidden="true"></span>Dog swimming area</li></ul></section><div class="mobile-controls"><button class="arrow-button" id="mobile-prev" aria-label="Previous location">←</button><span class="control-counter" id="mobile-counter"></span><button class="arrow-button" id="mobile-next" aria-label="Next location">→</button></div></div>
+<div class="desktop-layout"><aside class="left-panel"><h1>DOG<br>MAP<br>GHENT</h1><section class="legend" aria-labelledby="desktop-legend-title"><h2 id="desktop-legend-title">Map key</h2><ul class="legend-list"><li class="legend-item"><span class="legend-dot legend-dot--off-leash" aria-hidden="true"></span>Off-leash area</li><li class="legend-item"><span class="legend-dot legend-dot--green" aria-hidden="true"></span>Green area · leash required</li><li class="legend-item"><span class="legend-dot legend-dot--water" aria-hidden="true"></span>Dog swimming area</li></ul></section></aside><div class="map-wrapper"><div id="map" aria-label="Map of dog off-leash areas in Ghent"></div></div><aside class="right-panel"><div id="desktop-number" class="location-number">01</div><h2 id="desktop-name" class="location-name"></h2><p id="desktop-info" class="location-info"></p><div class="location-controls"><button class="arrow-button" id="desktop-prev" aria-label="Previous location">←</button><span class="control-counter" id="desktop-counter"></span><button class="arrow-button" id="desktop-next" aria-label="Next location">→</button></div></aside></div>
+<div class="mobile-route"><div class="mobile-stops" id="mobile-stops"></div><section class="legend mobile-legend" aria-labelledby="mobile-legend-title"><h2 id="mobile-legend-title">Map key</h2><ul class="legend-list"><li class="legend-item"><span class="legend-dot legend-dot--off-leash" aria-hidden="true"></span>Off-leash area</li><li class="legend-item"><span class="legend-dot legend-dot--green" aria-hidden="true"></span>Green area · leash required</li><li class="legend-item"><span class="legend-dot legend-dot--water" aria-hidden="true"></span>Dog swimming area</li></ul></section><div class="mobile-controls"><button class="arrow-button" id="mobile-prev" aria-label="Previous location">←</button><span class="control-counter" id="mobile-counter"></span><button class="arrow-button" id="mobile-next" aria-label="Next location">→</button></div></div>
 <nav class="nav-links" aria-label="Edition navigation"><a href="editie-05.html" class="nav-link">← Edition 05</a><a href="editie-07.html" class="nav-link">Edition 07 →</a></nav>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-(function () {
- const locations = [
-  {name:"Hondenlosloopzone Parkbos",info:"Omheind · Sint-Denijs-Westrem",coords:[51.0060,3.6870]},
-  {name:"Avontuurlijke hondenzone Gentbrugse Meersen",info:"Gentbrugge",coords:[51.0350,3.7690]},
-  {name:"Hondenloopweide Rozebroeken",info:"Omheind",coords:[51.0585,3.7565]},
-  {name:"Hondenlosloopweide Banierpark",info:"Omheind",coords:[51.0570,3.7430]},
-  {name:"Hondenpark Morekstraat",info:"Omheind",coords:[51.0763,3.7156]},
-  {name:"Hondenspeelweide Diervriendelijk Gent",info:"Omheind",coords:[51.0570,3.7300]},
-  {name:"Hondenzwemplaats Watersportbaan (GESLOTEN)",info:"Zwemwater · gesloten",category:"water",coords:[51.0430,3.7040]},
-  {name:"Losloopweide Azaleapark",info:"180 m² · Sint-Amandsberg",coords:[51.0610,3.7460]},
-  {name:"Losloopweide Barkstraat",info:"Sint-Kruis-Winkel",coords:[51.1680,3.8170]},
-  {name:"Losloopweide Bloemekenspark",info:"",coords:[51.0770,3.7040]},
-  {name:"Losloopweide Delphine-Boelparkje",info:"300 m²",coords:[51.0450,3.7500]},
-  {name:"Losloopweide Dracenastraat",info:"1.290 m² · omheind",coords:[51.0560,3.7300]},
-  {name:"Losloopweide Europalaan (aan hondenzwemplaats)",info:"1.950 m² · omheind · zwemwater",coords:[51.0470,3.7060]},
-  {name:"Losloopweide Evarist De Buckstraat",info:"180 m² · omheind · Sint-Amandsberg",coords:[51.0620,3.7520]},
-  {name:"Losloopweide Gebroeders De Smetstraat",info:"",coords:[51.0670,3.7300]},
-  {name:"Losloopweide Gentbrugse Meersen (aan E17-viaduct)",info:"Gentbrugge",coords:[51.0350,3.7680]},
-  {name:"Losloopweide Geuzenberg",info:"Omheind",coords:[51.0570,3.6700]},
-  {name:"Losloopweide Groenevalleipark (Nieuwewandeling)",info:"785 m² · omheind",coords:[51.0590,3.7040]},
-  {name:"Losloopweide Groenpool Wonderwoud (tijdelijk)",info:"Oostakker/Lochristi",coords:[51.1200,3.7900]},
-  {name:"Losloopweide Jan Samijnstraat",info:"750 m² · Gentbrugge",coords:[51.0390,3.7650]},
-  {name:"Losloopweide Jean Jaureslaan (tijdelijk)",info:"Gentbrugge",coords:[51.0390,3.7590]},
-  {name:"Losloopweide Kikvorsstraat",info:"",coords:[51.0570,3.7000]},
-  {name:"Losloopweide Kriekerijstraat (Prettige Wildernis)",info:"3.700 m² · Sint-Amandsberg",coords:[51.0640,3.7510]},
-  {name:"Losloopweide Lange Velden",info:"Wondelgem",coords:[51.1010,3.7000]},
-  {name:"Losloopweide Ledeberg (tijdelijk)",info:"Ledeberg",coords:[51.0380,3.7440]},
-  {name:"Losloopweide Opgeeistenlaan",info:"Omheind",coords:[51.0570,3.7200]},
-  {name:"Losloopweide Papiermolenstraat",info:"Omheind",coords:[51.0570,3.7200]},
-  {name:"Losloopweide Pauwstraat",info:"400 m² · omheind",coords:[51.0650,3.7300]},
-  {name:"Losloopweide Scandinaviestraat",info:"360 m²",coords:[51.0800,3.7300]},
-  {name:"Losloopweide Sint-Bernadettestraat",info:"Sint-Amandsberg",coords:[51.0750,3.7500]},
-  {name:"Losloopweide Sint-Gerolfstraat (tijdelijk)",info:"Drongen",coords:[51.0540,3.6500]},
-  {name:"Losloopweide Trekweg",info:"1.293 m² · omheind · Mariakerke",coords:[51.0800,3.6600]},
-  {name:"Losloopweide Voordries",info:"Gentbrugge",coords:[51.0400,3.7600]},
-  {name:"Losloopweide Winston Churchillplein",info:"351 m²",coords:[51.0450,3.7300]},
-  {name:"Losloopweide Wondelgem (tijdelijk)",info:"Omheind · Wondelgem",coords:[51.0900,3.7100]},
-  {name:"Puppyweide Gentbrugse Meersen",info:"Omheind · puppyzone · Gentbrugge",coords:[51.0340,3.7710]},
-  {name:"Puppyzone (Gentbrugge)",info:"Puppyzone · Gentbrugge",coords:[51.0400,3.7600]},
-  {name:"Sleutelbloempark",info:"",coords:[51.0740,3.7500]},
-  {name:"Ter Durmenpark",info:"",coords:[51.0800,3.7800]},
-  {name:"Hondenlosloopzone Gent",info:"Locatie bij benadering",coords:[51.0543,3.7174]},
-  {name:"Hondenlosloopzone Gent 2",info:"Locatie bij benadering",coords:[51.0543,3.7174]},
-  {name:"Hondenlosloopzone Gent 3",info:"Locatie bij benadering",coords:[51.0543,3.7174]},
-  {name:"Hondenlosloopzone Gent 4",info:"Omheind · locatie bij benadering",coords:[51.0543,3.7174]}
+(function(){
+ const locations=[
+ {name:"Hondenlosloopzone Parkbos",address:"Parkbos, Sint-Denijs-Westrem",info:"Omheind",coords:[51.0060,3.6870]},
+ {name:"Avontuurlijke hondenzone Gentbrugse Meersen",address:"Gentbrugse Meersen, Gentbrugge",info:"",coords:[51.0350,3.7690]},
+ {name:"Hondenloopweide Rozebroeken",address:"Rozebroeken",info:"Omheind",coords:[51.0585,3.7565]},
+ {name:"Hondenlosloopweide Banierpark",address:"Banierpark",info:"Omheind",coords:[51.0570,3.7430]},
+ {name:"Hondenpark Morekstraat",address:"Morekstraat",info:"Omheind",coords:[51.0763,3.7156]},
+ {name:"Hondenspeelweide Diervriendelijk Gent",address:"Diervriendelijk Gent",info:"Omheind",coords:[51.0570,3.7300]},
+ {name:"Hondenzwemplaats Watersportbaan (GESLOTEN)",address:"Watersportbaan",info:"Gesloten",category:"water",coords:[51.0430,3.7040]},
+ {name:"Losloopweide Azaleapark",address:"Azaleapark, Sint-Amandsberg",info:"180 m²",coords:[51.0610,3.7460]},
+ {name:"Losloopweide Barkstraat",address:"Barkstraat, Sint-Kruis-Winkel",info:"",coords:[51.1680,3.8170]},
+ {name:"Losloopweide Bloemekenspark",address:"Bloemekenspark",info:"",coords:[51.0770,3.7040]},
+ {name:"Losloopweide Delphine-Boelparkje",address:"Delphine-Boelparkje",info:"300 m²",coords:[51.0450,3.7500]},
+ {name:"Losloopweide Dracenastraat",address:"Dracenastraat",info:"1.290 m² · omheind",coords:[51.0560,3.7300]},
+ {name:"Losloopweide Europalaan (aan hondenzwemplaats)",address:"Europalaan",info:"1.950 m² · omheind",categories:["off-leash","water"],coords:[51.0470,3.7060]},
+ {name:"Losloopweide Evarist De Buckstraat",address:"Evarist De Buckstraat, Sint-Amandsberg",info:"180 m² · omheind",coords:[51.0620,3.7520]},
+ {name:"Losloopweide Gebroeders De Smetstraat",address:"Gebroeders De Smetstraat",info:"",coords:[51.0670,3.7300]},
+ {name:"Losloopweide Gentbrugse Meersen (aan E17-viaduct)",address:"Gentbrugse Meersen, aan E17-viaduct, Gentbrugge",info:"",coords:[51.0350,3.7680]},
+ {name:"Losloopweide Geuzenberg",address:"Geuzenberg",info:"Omheind",coords:[51.0570,3.6700]},
+ {name:"Losloopweide Groenevalleipark (Nieuwewandeling)",address:"Groenevalleipark, Nieuwewandeling",info:"785 m² · omheind",coords:[51.0590,3.7040]},
+ {name:"Losloopweide Groenpool Wonderwoud (tijdelijk)",address:"Wonderwoud, Oostakker/Lochristi",info:"Tijdelijk",coords:[51.1200,3.7900]},
+ {name:"Losloopweide Jan Samijnstraat",address:"Jan Samijnstraat, Gentbrugge",info:"750 m²",coords:[51.0390,3.7650]},
+ {name:"Losloopweide Jean Jaureslaan (tijdelijk)",address:"Jean Jaureslaan, Gentbrugge",info:"Tijdelijk",coords:[51.0390,3.7590]},
+ {name:"Losloopweide Kikvorsstraat",address:"Kikvorsstraat",info:"",coords:[51.0570,3.7000]},
+ {name:"Losloopweide Kriekerijstraat (Prettige Wildernis)",address:"Kriekerijstraat, Sint-Amandsberg",info:"3.700 m² · Prettige Wildernis",coords:[51.0640,3.7510]},
+ {name:"Losloopweide Lange Velden",address:"Lange Velden, Wondelgem",info:"",coords:[51.1010,3.7000]},
+ {name:"Losloopweide Ledeberg (tijdelijk)",address:"Ledeberg",info:"Tijdelijk",coords:[51.0380,3.7440]},
+ {name:"Losloopweide Opgeeistenlaan",address:"Opgeeistenlaan",info:"Omheind",coords:[51.0570,3.7200]},
+ {name:"Losloopweide Papiermolenstraat",address:"Papiermolenstraat",info:"Omheind",coords:[51.0570,3.7200]},
+ {name:"Losloopweide Pauwstraat",address:"Pauwstraat",info:"400 m² · omheind",coords:[51.0650,3.7300]},
+ {name:"Losloopweide Scandinaviestraat",address:"Scandinaviestraat",info:"360 m²",coords:[51.0800,3.7300]},
+ {name:"Losloopweide Sint-Bernadettestraat",address:"Sint-Bernadettestraat, Sint-Amandsberg",info:"",coords:[51.0750,3.7500]},
+ {name:"Losloopweide Sint-Gerolfstraat (tijdelijk)",address:"Sint-Gerolfstraat, Drongen",info:"Tijdelijk",coords:[51.0540,3.6500]},
+ {name:"Losloopweide Trekweg",address:"Trekweg, Mariakerke",info:"1.293 m² · omheind",coords:[51.0800,3.6600]},
+ {name:"Losloopweide Voordries",address:"Voordries, Gentbrugge",info:"",coords:[51.0400,3.7600]},
+ {name:"Losloopweide Winston Churchillplein",address:"Winston Churchillplein",info:"351 m²",coords:[51.0450,3.7300]},
+ {name:"Losloopweide Wondelgem (tijdelijk)",address:"Wondelgem",info:"Tijdelijk · omheind",coords:[51.0900,3.7100]},
+ {name:"Puppyweide Gentbrugse Meersen",address:"Gentbrugse Meersen, Gentbrugge",info:"Omheind · puppyzone",coords:[51.0340,3.7710]},
+ {name:"Puppyzone (Gentbrugge)",address:"Gentbrugge",info:"Puppyzone",coords:[51.0400,3.7600]},
+ {name:"Sleutelbloempark",address:"Sleutelbloempark",info:"",coords:[51.0740,3.7500]},
+ {name:"Ter Durmenpark",address:"Ter Durmenpark",info:"",coords:[51.0800,3.7800]},
+ {name:"Hondenlosloopzone Gent",address:"Gent — exacte locatie niet opgegeven",info:"Locatie bij benadering",coords:[51.0543,3.7174]},
+ {name:"Hondenlosloopzone Gent 2",address:"Gent — exacte locatie niet opgegeven",info:"Locatie bij benadering",coords:[51.0543,3.7174]},
+ {name:"Hondenlosloopzone Gent 3",address:"Gent — exacte locatie niet opgegeven",info:"Locatie bij benadering",coords:[51.0543,3.7174]},
+ {name:"Hondenlosloopzone Gent 4",address:"Gent — exacte locatie niet opgegeven",info:"Omheind · locatie bij benadering",coords:[51.0543,3.7174]}
  ];
- let current=0, map=null; const markers=[]; const mobileStops=document.getElementById("mobile-stops");
- const $=id=>document.getElementById(id); const twoDigits=n=>String(n).padStart(2,"0");
- locations.forEach((place,i)=>{
-  const section=document.createElement("section"); section.className="mobile-stop"+(i===0?" active":""); section.setAttribute("aria-hidden",i===0?"false":"true");
-  const number=document.createElement("div"); number.className="mobile-number"; number.textContent=twoDigits(i+1);
-  const name=document.createElement("h2"); name.textContent=place.name;
-  const info=document.createElement("p"); info.className="mobile-info"; info.textContent=place.info||"";
-  section.append(number,name,info); mobileStops.appendChild(section);
- });
- function updateLocation(index){
-  current=Math.max(0,Math.min(locations.length-1,index)); const place=locations[current];
-  const number=twoDigits(current+1), counter=number+" / "+twoDigits(locations.length);
-  $("desktop-number").textContent=number; $("desktop-name").textContent=place.name; $("desktop-info").textContent=place.info||"";
-  $("desktop-counter").textContent=counter; $("desktop-prev").disabled=current===0; $("desktop-next").disabled=current===locations.length-1;
-  document.querySelectorAll(".mobile-stop").forEach((section,i)=>{section.classList.toggle("active",i===current); section.setAttribute("aria-hidden",i===current?"false":"true");});
-  $("mobile-counter").textContent=counter; $("mobile-prev").disabled=current===0; $("mobile-next").disabled=current===locations.length-1;
-  markers.forEach((marker,i)=>{const el=marker.getElement(),dot=el&&el.querySelector(".dog-marker"); if(dot)dot.classList.toggle("active",i===current);});
-  if(map&&markers[current])map.panTo(place.coords,{animate:true,duration:.35});
- }
- function previous(){if(current>0)updateLocation(current-1);} function next(){if(current<locations.length-1)updateLocation(current+1);}
- $("desktop-prev").addEventListener("click",previous); $("desktop-next").addEventListener("click",next); $("mobile-prev").addEventListener("click",previous); $("mobile-next").addEventListener("click",next);
- document.addEventListener("keydown",event=>{if(event.altKey||event.ctrlKey||event.metaKey)return; if(event.key==="ArrowRight"){event.preventDefault();next();}else if(event.key==="ArrowLeft"){event.preventDefault();previous();}});
- if(window.matchMedia("(min-width: 901px)").matches){
-  map=L.map("map",{zoomControl:false,scrollWheelZoom:false}).setView([51.0543,3.7174],11.8);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
-  locations.forEach((place,i)=>{const category=place.category||"off-leash"; const icon=L.divIcon({className:"",html:'<div class="dog-marker dog-marker--'+category+(i===0?' active':'')+'">'+twoDigits(i+1)+'</div>',iconSize:[32,32],iconAnchor:[16,16]}); const marker=L.marker(place.coords,{icon,title:place.name}).addTo(map); marker.on("click",()=>updateLocation(i)); marker.bindTooltip(place.name); markers.push(marker);});
-  updateLocation(0); window.addEventListener("resize",()=>map.invalidateSize());
- } else updateLocation(0);
+ const categoryLabels={"off-leash":"Losloopweide · hond mag loslopen","green":"Groenzone · leiband verplicht","water":"Hondenzwemplek"};
+ let current=0,map=null;const markers=[],mobileStops=document.getElementById("mobile-stops"),$=id=>document.getElementById(id),twoDigits=n=>String(n).padStart(2,"0");
+ const categoryNames=place=>(place.categories||[place.category||"off-leash"]).map(categoryLabels).join(" · ");
+ locations.forEach((place,i)=>{const section=document.createElement("section");section.className="mobile-stop"+(i===0?" active":"");section.setAttribute("aria-hidden",i===0?"false":"true");const number=document.createElement("div");number.className="mobile-number";number.textContent=twoDigits(i+1);const name=document.createElement("h2");name.textContent=place.name;const details=document.createElement("div");details.className="mobile-details";const addressLabel=document.createElement("span");addressLabel.className="mobile-detail-label";addressLabel.textContent="Adres / locatie";const address=document.createElement("div");address.className="mobile-address";address.textContent=place.address;const link=document.createElement("a");link.className="mobile-location-link";link.target="_blank";link.rel="noopener noreferrer";link.href="https://www.openstreetmap.org/?mlat="+place.coords[0]+"&mlon="+place.coords[1]+"#map=17/"+place.coords[0]+"/"+place.coords[1];link.textContent="Bekijk op OpenStreetMap ↗";const accuracy=document.createElement("span");accuracy.className="mobile-accuracy";accuracy.textContent="Kaartpunt bij benadering; geen huisnummer beschikbaar in de aangeleverde gegevens.";const categoryLabel=document.createElement("span");categoryLabel.className="mobile-detail-label";categoryLabel.textContent="Categorie";const category=document.createElement("div");category.className="mobile-category";category.textContent=categoryNames(place);details.append(addressLabel,address,link,accuracy,categoryLabel,category);if(place.info){const infoLabel=document.createElement("span");infoLabel.className="mobile-detail-label";infoLabel.textContent="Extra informatie";const info=document.createElement("div");info.textContent=place.info;details.append(infoLabel,info)}section.append(number,name,details);mobileStops.appendChild(section)});
+ function updateLocation(index){current=Math.max(0,Math.min(locations.length-1,index));const place=locations[current],number=twoDigits(current+1),counter=number+" / "+twoDigits(locations.length);$("desktop-number").textContent=number;$("desktop-name").textContent=place.name;$("desktop-info").textContent=place.address+" · "+categoryNames(place)+(place.info?" · "+place.info:"");$("desktop-counter").textContent=counter;$("desktop-prev").disabled=current===0;$("desktop-next").disabled=current===locations.length-1;document.querySelectorAll(".mobile-stop").forEach((section,i)=>{section.classList.toggle("active",i===current);section.setAttribute("aria-hidden",i===current?"false":"true")});$("mobile-counter").textContent=counter;$("mobile-prev").disabled=current===0;$("mobile-next").disabled=current===locations.length-1;markers.forEach((marker,i)=>{const el=marker.getElement(),dot=el&&el.querySelector(".dog-marker");if(dot)dot.classList.toggle("active",i===current)});if(map&&markers[current])map.panTo(place.coords,{animate:true,duration:.35})}
+ function previous(){if(current>0)updateLocation(current-1)}function next(){if(current<locations.length-1)updateLocation(current+1)}$("desktop-prev").addEventListener("click",previous);$("desktop-next").addEventListener("click",next);$("mobile-prev").addEventListener("click",previous);$("mobile-next").addEventListener("click",next);document.addEventListener("keydown",event=>{if(event.altKey||event.ctrlKey||event.metaKey)return;if(event.key==="ArrowRight"){event.preventDefault();next()}else if(event.key==="ArrowLeft"){event.preventDefault();previous()}});
+ if(window.matchMedia("(min-width: 901px)").matches){map=L.map("map",{zoomControl:false,scrollWheelZoom:false}).setView([51.0543,3.7174],11.8);L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);locations.forEach((place,i)=>{const categories=place.categories||[place.category||"off-leash"],category=categories.includes("water")&&!categories.includes("off-leash")?"water":categories.includes("green")?"green":"off-leash",icon=L.divIcon({className:"",html:'<div class="dog-marker dog-marker--'+category+(i===0?' active':'')+'">'+twoDigits(i+1)+'</div>',iconSize:[32,32],iconAnchor:[16,16]});const marker=L.marker(place.coords,{icon,title:place.name}).addTo(map);marker.on("click",()=>updateLocation(i));marker.bindTooltip(place.name);markers.push(marker)});updateLocation(0);window.addEventListener("resize",()=>map.invalidateSize())}else updateLocation(0)
 })();
 </script>
 </body>
