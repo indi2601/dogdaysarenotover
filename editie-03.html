@@ -27,7 +27,7 @@
             --white: #FFFFFF;
             --bar: 5.4rem;
             --edge: clamp(0.8rem, 2vw, 1.5rem);
-            --line: 2px;
+            --line: 3px;
         }
 
         html,
@@ -278,7 +278,7 @@
             text-align: center;
         }
 
-        /* Hover: alleen een outline boven en onder het blok */
+        /* Hover: alleen een outline boven en onder het blok (even dik als op de edit rhythm-pagina) */
         .band:hover,
         .band:focus-visible,
         .band.editing {
@@ -396,12 +396,12 @@
         .rows {
             flex: 1;
             min-height: 0;
-            margin-top: 1rem;
+            margin-top: clamp(2rem, 7vh, 4.5rem);
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
             column-gap: 2rem;
             align-content: start;
-            border-top: 2px solid var(--brown);
+            border-top: var(--line) solid var(--brown);
             overflow-y: auto;
             scrollbar-width: none;
         }
@@ -415,7 +415,7 @@
             align-items: center;
             gap: 0.6rem;
             padding: 0.35rem 0;
-            border-bottom: 2px solid var(--brown);
+            border-bottom: var(--line) solid var(--brown);
         }
 
         .editor input,
@@ -424,7 +424,7 @@
             font-size: 1rem;
             color: var(--brown);
             background: var(--white);
-            border: 2px solid var(--brown);
+            border: var(--line) solid var(--brown);
             border-radius: 4px;
             padding: 0.3rem 0.5rem;
             outline: none;
@@ -459,6 +459,8 @@
             flex: none;
             display: flex;
             flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
             gap: 1.5rem;
             padding-top: 1rem;
         }
@@ -486,10 +488,10 @@
         <h2>Your dog's rhythm</h2>
         <div class="rows" id="rows"></div>
         <div class="editor-actions">
-            <button type="button" class="nav-link" id="e-add">+ Add</button>
-            <button type="button" class="nav-link" id="e-reset">Reset</button>
-            <button type="button" class="nav-link" id="e-cancel">Cancel</button>
-            <button type="button" class="nav-link" id="e-save">Save</button>
+            <button type="button" class="nav-link" id="e-add">add</button>
+            <button type="button" class="nav-link" id="e-reset">reset</button>
+            <button type="button" class="nav-link" id="e-cancel">cancel</button>
+            <button type="button" class="nav-link" id="e-save">save</button>
         </div>
     </section>
 
