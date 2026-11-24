@@ -18,67 +18,74 @@
     --brown: #6b4423;
     --neon: #ff2fa8;
     --background: #fff;
+    --edge: clamp(.8rem, 2vw, 1.5rem);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { min-height: 100%; scroll-behavior: smooth; }
+
+/* Cursor: neonroze hondenpoot (zelfde als editie 01) */
+html, body, canvas, a, button {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 100 100'%3E%3Cg fill='%23ff2fa8'%3E%3Cpath d='M50 44 C28 44 10 64 10 80 C10 93 22 99 36 97 C44 96 56 96 64 97 C78 99 90 93 90 80 C90 64 72 44 50 44 Z'/%3E%3Cellipse cx='10' cy='38' rx='7.5' ry='10' transform='rotate(-25 10 38)'/%3E%3Cellipse cx='32' cy='16' rx='8.5' ry='12' transform='rotate(-8 32 16)'/%3E%3Cellipse cx='68' cy='16' rx='8.5' ry='12' transform='rotate(8 68 16)'/%3E%3Cellipse cx='90' cy='38' rx='7.5' ry='10' transform='rotate(25 90 38)'/%3E%3C/g%3E%3C/svg%3E") 16 16, auto;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+}
+
 body {
-    min-height: 100%;
     background: var(--background);
     color: var(--brown);
     font-family: 'Neue Haas Grotesk', sans-serif;
-    overscroll-behavior-y: contain;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
-/* The long page turns scrolling into eating: each scroll step lowers the food. */
-.eating-stage { height: 300vh; height: 300dvh; position: relative; }
-.scene {
-    position: sticky;
-    top: 0;
+#game {
+    position: fixed;
+    inset: 0;
     width: 100%;
-    height: 100vh;
-    height: 100dvh;
-    min-height: 420px;
-    overflow: hidden;
-    background: var(--background);
+    height: 100%;
+    display: block;
+    touch-action: none;
+    z-index: 1;
+    outline: none;
 }
+
 .title {
-    position: absolute;
-    top: clamp(1.25rem, 3vh, 2.5rem);
+    position: fixed;
+    top: var(--edge);
     left: 50%;
     transform: translateX(-50%);
+    z-index: 2;
+    pointer-events: none;
     color: var(--brown);
     font-size: 14vh;
-    line-height: .8;
+    line-height: .85;
     font-weight: 400;
-    letter-spacing: -.06em;
-    text-align: center;
-    z-index: 2;
-}
-.bowl-wrap {
-    position: absolute;
-    inset: 18vh 0 7vh;
-    display: grid;
-    place-items: center;
-}
-.bowl {
-    display: block;
-    width: min(94vw, 1050px);
-    height: min(76vh, 680px);
-    overflow: visible;
-}
-.scroll-cue {
-    position: absolute;
-    left: 50%;
-    bottom: clamp(4.5rem, 8vh, 6rem);
-    transform: translateX(-50%);
-    color: var(--brown);
-    font-size: .85rem;
-    letter-spacing: .12em;
+    letter-spacing: -.05em;
     text-transform: uppercase;
+    text-align: center;
     white-space: nowrap;
-    opacity: .75;
 }
+
+.tag {
+    position: fixed;
+    top: var(--edge);
+    right: var(--edge);
+    z-index: 3;
+    pointer-events: none;
+    font-size: clamp(.8rem, 1.5vw, 1.05rem);
+    line-height: 1.2;
+    text-transform: none;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
 .nav-links {
     position: fixed;
     bottom: clamp(.8rem, 2vw, 1.5rem);
@@ -90,6 +97,7 @@ body {
     z-index: 20;
     pointer-events: none;
 }
+
 .nav-link {
     font-family: inherit;
     font-size: clamp(.8rem, 1.5vw, 1.05rem);
@@ -104,121 +112,31 @@ body {
     transition: opacity .25s ease;
     pointer-events: auto;
 }
+
 .nav-link:hover, .nav-link:focus-visible { opacity: .7; outline: none; }
 
-@media (max-width: 700px) {
-    .eating-stage { height: 260vh; height: 260dvh; }
-    .scene { min-height: 380px; }
-    .title { top: 8vh; font-size: 22vw; }
-    .bowl-wrap { inset: 23vh 0 10vh; }
-    .bowl { width: 112vw; height: auto; max-height: 58vh; }
-    .scroll-cue { bottom: 5.2rem; font-size: .72rem; }
-    .nav-links { bottom: max(.8rem, env(safe-area-inset-bottom)); }
-    .nav-link { font-size: 1rem; }
+#err {
+    position: fixed;
+    top: 4.5rem;
+    left: .5rem;
+    right: .5rem;
+    z-index: 50;
+    font-size: .75rem;
+    color: #b00020;
+    pointer-events: none;
 }
-@media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    *, *::before, *::after { transition: none !important; }
+
+@media (max-width: 700px) {
+    .title { font-size: 22vw; }
+    .nav-link, .tag { font-size: 1rem; }
 }
 </style>
 </head>
 <body>
-<main class="eating-stage" id="eating-stage">
-    <section class="scene" aria-label="A dog’s-eye view of a bowl of food being eaten as you scroll">
-        <h1 class="title">EAT</h1>
-        <div class="bowl-wrap">
-            <svg class="bowl" viewBox="0 0 1000 700" role="img" aria-labelledby="bowl-title bowl-description">
-                <title id="bowl-title">Dog food bowl</title>
-                <desc id="bowl-description">A realistic, stylized bowl of kibble. Scroll down to eat the food.</desc>
-                <defs>
-                    <linearGradient id="ceramic" x1="0" y1="0" x2="0.85" y2="1">
-                        <stop offset="0" stop-color="#fff"/>
-                        <stop offset=".28" stop-color="#f3eee7"/>
-                        <stop offset=".68" stop-color="#d5c6b5"/>
-                        <stop offset="1" stop-color="#a98769"/>
-                    </linearGradient>
-                    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" stop-color="#fff"/>
-                        <stop offset=".45" stop-color="#e8ddd0"/>
-                        <stop offset="1" stop-color="#b99d82"/>
-                    </linearGradient>
-                    <linearGradient id="food" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" stop-color="#a66d37"/>
-                        <stop offset="1" stop-color="#57351d"/>
-                    </linearGradient>
-                    <radialGradient id="bowl-shadow" cx="50%" cy="30%" r="70%">
-                        <stop offset="0" stop-color="#4a2d18" stop-opacity=".35"/>
-                        <stop offset="1" stop-color="#4a2d18" stop-opacity="0"/>
-                    </radialGradient>
-                    <linearGradient id="kibble" x1="0" y1="0" x2=".8" y2="1">
-                        <stop offset="0" stop-color="#c58b4b"/>
-                        <stop offset=".45" stop-color="#96602f"/>
-                        <stop offset="1" stop-color="#603a20"/>
-                    </linearGradient>
-                    <clipPath id="inside-bowl">
-                        <path d="M195 270 C225 235 775 235 805 270 C790 355 750 455 690 505 C625 555 375 555 310 505 C250 455 210 355 195 270Z"/>
-                    </clipPath>
-                    <clipPath id="food-clip">
-                        <path id="food-shape" d="M220 345 C320 310 680 310 780 345 L735 485 C675 525 325 525 265 485Z"/>
-                    </clipPath>
-                    <filter id="soft-shadow" x="-30%" y="-30%" width="160%" height="180%">
-                        <feGaussianBlur stdDeviation="17"/>
-                    </filter>
-                </defs>
+<canvas id="game" tabindex="0" aria-label="A bowl of dog food. Press and hold to eat."></canvas>
 
-                <!-- Soft grounding shadow -->
-                <ellipse cx="500" cy="570" rx="330" ry="44" fill="#6b4423" opacity=".16" filter="url(#soft-shadow)"/>
-                <!-- Bowl body -->
-                <path d="M160 265 C185 420 255 570 350 612 C425 645 575 645 650 612 C745 570 815 420 840 265Z" fill="url(#ceramic)" stroke="#8c6a4b" stroke-width="5"/>
-                <path d="M198 315 C225 444 280 548 365 578 C430 603 570 603 635 578 C720 548 775 444 802 315" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="9"/>
-                <ellipse cx="500" cy="585" rx="153" ry="30" fill="none" stroke="#8c6a4b" stroke-opacity=".48" stroke-width="7"/>
-                <!-- Interior and changing food level -->
-                <ellipse cx="500" cy="282" rx="330" ry="100" fill="#55371f"/>
-                <g clip-path="url(#inside-bowl)">
-                    <path id="food-fill" d="M220 345 C320 310 680 310 780 345 L735 485 C675 525 325 525 265 485Z" fill="url(#food)"/>
-                    <g id="kibble-layer" clip-path="url(#food-clip)">
-                        <g fill="url(#kibble)" stroke="#58371e" stroke-width="4">
-                            <path d="M290 367 Q298 348 318 354 L337 361 Q347 378 333 390 L312 398 Q293 391 290 367Z"/>
-                            <path d="M365 341 Q373 322 393 329 L413 338 Q422 354 407 367 L384 373 Q366 365 365 341Z"/>
-                            <path d="M444 360 Q448 339 469 338 L492 344 Q505 359 494 376 L473 387 Q452 383 444 360Z"/>
-                            <path d="M534 338 Q545 321 563 329 L583 340 Q590 358 574 369 L552 371 Q536 359 534 338Z"/>
-                            <path d="M615 363 Q621 343 641 345 L663 354 Q673 371 660 386 L637 393 Q619 385 615 363Z"/>
-                            <path d="M700 382 Q708 365 727 369 L745 381 Q750 397 735 409 L715 414 Q699 403 700 382Z"/>
-                            <path d="M327 428 Q337 409 356 415 L375 426 Q379 444 363 454 L342 457 Q326 447 327 428Z"/>
-                            <path d="M408 409 Q419 391 438 398 L456 410 Q461 428 445 438 L424 442 Q407 430 408 409Z"/>
-                            <path d="M492 428 Q500 407 521 411 L541 423 Q546 440 530 452 L508 456 Q492 447 492 428Z"/>
-                            <path d="M574 407 Q585 390 604 398 L622 411 Q625 429 608 439 L588 441 Q573 430 574 407Z"/>
-                            <path d="M666 438 Q676 420 694 425 L711 437 Q714 454 698 464 L678 465 Q664 455 666 438Z"/>
-                            <path d="M286 451 Q296 434 315 439 L331 451 Q333 467 318 477 L299 477 Q285 468 286 451Z"/>
-                        </g>
-                        <g fill="#f0c184" opacity=".45">
-                            <ellipse cx="306" cy="363" rx="9" ry="3" transform="rotate(-22 306 363)"/>
-                            <ellipse cx="381" cy="338" rx="9" ry="3" transform="rotate(-18 381 338)"/>
-                            <ellipse cx="460" cy="348" rx="9" ry="3" transform="rotate(-12 460 348)"/>
-                            <ellipse cx="550" cy="337" rx="8" ry="3" transform="rotate(-20 550 337)"/>
-                            <ellipse cx="632" cy="355" rx="9" ry="3" transform="rotate(-16 632 355)"/>
-                            <ellipse cx="344" cy="421" rx="8" ry="3" transform="rotate(-18 344 421)"/>
-                            <ellipse cx="426" cy="404" rx="8" ry="3" transform="rotate(-14 426 404)"/>
-                            <ellipse cx="510" cy="418" rx="9" ry="3" transform="rotate(-15 510 418)"/>
-                            <ellipse cx="589" cy="402" rx="8" ry="3" transform="rotate(-20 589 402)"/>
-                            <ellipse cx="681" cy="435" rx="8" ry="3" transform="rotate(-17 681 435)"/>
-                        </g>
-                    </g>
-                    <path id="food-surface" d="M220 345 C320 310 680 310 780 345 C680 390 320 390 220 345Z" fill="#a66d37" stroke="#d5a26c" stroke-width="5"/>
-                    <path d="M280 348 C360 326 640 326 720 348" fill="none" stroke="#e1b77f" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
-                </g>
-                <!-- Broad ceramic lip drawn over the contents -->
-                <ellipse cx="500" cy="280" rx="355" ry="116" fill="url(#rim)" stroke="#8c6a4b" stroke-width="6"/>
-                <ellipse cx="500" cy="282" rx="326" ry="91" fill="#4a301b" stroke="#fff" stroke-opacity=".75" stroke-width="5"/>
-                <!-- Repeat the visible food surface above the dark interior of the rim. -->
-                <path id="visible-food-surface" d="M220 345 C320 310 680 310 780 345 C680 390 320 390 220 345Z" fill="#a66d37" stroke="#d5a26c" stroke-width="5"/>
-                <path d="M280 348 C360 326 640 326 720 348" fill="none" stroke="#e1b77f" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
-                <ellipse cx="500" cy="280" rx="355" ry="116" fill="none" stroke="#8c6a4b" stroke-width="6"/>
-            </svg>
-        </div>
-        <p class="scroll-cue" id="scroll-cue">Scroll to eat</p>
-    </section>
-</main>
+<h1 class="title" id="title">EAT</h1>
+<div class="tag" id="tag" aria-live="polite"></div>
 
 <nav class="nav-links" aria-label="Edition navigation">
     <a href="editie-04.html" class="nav-link">← edition 04</a>
@@ -226,53 +144,583 @@ body {
     <a href="editie-06.html" class="nav-link">edition 06 →</a>
 </nav>
 
+<div id="err"></div>
+
+<script>
+window.addEventListener('error', function (e) {
+    var el = document.getElementById('err');
+    if (el) el.textContent = 'Error: ' + e.message + ' (line ' + e.lineno + ')';
+});
+</script>
+
 <script>
 (function () {
-    const stage = document.getElementById('eating-stage');
-    const foodFill = document.getElementById('food-fill');
-    const foodShape = document.getElementById('food-shape');
-    const foodSurface = document.getElementById('food-surface');
-    const visibleFoodSurface = document.getElementById('visible-food-surface');
-    const kibbleLayer = document.getElementById('kibble-layer');
-    const cue = document.getElementById('scroll-cue');
-    const resetButton = document.getElementById('reset');
+    'use strict';
 
-    const fullFood = { top: 335, bottom: 525 };
-    const emptyFood = { top: 490, bottom: 525 };
-    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    var CHEW_MS = 360;     // tijd tussen twee happen
+    var PER_BITE = 2;      // brokjes per hap
+    var TAU = Math.PI * 2;
 
-    function updateFood() {
-        const maxScroll = Math.max(1, stage.offsetHeight - window.innerHeight);
-        const progress = clamp(window.scrollY / maxScroll, 0, 1);
-        const top = fullFood.top + (emptyFood.top - fullFood.top) * progress;
-        const low = fullFood.bottom;
-        const left = top - 35;
-        const right = top - 35;
-        const path = `M220 ${top} C320 ${left} 680 ${left} 780 ${top} L735 ${low - 40} C675 ${low} 325 ${low} 265 ${low - 40}Z`;
-        const surface = `M220 ${top} C320 ${left - 35} 680 ${left - 35} 780 ${top} C680 ${top + 45} 320 ${top + 45} 220 ${top}Z`;
+    var canvas = document.getElementById('game');
+    var ctx = canvas.getContext('2d');
+    var title = document.getElementById('title');
+    var tag = document.getElementById('tag');
+    var resetBtn = document.getElementById('reset');
 
-        foodFill.setAttribute('d', path);
-        foodShape.setAttribute('d', path);
-        foodSurface.setAttribute('d', surface);
-        visibleFoodSurface.setAttribute('d', surface);
-        kibbleLayer.style.opacity = String(clamp(1 - progress * 1.08, 0, 1));
-        cue.style.opacity = String(progress > .96 ? 0 : .75);
-        cue.textContent = progress > .96 ? 'All gone' : 'Scroll to eat';
+    var W = 0, H = 0, dpr = 1;
+    var R = 200, S = 20, BR = 30;          // bakstraal, brokgrootte, hapstraal
+    var titleB = 0, barH = 70;
+    var bx = 0, by = 0, bvx = 0, bvy = 0;  // plek en snelheid van de bak
+
+    var pieces = [], N = 0, eaten = 0, made = false;
+    var residue = [], floorC = [], parts = [];
+    var sprites = [];
+
+    var ptr = { x: -999, y: -999, over: false, down: false, inBowl: false };
+    var lastBite = -1e9, flash = 0, started = false, dirty = true, lastT = 0;
+    var isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+    /* ---------- Brokjes: sprites met schaduw, korrel en glans ---------- */
+
+    var TONES = [
+        ['#c68d50', '#8c5b2b', '#5a381b'],
+        ['#b57c40', '#7b4e24', '#4e2f17'],
+        ['#cd9a63', '#97652f', '#63401f']
+    ];
+
+    function makeSprite(kind, tone) {
+        var size = Math.ceil(S * 2.7 * dpr);
+        var c = document.createElement('canvas');
+        c.width = c.height = size;
+        var g = c.getContext('2d');
+        var cx = size / 2, cy = size / 2, r = S * dpr * 0.5;
+        var T = TONES[tone];
+
+        function shape() {
+            g.beginPath();
+            if (kind === 0) {
+                g.ellipse(cx, cy, r, r * 0.92, 0, 0, TAU);
+            } else if (kind === 1) {
+                var pts = [0, 1, 2].map(function (i) {
+                    var a = -Math.PI / 2 + i * TAU / 3;
+                    return [cx + Math.cos(a) * r * 1.15, cy + Math.sin(a) * r * 1.15 + r * 0.1];
+                });
+                var m = function (a, b) { return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; };
+                var m0 = m(pts[0], pts[1]), m1 = m(pts[1], pts[2]), m2 = m(pts[2], pts[0]);
+                g.moveTo(m0[0], m0[1]);
+                g.quadraticCurveTo(pts[1][0], pts[1][1], m1[0], m1[1]);
+                g.quadraticCurveTo(pts[2][0], pts[2][1], m2[0], m2[1]);
+                g.quadraticCurveTo(pts[0][0], pts[0][1], m0[0], m0[1]);
+            } else if (kind === 2) {
+                g.arc(cx + r * 0.85, cy, r * 0.46, -Math.PI / 2, Math.PI / 2);
+                g.arc(cx - r * 0.85, cy, r * 0.46, Math.PI / 2, Math.PI * 1.5);
+                g.closePath();
+            } else {
+                g.ellipse(cx, cy, r, r * 0.92, 0, 0, TAU);
+                g.moveTo(cx + r * 0.34, cy);
+                g.ellipse(cx, cy, r * 0.34, r * 0.3, 0, 0, TAU, true);
+            }
+        }
+
+        // Vorm met schaduw eronder
+        g.save();
+        g.shadowColor = 'rgba(40,22,8,0.55)';
+        g.shadowBlur = r * 0.5;
+        g.shadowOffsetY = r * 0.22;
+        var grad = g.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.1, cx, cy, r * 1.6);
+        grad.addColorStop(0, T[0]);
+        grad.addColorStop(0.55, T[1]);
+        grad.addColorStop(1, T[2]);
+        g.fillStyle = grad;
+        shape();
+        g.fill('evenodd');
+        g.restore();
+
+        // Randje
+        g.strokeStyle = 'rgba(50,28,10,0.55)';
+        g.lineWidth = Math.max(1, r * 0.07);
+        shape();
+        g.stroke();
+
+        // Korrel en glans, binnen de vorm
+        g.save();
+        shape();
+        g.clip('evenodd');
+        var seed = kind * 7 + tone * 3 + 1;
+        function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+        for (var i = 0; i < 34; i++) {
+            var x = cx + (rnd() * 2 - 1) * r * 1.2;
+            var y = cy + (rnd() * 2 - 1) * r * 1.0;
+            g.fillStyle = rnd() > 0.45 ? 'rgba(40,22,8,0.42)' : 'rgba(245,205,150,0.5)';
+            g.beginPath();
+            g.arc(x, y, r * (0.025 + rnd() * 0.04), 0, TAU);
+            g.fill();
+        }
+        var hl = g.createRadialGradient(cx - r * 0.4, cy - r * 0.45, 0, cx - r * 0.4, cy - r * 0.45, r * 0.7);
+        hl.addColorStop(0, 'rgba(255,232,190,0.42)');
+        hl.addColorStop(1, 'rgba(255,232,190,0)');
+        g.fillStyle = hl;
+        g.fillRect(0, 0, size, size);
+        g.restore();
+
+        return c;
     }
 
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-        if (ticking) return;
-        ticking = true;
-        window.requestAnimationFrame(() => { updateFood(); ticking = false; });
-    }, { passive: true });
-    window.addEventListener('resize', updateFood);
+    function buildSprites() {
+        sprites = [];
+        for (var k = 0; k < 4; k++) {
+            for (var t = 0; t < 3; t++) sprites.push(makeSprite(k, t));
+        }
+    }
 
-    resetButton.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    function makePieces() {
+        pieces = [];
+        // [aantal, breedte, hoogte] per laag, in bakstralen
+        var layers = [[110, 0.80, 0.46], [78, 0.62, 0.37], [50, 0.44, 0.27], [24, 0.25, 0.16]];
+        layers.forEach(function (L, k) {
+            for (var i = 0; i < L[0]; i++) {
+                var a = Math.random() * TAU, d = Math.sqrt(Math.random());
+                var lift = k * 0.045 + (1 - d * d) * 0.03;
+                var roll = Math.random();
+                var kind = roll < 0.4 ? 0 : roll < 0.6 ? 1 : roll < 0.8 ? 2 : 3;
+                pieces.push({
+                    x: Math.cos(a) * d * L[1],
+                    y: Math.sin(a) * d * L[2] - lift,
+                    layer: k,
+                    ang: Math.random() * TAU,
+                    sc: 0.88 + Math.random() * 0.28,
+                    sp: kind * 3 + ((Math.random() * 3) | 0)
+                });
+            }
+        });
+        pieces.sort(function (a, b) { return a.layer - b.layer || a.y - b.y; });
+        N = pieces.length;
+        eaten = 0;
+        made = true;
+    }
+
+    /* ---------- Afmetingen en plek van de bak ---------- */
+
+    function bounds() {
+        var l = R * 1.03 + 8, r = W - l;
+        var t = titleB + R * 0.62 + 8, b = H - barH - R * 1.03;
+        if (l > r) { l = r = W / 2; }
+        if (t > b) { t = b = (t + b) / 2; }
+        return { l: l, r: r, t: t, b: b };
+    }
+
+    function placeBowl(center) {
+        var B = bounds();
+        if (center) { bx = W / 2; by = (B.t + B.b) / 2; bvx = bvy = 0; }
+        bx = clamp(bx, B.l, B.r);
+        by = clamp(by, B.t, B.b);
+    }
+
+    function setup() {
+        W = window.innerWidth;
+        H = window.innerHeight;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+
+        var mobile = W <= 700;
+        titleB = title.getBoundingClientRect().bottom;
+        barH = mobile ? 72 : 70;
+        var avail = H - barH - titleB - 10;
+        R = Math.max(90, Math.min(W * (mobile ? 0.40 : 0.30), avail / 1.65 * 0.8, 430));
+        S = R * (mobile ? 0.13 : 0.10);
+        BR = S * (mobile ? 1.8 : 1.5);
+
+        buildSprites();
+        if (!made) makePieces();
+        floorC = [];
+        placeBowl(true);
+        dirty = true;
+        updateTag();
+    }
+
+    /* ---------- Hap ---------- */
+
+    function inBowl(x, y) {
+        var dx = (x - bx) / (R * 0.95), dy = (y - (by - R * 0.04)) / (R * 0.58);
+        return dx * dx + dy * dy < 1;
+    }
+
+    function bite(x, y) {
+        flash = 1;
+        var cand = [];
+        for (var i = 0; i < pieces.length; i++) {
+            var p = pieces[i];
+            var dx = bx + p.x * R - x, dy = by + p.y * R - y;
+            var d = Math.sqrt(dx * dx + dy * dy);
+            if (d < BR) cand.push({ i: i, d: d, l: p.layer });
+        }
+        if (!cand.length) return false;
+
+        // Wat bovenop ligt gaat eerst
+        cand.sort(function (a, b) { return b.l - a.l || a.d - b.d; });
+        var take = cand.slice(0, PER_BITE);
+        take.sort(function (a, b) { return b.i - a.i; });
+        take.forEach(function (c) { pieces.splice(c.i, 1); });
+        eaten += take.length;
+        started = true;
+
+        // Vlek in de bak en kruimels in de lucht
+        residue.push({ t: 0, x: (x - bx) / R, y: (y - by) / R, r: 0.05 + Math.random() * 0.05 });
+        if (residue.length > 90) residue.shift();
+        spawnCrumbs(x, y, 9 + ((Math.random() * 6) | 0));
+
+        // De hond duwt de bak van zich af
+        var ddx = bx - x, ddy = by - y;
+        var len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+        bvx += ddx / len * R * 0.05;
+        bvy += ddy / len * R * 0.012;
+
+        updateTag();
+        return true;
+    }
+
+    function spawnCrumbs(x, y, n) {
+        for (var i = 0; i < n; i++) {
+            var a = Math.random() * TAU;
+            var sp = 1 + Math.random() * 3.4;
+            parts.push({
+                x: x + (Math.random() - 0.5) * BR * 0.6,
+                y: y + (Math.random() - 0.5) * BR * 0.4,
+                vx: Math.cos(a) * sp * 1.4,
+                vy: -(2 + Math.random() * 4.2),
+                ty: y + 6 + Math.random() * R * 0.4,
+                s: 1.4 + Math.random() * 2.8,
+                c: ['#8a5d35', '#a0733f', '#b88a55', '#6b4423', '#4f3018'][(Math.random() * 5) | 0]
+            });
+        }
+    }
+
+    function land(p) {
+        var lx = (p.x - bx) / R, ly = (p.y - by) / R;
+        var ex = lx / 0.86, ey = ly / 0.52;
+        if (ex * ex + ey * ey < 1) {
+            residue.push({ t: 1, x: lx, y: ly, s: p.s / R, c: p.c });
+            if (residue.length > 600) residue.shift();
+        } else if (Math.random() < 0.7) {
+            floorC.push({ x: p.x, y: p.y, s: p.s, c: p.c });
+            if (floorC.length > 420) floorC.shift();
+        }
+    }
+
+    function updateTag() {
+        var txt;
+        if (made && pieces.length === 0) txt = 'all gone';
+        else if (!started) txt = isTouch ? 'press and hold to eat' : 'hold to eat';
+        else txt = Math.floor(eaten / N * 100) + '% eaten';
+        tag.textContent = txt;
+    }
+
+    /* ---------- Tekenen ---------- */
+
+    function drawBowl() {
+        var i, p;
+
+        // Schaduw op de vloer
+        ctx.save();
+        ctx.translate(bx, by + 0.9 * R);
+        ctx.scale(1, 0.22);
+        var sg = ctx.createRadialGradient(0, 0, R * 0.2, 0, 0, R * 1.2);
+        sg.addColorStop(0, 'rgba(107,68,35,0.30)');
+        sg.addColorStop(1, 'rgba(107,68,35,0)');
+        ctx.fillStyle = sg;
+        ctx.beginPath();
+        ctx.arc(0, 0, R * 1.2, 0, TAU);
+        ctx.fill();
+        ctx.restore();
+
+        // Kruimels op de vloer
+        for (i = 0; i < floorC.length; i++) {
+            p = floorC[i];
+            ctx.fillStyle = p.c;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.s, 0, TAU);
+            ctx.fill();
+        }
+
+        ctx.save();
+        ctx.translate(bx, by);
+
+        // Bakje zelf
+        var body = new Path2D();
+        body.moveTo(-R, 0);
+        body.bezierCurveTo(-R, 0.5 * R, -0.7 * R, 0.86 * R, -0.52 * R, 0.9 * R);
+        body.bezierCurveTo(-0.3 * R, 1.02 * R, 0.3 * R, 1.02 * R, 0.52 * R, 0.9 * R);
+        body.bezierCurveTo(0.7 * R, 0.86 * R, R, 0.5 * R, R, 0);
+        body.closePath();
+
+        var bg = ctx.createLinearGradient(-R, 0, R, 0);
+        bg.addColorStop(0, '#efe7dc');
+        bg.addColorStop(0.35, '#ffffff');
+        bg.addColorStop(0.75, '#e3d8ca');
+        bg.addColorStop(1, '#bfae98');
+        ctx.fillStyle = bg;
+        ctx.fill(body);
+
+        ctx.save();
+        ctx.clip(body);
+        // Roze band
+        ctx.strokeStyle = '#ff2fa8';
+        ctx.lineWidth = 0.11 * R;
+        ctx.beginPath();
+        ctx.ellipse(0, 0.12 * R, 1.04 * R, 0.66 * R, 0, 0, Math.PI);
+        ctx.stroke();
+        // Licht en schaduw
+        var sh = ctx.createLinearGradient(-R, 0, R, 0);
+        sh.addColorStop(0, 'rgba(255,255,255,0.35)');
+        sh.addColorStop(0.3, 'rgba(255,255,255,0)');
+        sh.addColorStop(0.6, 'rgba(60,35,15,0)');
+        sh.addColorStop(1, 'rgba(60,35,15,0.28)');
+        ctx.fillStyle = sh;
+        ctx.fillRect(-R, 0, 2 * R, 1.1 * R);
+        var vg = ctx.createLinearGradient(0, 0.4 * R, 0, 1.02 * R);
+        vg.addColorStop(0, 'rgba(60,35,15,0)');
+        vg.addColorStop(1, 'rgba(60,35,15,0.28)');
+        ctx.fillStyle = vg;
+        ctx.fillRect(-R, 0, 2 * R, 1.1 * R);
+        ctx.restore();
+
+        ctx.strokeStyle = 'rgba(107,68,35,0.35)';
+        ctx.lineWidth = 2;
+        ctx.stroke(body);
+
+        // Rand
+        var rg = ctx.createLinearGradient(0, -0.62 * R, 0, 0.62 * R);
+        rg.addColorStop(0, '#ffffff');
+        rg.addColorStop(0.5, '#f1e9de');
+        rg.addColorStop(1, '#d8cab9');
+        ctx.fillStyle = rg;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, R, 0.62 * R, 0, 0, TAU);
+        ctx.fill();
+        ctx.stroke();
+
+        // Binnenkant
+        var ix = 0.88 * R, iy = 0.54 * R;
+        var ig = ctx.createLinearGradient(0, -iy, 0, iy);
+        ig.addColorStop(0, '#cdbda9');
+        ig.addColorStop(0.35, '#eee5d8');
+        ig.addColorStop(1, '#fbf7f1');
+        ctx.fillStyle = ig;
+        ctx.beginPath();
+        ctx.ellipse(0, 0.01 * R, ix, iy, 0, 0, TAU);
+        ctx.fill();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(0, 0.01 * R, ix, iy, 0, 0, TAU);
+        ctx.clip();
+
+        // Bodem van de bak
+        ctx.strokeStyle = 'rgba(107,68,35,0.14)';
+        ctx.lineWidth = 0.02 * R;
+        ctx.beginPath();
+        ctx.ellipse(0, 0.1 * R, 0.6 * R, 0.34 * R, 0, 0, TAU);
+        ctx.stroke();
+
+        // Vlekken en kruimels in de bak
+        for (i = 0; i < residue.length; i++) {
+            p = residue[i];
+            if (p.t === 0) {
+                var rr = p.r * R;
+                var st = ctx.createRadialGradient(p.x * R, p.y * R, 0, p.x * R, p.y * R, rr);
+                st.addColorStop(0, 'rgba(107,68,35,0.16)');
+                st.addColorStop(1, 'rgba(107,68,35,0)');
+                ctx.fillStyle = st;
+                ctx.beginPath();
+                ctx.arc(p.x * R, p.y * R, rr, 0, TAU);
+                ctx.fill();
+            } else {
+                ctx.fillStyle = p.c;
+                ctx.beginPath();
+                ctx.arc(p.x * R, p.y * R, Math.max(1, p.s * R), 0, TAU);
+                ctx.fill();
+            }
+        }
+
+        // Binnenrand: schaduw van de wand
+        var wall = ctx.createLinearGradient(0, -iy, 0, iy);
+        wall.addColorStop(0, 'rgba(60,35,15,0.28)');
+        wall.addColorStop(0.35, 'rgba(60,35,15,0)');
+        ctx.fillStyle = wall;
+        ctx.fillRect(-ix, -iy, 2 * ix, 2 * iy);
+        ctx.restore();
+
+        // De brokjes
+        for (i = 0; i < pieces.length; i++) {
+            p = pieces[i];
+            var sp = sprites[p.sp];
+            var ds = sp.width / dpr * p.sc;
+            ctx.save();
+            ctx.translate(p.x * R, p.y * R);
+            ctx.rotate(p.ang);
+            ctx.drawImage(sp, -ds / 2, -ds / 2, ds, ds);
+            ctx.restore();
+        }
+
+        ctx.restore();
+    }
+
+    function draw(now) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        drawBowl();
+
+        // Kruimels in de lucht
+        for (var i = 0; i < parts.length; i++) {
+            var q = parts[i];
+            ctx.fillStyle = q.c;
+            ctx.beginPath();
+            ctx.arc(q.x, q.y, q.s, 0, TAU);
+            ctx.fill();
+        }
+
+        // Hapring: laat zien wanneer de volgende hap klaar is
+        if (ptr.over || ptr.down) {
+            var prog = ptr.down ? Math.min(1, (now - lastBite) / CHEW_MS) : 1;
+            ctx.lineWidth = 2.5;
+            ctx.fillStyle = 'rgba(255,47,168,' + (0.08 + flash * 0.25).toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.arc(ptr.x, ptr.y, BR, 0, TAU);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(107,68,35,0.35)';
+            ctx.beginPath();
+            ctx.arc(ptr.x, ptr.y, BR, 0, TAU);
+            ctx.stroke();
+            ctx.strokeStyle = '#ff2fa8';
+            ctx.beginPath();
+            ctx.arc(ptr.x, ptr.y, BR, -Math.PI / 2, -Math.PI / 2 + prog * TAU);
+            ctx.stroke();
+        }
+    }
+
+    /* ---------- Lus ---------- */
+
+    function frame(now) {
+        requestAnimationFrame(frame);
+        var dt = Math.min(2, (now - (lastT || now)) / 16.7);
+        lastT = now;
+
+        ptr.inBowl = (ptr.over || ptr.down) && inBowl(ptr.x, ptr.y);
+
+        // Doorhappen zolang je ingedrukt houdt
+        if (ptr.down && ptr.inBowl && pieces.length && now - lastBite >= CHEW_MS) {
+            bite(ptr.x, ptr.y);
+            lastBite = now;
+        }
+
+        // De bak schuift
+        var moving = Math.abs(bvx) > 0.05 || Math.abs(bvy) > 0.05;
+        if (moving) {
+            bx += bvx * dt;
+            by += bvy * dt;
+            bvx *= Math.pow(0.86, dt);
+            bvy *= Math.pow(0.86, dt);
+            var B = bounds();
+            if (bx < B.l || bx > B.r) bvx = 0;
+            if (by < B.t || by > B.b) bvy = 0;
+            bx = clamp(bx, B.l, B.r);
+            by = clamp(by, B.t, B.b);
+        }
+
+        // Kruimels vallen
+        for (var i = parts.length - 1; i >= 0; i--) {
+            var p = parts[i];
+            p.vy += 0.32 * dt;
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.vx *= Math.pow(0.985, dt);
+            if (p.vy > 0 && p.y >= p.ty) {
+                land(p);
+                parts.splice(i, 1);
+            }
+        }
+
+        flash *= Math.pow(0.85, dt);
+        if (flash < 0.01) flash = 0;
+
+        if (dirty || moving || parts.length || ptr.over || ptr.down || flash) {
+            draw(now);
+            dirty = false;
+        }
+    }
+
+    /* ---------- Invoer ---------- */
+
+    function setPtr(e) {
+        ptr.x = e.clientX;
+        ptr.y = e.clientY;
+        dirty = true;
+    }
+
+    canvas.addEventListener('pointerdown', function (e) {
+        e.preventDefault();
+        try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+        ptr.down = true;
+        ptr.over = true;
+        setPtr(e);
     });
 
-    updateFood();
+    canvas.addEventListener('pointermove', function (e) {
+        ptr.over = true;
+        setPtr(e);
+    });
+
+    function release(e) {
+        ptr.down = false;
+        if (e.pointerType === 'touch') ptr.over = false;
+        dirty = true;
+    }
+    canvas.addEventListener('pointerup', release);
+    canvas.addEventListener('pointercancel', release);
+    canvas.addEventListener('pointerleave', function (e) {
+        if (!ptr.down) { ptr.over = false; dirty = true; }
+    });
+
+    // Toetsenbord: spatie of Enter neemt een hap van de bovenste brokjes
+    canvas.addEventListener('keydown', function (e) {
+        if (e.key !== ' ' && e.key !== 'Enter') return;
+        e.preventDefault();
+        if (!pieces.length) return;
+        var top = pieces[pieces.length - 1];
+        bite(bx + top.x * R, by + top.y * R);
+    });
+
+    function reset() {
+        makePieces();
+        residue = [];
+        floorC = [];
+        parts = [];
+        started = false;
+        flash = 0;
+        lastBite = -1e9;
+        placeBowl(true);
+        updateTag();
+        dirty = true;
+    }
+    resetBtn.addEventListener('click', reset);
+
+    var resizeTimer = 0;
+    window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(setup, 120);
+    });
+
+    /* ---------- Start ---------- */
+
+    setup();
+    requestAnimationFrame(frame);
+
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(setup);
+    }
 })();
 </script>
 </body>
