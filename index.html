@@ -294,6 +294,7 @@
             var GROW = 0.05;       // hoe snel het gat groeit (pixels per milliseconde)
             var BONE_SCALE = 0.8;  // botgrootte (1 = eerdere versie)
             var HOLE = 0.3;        // maximale gatgrootte als deel van de botbreedte
+            var STORE = 'dogdays-bones';   // hier onthoudt de browser welke botjes al open liggen
 
             var SURF = [107, 68, 35];   // #6b4423: het zand aan de oppervlakte
             var PIT  = [46, 27, 13];    // veel donkerder zand onder het oppervlak
@@ -331,6 +332,30 @@
                     t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
                     return ((t ^ t >>> 14) >>> 0) / 4294967296;
                 };
+            }
+
+            /* ---------- Onthouden welke botjes al open liggen ---------- */
+
+            function loadFound() {
+                try {
+                    var raw = JSON.parse(localStorage.getItem(STORE));
+                    if (Array.isArray(raw)) {
+                        return raw.filter(function (n) {
+                            return typeof n === 'number' && n >= 0 && n < COUNT;
+                        });
+                    }
+                } catch (err) {}
+                return [];
+            }
+
+            function saveFound() {
+                var list = [];
+                bones.forEach(function (b, i) { if (b.state === 2) list.push(i); });
+                try { localStorage.setItem(STORE, JSON.stringify(list)); } catch (err) {}
+            }
+
+            function clearFound() {
+                try { localStorage.removeItem(STORE); } catch (err) {}
             }
 
             /* ---------- Botjes aanmaken ---------- */
@@ -510,6 +535,23 @@
                 });
             }
 
+            // Botjes die je eerder al opgegraven had liggen meteen weer open
+            function restoreSaved() {
+                var list = loadFound();
+                list.forEach(function (i) {
+                    var b = bones[i];
+                    if (!b) return;
+                    var th = b.rot * Math.PI / 180, cs = Math.cos(th), sn = Math.sin(th);
+                    var rr = b.w * 0.24;
+                    [0, -0.075, 0.075, -0.15, 0.15, -0.225, 0.225, -0.3, 0.3].forEach(function (o) {
+                        dig(b.cx + o * b.w * cs, b.cy + o * b.w * sn, rr);
+                    });
+                    b.state = 2;
+                    b.el.classList.add('revealed');
+                });
+                if (list.length) started = true;
+            }
+
             function setup() {
                 W = window.innerWidth;
                 H = window.innerHeight;
@@ -531,6 +573,7 @@
                 started = false;
                 resetBones();
                 layout();
+                restoreSaved();
                 checkAll();
             }
 
@@ -651,6 +694,7 @@
                         pending--;
                         needCheck = true;
                         lastCheck = 0;
+                        saveFound();   // onthouden voor als je terugkomt
                     }
                 });
             }
@@ -816,6 +860,7 @@
             });
 
             buryBtn.addEventListener('click', function () {
+                clearFound();
                 paintSurface();
                 particles = [];
                 ptr.active = false;
