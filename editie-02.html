@@ -24,7 +24,17 @@
         :root {
             --brown: #6b4423;
             --neon: #ff2fa8;
+            --cream: #f3e7cf;
             --background: #FFFFFF;
+            --edge: clamp(0.8rem, 2vw, 1.5rem);
+        }
+
+        html,
+        body,
+        a,
+        button,
+        .paw {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 100 100'%3E%3Cg fill='%23ff2fa8'%3E%3Cpath d='M50 44 C28 44 10 64 10 80 C10 93 22 99 36 97 C44 96 56 96 64 97 C78 99 90 93 90 80 C90 64 72 44 50 44 Z'/%3E%3Cellipse cx='10' cy='38' rx='7.5' ry='10' transform='rotate(-25 10 38)'/%3E%3Cellipse cx='32' cy='16' rx='8.5' ry='12' transform='rotate(-8 32 16)'/%3E%3Cellipse cx='68' cy='16' rx='8.5' ry='12' transform='rotate(8 68 16)'/%3E%3Cellipse cx='90' cy='38' rx='7.5' ry='10' transform='rotate(25 90 38)'/%3E%3C/g%3E%3C/svg%3E") 16 16, auto;
         }
 
         html,
@@ -59,7 +69,6 @@
             display: block;
             overflow: visible;
             outline: none;
-            cursor: pointer;
             opacity: 1;
             transition: opacity 0.35s ease;
             animation: stepIn 0.5s ease-out backwards;
@@ -129,9 +138,8 @@
             position: fixed;
             bottom: clamp(0.8rem, 2vw, 1.5rem);
             left: clamp(0.8rem, 2vw, 1.5rem);
-            right: clamp(0.8rem, 2vw, 1.5rem);
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             z-index: 20;
         }
@@ -148,7 +156,6 @@
             background: none;
             border: none;
             padding: 0;
-            cursor: pointer;
             transition: opacity 0.25s ease;
             outline: none;
         }
@@ -160,11 +167,44 @@
             outline: none;
         }
 
+        /* Botje rechtsboven: terug naar de index */
+        .home {
+            position: fixed;
+            top: var(--edge);
+            right: var(--edge);
+            z-index: 20;
+            display: block;
+            width: clamp(52px, 5.5vw, 78px);
+            aspect-ratio: 200 / 80;
+            transform: rotate(-10deg);
+            transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+            outline: none;
+        }
+
+        .home svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            fill: var(--cream);
+            filter: drop-shadow(0 2px 4px rgba(60, 35, 15, 0.45));
+            transition: fill 0.25s ease;
+        }
+
+        .home:hover,
+        .home:focus-visible {
+            transform: rotate(0deg) scale(1.1);
+        }
+
+        .home:hover svg,
+        .home:focus-visible svg {
+            fill: var(--neon);
+        }
+
         @media (max-width: 700px) {
             .nav-links {
                 position: relative;
                 left: auto;
-                right: auto;
                 bottom: auto;
                 padding: 1.5rem 0 1.5rem;
                 margin: 0 clamp(0.8rem, 3vw, 1.5rem);
@@ -176,8 +216,10 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .paw {
+            .paw,
+            .home {
                 animation: none;
+                transition: none;
             }
 
             .paw,
@@ -198,15 +240,26 @@
                 <ellipse cx="68" cy="16" rx="8.5" ry="12" transform="rotate(8 68 16)"/>
                 <ellipse cx="90" cy="38" rx="7.5" ry="10" transform="rotate(25 90 38)"/>
             </g>
+            <g id="bone-shape">
+                <rect x="40" y="26" width="120" height="28"/>
+                <circle cx="34" cy="26" r="19"/>
+                <circle cx="34" cy="54" r="19"/>
+                <circle cx="166" cy="26" r="19"/>
+                <circle cx="166" cy="54" r="19"/>
+            </g>
         </defs>
     </svg>
 
+    <a class="home" href="index.html" aria-label="Back to the index">
+        <svg viewBox="0 0 200 80" aria-hidden="true">
+            <use href="#bone-shape"/>
+        </svg>
+    </a>
+
     <main class="stage" id="stage"></main>
 
-    <nav class="nav-links" aria-label="Edition navigation">
-        <a href="editie-01.html" class="nav-link">← edition 01</a>
+    <nav class="nav-links" aria-label="Edition controls">
         <button type="button" class="nav-link" id="reset">reset</button>
-        <a href="editie-03.html" class="nav-link">edition 03 →</a>
     </nav>
 
     <script>
