@@ -17,7 +17,6 @@
 :root {
     --brown: #6b4423;
     --neon: #ff2fa8;
-    --cream: #f3e7cf;
     --background: #fff;
     --edge: clamp(.8rem, 2vw, 1.5rem);
 }
@@ -25,26 +24,28 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 /* Cursor: neonroze hondenpoot (zelfde als editie 01) */
-html, body, canvas, a, button {
+html, body, a, button {
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 100 100'%3E%3Cg fill='%23ff2fa8'%3E%3Cpath d='M50 44 C28 44 10 64 10 80 C10 93 22 99 36 97 C44 96 56 96 64 97 C78 99 90 93 90 80 C90 64 72 44 50 44 Z'/%3E%3Cellipse cx='10' cy='38' rx='7.5' ry='10' transform='rotate(-25 10 38)'/%3E%3Cellipse cx='32' cy='16' rx='8.5' ry='12' transform='rotate(-8 32 16)'/%3E%3Cellipse cx='68' cy='16' rx='8.5' ry='12' transform='rotate(8 68 16)'/%3E%3Cellipse cx='90' cy='38' rx='7.5' ry='10' transform='rotate(25 90 38)'/%3E%3C/g%3E%3C/svg%3E") 16 16, auto;
 }
 
-html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    overscroll-behavior: none;
-    touch-action: none;
+html {
+    background: var(--background);
+    scrollbar-width: none;
 }
+
+html::-webkit-scrollbar { display: none; }
 
 body {
     background: var(--background);
     color: var(--brown);
     font-family: 'Neue Haas Grotesk', sans-serif;
+    overscroll-behavior-y: none;
     -webkit-user-select: none;
     user-select: none;
-    -webkit-touch-callout: none;
 }
+
+/* Lange pagina: scrollen = eten. Hoe lang, bepaalt hoe moeilijk het is. */
+#spacer { height: 1000vh; }
 
 #game {
     position: fixed;
@@ -52,9 +53,8 @@ body {
     width: 100%;
     height: 100%;
     display: block;
-    touch-action: none;
+    pointer-events: none;
     z-index: 1;
-    outline: none;
 }
 
 .title {
@@ -76,7 +76,7 @@ body {
 
 .tag {
     position: fixed;
-    top: calc(var(--edge) + clamp(52px, 5.5vw, 78px) + .5rem);
+    top: var(--edge);
     right: var(--edge);
     z-index: 3;
     pointer-events: none;
@@ -93,7 +93,7 @@ body {
     left: clamp(.8rem, 2vw, 1.5rem);
     right: clamp(.8rem, 2vw, 1.5rem);
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     z-index: 20;
     pointer-events: none;
@@ -109,50 +109,11 @@ body {
     background: none;
     border: 0;
     padding: 0;
-    cursor: pointer;
     transition: opacity .25s ease;
     pointer-events: auto;
 }
 
 .nav-link:hover, .nav-link:focus-visible { opacity: .7; outline: none; }
-
-.defs {
-    position: absolute;
-    width: 0;
-    height: 0;
-    overflow: hidden;
-}
-
-.home {
-    position: fixed;
-    top: var(--edge);
-    right: var(--edge);
-    z-index: 20;
-    display: block;
-    width: clamp(52px, 5.5vw, 78px);
-    aspect-ratio: 200 / 80;
-    transform: rotate(-10deg);
-    transition: transform .45s cubic-bezier(.2, .8, .2, 1);
-    outline: none;
-}
-
-.home svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    fill: var(--cream);
-    filter: drop-shadow(0 2px 4px rgba(60, 35, 15, .45));
-    transition: fill .25s ease;
-}
-
-.home:hover, .home:focus-visible {
-    transform: rotate(0deg) scale(1.1);
-}
-
-.home:hover svg, .home:focus-visible svg {
-    fill: var(--neon);
-}
 
 #err {
     position: fixed;
@@ -169,38 +130,20 @@ body {
     .title { font-size: 22vw; }
     .nav-link, .tag { font-size: 1rem; }
 }
-
-@media (prefers-reduced-motion: reduce) {
-    .home { transition: none; }
-}
 </style>
 </head>
 <body>
-<svg class="defs" aria-hidden="true" focusable="false">
-    <defs>
-        <g id="bone-shape">
-            <rect x="40" y="26" width="120" height="28"/>
-            <circle cx="34" cy="26" r="19"/>
-            <circle cx="34" cy="54" r="19"/>
-            <circle cx="166" cy="26" r="19"/>
-            <circle cx="166" cy="54" r="19"/>
-        </g>
-    </defs>
-</svg>
+<div id="spacer"></div>
 
-<a class="home" href="index.html" aria-label="Back to the index">
-    <svg viewBox="0 0 200 80" aria-hidden="true">
-        <use href="#bone-shape"/>
-    </svg>
-</a>
-
-<canvas id="game" tabindex="0" aria-label="A bowl of dog food. Press and hold to eat."></canvas>
+<canvas id="game" aria-label="A bowl of dog food. Scroll to eat."></canvas>
 
 <h1 class="title" id="title">EAT</h1>
 <div class="tag" id="tag" aria-live="polite"></div>
 
 <nav class="nav-links" aria-label="Edition navigation">
+    <a href="editie-04.html" class="nav-link">← edition 04</a>
     <button type="button" class="nav-link" id="reset">reset</button>
+    <a href="editie-06.html" class="nav-link">edition 06 →</a>
 </nav>
 
 <div id="err"></div>
@@ -216,8 +159,8 @@ window.addEventListener('error', function (e) {
 (function () {
     'use strict';
 
-    var CHEW_MS = 360;
-    var PER_BITE = 2;
+    var RATE = 9;          // maximaal aantal brokjes dat per seconde opgegeten wordt
+    var BACK = 30;         // hoe snel het eten terugkomt als je omhoog scrolt
     var TAU = Math.PI * 2;
 
     var canvas = document.getElementById('game');
@@ -226,29 +169,28 @@ window.addEventListener('error', function (e) {
     var tag = document.getElementById('tag');
     var resetBtn = document.getElementById('reset');
 
-    var W = 0, H = 0, dpr = 1;
-    var R = 200, S = 20, BR = 30;
-    var titleB = 0, barH = 70;
-    var bx = 0, by = 0, bvx = 0, bvy = 0;
+    var W = 0, H = 0, dpr = 1, mobile = false;
+    var R = 200, S = 22, barH = 70, titleB = 0;
+    var bx = 0, by = 0;
 
-    var pieces = [], N = 0, eaten = 0, made = false;
-    var residue = [], floorC = [], parts = [];
+    var pieces = [], order = [], N = 0;
     var sprites = [];
-
-    var ptr = { x: -999, y: -999, over: false, down: false, inBowl: false };
-    var lastBite = -1e9, flash = 0, started = false, dirty = true, lastT = 0;
-    var isTouch = window.matchMedia('(pointer: coarse)').matches;
+    var e = 0, target = 0, lastFloor = 0;      // e = hoeveel brokjes zijn opgegeten (met komma)
+    var parts = [], bowlC = [], floorC = [];
+    var jolt = 0, lastT = 0, dirty = true;
 
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
+    /* ---------- Brokjes: gestileerd, warm en netjes ---------- */
+
     var TONES = [
-        ['#c68d50', '#8c5b2b', '#5a381b'],
-        ['#b57c40', '#7b4e24', '#4e2f17'],
-        ['#cd9a63', '#97652f', '#63401f']
+        ['#e2b377', '#c28a4c', '#9a6633'],
+        ['#d9a86a', '#b87d41', '#8e5b2c'],
+        ['#e8be86', '#cc9658', '#a56f3a']
     ];
 
     function makeSprite(kind, tone) {
-        var size = Math.ceil(S * 2.7 * dpr);
+        var size = Math.ceil(S * 2.8 * dpr);
         var c = document.createElement('canvas');
         c.width = c.height = size;
         var g = c.getContext('2d');
@@ -258,11 +200,11 @@ window.addEventListener('error', function (e) {
         function shape() {
             g.beginPath();
             if (kind === 0) {
-                g.ellipse(cx, cy, r, r * 0.92, 0, 0, TAU);
+                g.ellipse(cx, cy, r, r * 0.94, 0, 0, TAU);
             } else if (kind === 1) {
                 var pts = [0, 1, 2].map(function (i) {
                     var a = -Math.PI / 2 + i * TAU / 3;
-                    return [cx + Math.cos(a) * r * 1.15, cy + Math.sin(a) * r * 1.15 + r * 0.1];
+                    return [cx + Math.cos(a) * r * 1.15, cy + Math.sin(a) * r * 1.15 + r * 0.12];
                 });
                 var m = function (a, b) { return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; };
                 var m0 = m(pts[0], pts[1]), m1 = m(pts[1], pts[2]), m2 = m(pts[2], pts[0]);
@@ -271,21 +213,30 @@ window.addEventListener('error', function (e) {
                 g.quadraticCurveTo(pts[2][0], pts[2][1], m2[0], m2[1]);
                 g.quadraticCurveTo(pts[0][0], pts[0][1], m0[0], m0[1]);
             } else if (kind === 2) {
-                g.arc(cx + r * 0.85, cy, r * 0.46, -Math.PI / 2, Math.PI / 2);
-                g.arc(cx - r * 0.85, cy, r * 0.46, Math.PI / 2, Math.PI * 1.5);
-                g.closePath();
+                // botje
+                g.rect(cx - r * 0.85, cy - r * 0.3, r * 1.7, r * 0.6);
+                g.moveTo(cx - r * 0.85 + r * 0.34, cy - r * 0.3);
+                g.arc(cx - r * 0.85, cy - r * 0.3, r * 0.34, 0, TAU);
+                g.moveTo(cx - r * 0.85 + r * 0.34, cy + r * 0.3);
+                g.arc(cx - r * 0.85, cy + r * 0.3, r * 0.34, 0, TAU);
+                g.moveTo(cx + r * 0.85 + r * 0.34, cy - r * 0.3);
+                g.arc(cx + r * 0.85, cy - r * 0.3, r * 0.34, 0, TAU);
+                g.moveTo(cx + r * 0.85 + r * 0.34, cy + r * 0.3);
+                g.arc(cx + r * 0.85, cy + r * 0.3, r * 0.34, 0, TAU);
             } else {
-                g.ellipse(cx, cy, r, r * 0.92, 0, 0, TAU);
-                g.moveTo(cx + r * 0.34, cy);
-                g.ellipse(cx, cy, r * 0.34, r * 0.3, 0, 0, TAU, true);
+                // ring
+                g.ellipse(cx, cy, r, r * 0.94, 0, 0, TAU);
+                g.moveTo(cx + r * 0.36, cy);
+                g.ellipse(cx, cy, r * 0.36, r * 0.33, 0, 0, TAU, true);
             }
         }
 
+        // Zachte schaduw eronder
         g.save();
-        g.shadowColor = 'rgba(40,22,8,0.55)';
-        g.shadowBlur = r * 0.5;
-        g.shadowOffsetY = r * 0.22;
-        var grad = g.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.1, cx, cy, r * 1.6);
+        g.shadowColor = 'rgba(70,42,18,0.38)';
+        g.shadowBlur = r * 0.35;
+        g.shadowOffsetY = r * 0.18;
+        var grad = g.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.1, cx, cy, r * 1.5);
         grad.addColorStop(0, T[0]);
         grad.addColorStop(0.55, T[1]);
         grad.addColorStop(1, T[2]);
@@ -294,30 +245,47 @@ window.addEventListener('error', function (e) {
         g.fill('evenodd');
         g.restore();
 
-        g.strokeStyle = 'rgba(50,28,10,0.55)';
-        g.lineWidth = Math.max(1, r * 0.07);
-        shape();
-        g.stroke();
-
         g.save();
         shape();
         g.clip('evenodd');
-        var seed = kind * 7 + tone * 3 + 1;
+
+        // Zachte schaduw aan de onderkant, voor volume
+        var vol = g.createLinearGradient(0, cy - r, 0, cy + r);
+        vol.addColorStop(0.45, 'rgba(110,68,30,0)');
+        vol.addColorStop(1, 'rgba(110,68,30,0.32)');
+        g.fillStyle = vol;
+        g.fillRect(0, 0, size, size);
+
+        // Fijne streepjes: net als de haartjes bij de hond
+        var seed = kind * 11 + tone * 5 + 3;
         function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
-        for (var i = 0; i < 34; i++) {
-            var x = cx + (rnd() * 2 - 1) * r * 1.2;
-            var y = cy + (rnd() * 2 - 1) * r * 1.0;
-            g.fillStyle = rnd() > 0.45 ? 'rgba(40,22,8,0.42)' : 'rgba(245,205,150,0.5)';
+        g.lineCap = 'round';
+        for (var i = 0; i < 16; i++) {
+            var x = cx + (rnd() * 2 - 1) * r * 1.1;
+            var y = cy + (rnd() * 2 - 1) * r * 0.9;
+            var a = rnd() * TAU;
+            var l = r * (0.16 + rnd() * 0.22);
+            g.strokeStyle = rnd() > 0.5 ? 'rgba(255,225,175,0.5)' : 'rgba(120,76,36,0.28)';
+            g.lineWidth = Math.max(0.8, r * 0.05);
             g.beginPath();
-            g.arc(x, y, r * (0.025 + rnd() * 0.04), 0, TAU);
-            g.fill();
+            g.moveTo(x, y);
+            g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l);
+            g.stroke();
         }
-        var hl = g.createRadialGradient(cx - r * 0.4, cy - r * 0.45, 0, cx - r * 0.4, cy - r * 0.45, r * 0.7);
-        hl.addColorStop(0, 'rgba(255,232,190,0.42)');
-        hl.addColorStop(1, 'rgba(255,232,190,0)');
+
+        // Glans
+        var hl = g.createRadialGradient(cx - r * 0.38, cy - r * 0.45, 0, cx - r * 0.38, cy - r * 0.45, r * 0.75);
+        hl.addColorStop(0, 'rgba(255,240,205,0.55)');
+        hl.addColorStop(1, 'rgba(255,240,205,0)');
         g.fillStyle = hl;
         g.fillRect(0, 0, size, size);
         g.restore();
+
+        // Dun randje
+        g.strokeStyle = 'rgba(120,76,36,0.3)';
+        g.lineWidth = Math.max(1, r * 0.05);
+        shape();
+        g.stroke();
 
         return c;
     }
@@ -331,11 +299,12 @@ window.addEventListener('error', function (e) {
 
     function makePieces() {
         pieces = [];
-        var layers = [[110, 0.80, 0.46], [78, 0.62, 0.37], [50, 0.44, 0.27], [24, 0.25, 0.16]];
+        // [aantal, breedte, hoogte] per laag, in bakstralen. Laag 3 ligt bovenop.
+        var layers = [[60, 0.80, 0.46], [44, 0.62, 0.37], [28, 0.44, 0.27], [13, 0.25, 0.16]];
         layers.forEach(function (L, k) {
             for (var i = 0; i < L[0]; i++) {
                 var a = Math.random() * TAU, d = Math.sqrt(Math.random());
-                var lift = k * 0.045 + (1 - d * d) * 0.03;
+                var lift = k * 0.05 + (1 - d * d) * 0.03;
                 var roll = Math.random();
                 var kind = roll < 0.4 ? 0 : roll < 0.6 ? 1 : roll < 0.8 ? 2 : 3;
                 pieces.push({
@@ -343,31 +312,26 @@ window.addEventListener('error', function (e) {
                     y: Math.sin(a) * d * L[2] - lift,
                     layer: k,
                     ang: Math.random() * TAU,
-                    sc: 0.88 + Math.random() * 0.28,
-                    sp: kind * 3 + ((Math.random() * 3) | 0)
+                    sc: 0.9 + Math.random() * 0.25,
+                    sp: kind * 3 + ((Math.random() * 3) | 0),
+                    rank: 0,
+                    crumb: Math.random() < 0.4
                 });
             }
         });
-        pieces.sort(function (a, b) { return a.layer - b.layer || a.y - b.y; });
         N = pieces.length;
-        eaten = 0;
-        made = true;
+
+        // Opeet-volgorde: bovenste laag eerst, binnen een laag willekeurig
+        order = pieces.slice().sort(function (a, b) {
+            return (b.layer - a.layer) || (Math.random() - 0.5);
+        });
+        order.forEach(function (p, i) { p.rank = i; });
+
+        // Tekenvolgorde: onderste laag eerst
+        pieces.sort(function (a, b) { return a.layer - b.layer || a.y - b.y; });
     }
 
-    function bounds() {
-        var l = R * 1.03 + 8, r = W - l;
-        var t = titleB + R * 0.62 + 8, b = H - barH - R * 1.03;
-        if (l > r) { l = r = W / 2; }
-        if (t > b) { t = b = (t + b) / 2; }
-        return { l: l, r: r, t: t, b: b };
-    }
-
-    function placeBowl(center) {
-        var B = bounds();
-        if (center) { bx = W / 2; by = (B.t + B.b) / 2; bvx = bvy = 0; }
-        bx = clamp(bx, B.l, B.r);
-        by = clamp(by, B.t, B.b);
-    }
+    /* ---------- Afmetingen ---------- */
 
     function setup() {
         W = window.innerWidth;
@@ -375,100 +339,84 @@ window.addEventListener('error', function (e) {
         dpr = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width = Math.round(W * dpr);
         canvas.height = Math.round(H * dpr);
+        mobile = W <= 700;
 
-        var mobile = W <= 700;
         titleB = title.getBoundingClientRect().bottom;
         barH = mobile ? 72 : 70;
-        var avail = H - barH - titleB - 10;
-        R = Math.max(90, Math.min(W * (mobile ? 0.40 : 0.30), avail / 1.65 * 0.8, 430));
-        S = R * (mobile ? 0.13 : 0.10);
-        BR = S * (mobile ? 1.8 : 1.5);
+        var avail = H - barH - titleB - 24;
+        R = Math.max(90, Math.min(W * (mobile ? 0.42 : 0.30), avail / 1.7, 430));
+        S = R * (mobile ? 0.15 : 0.12);
+
+        // Bak midden in de ruimte tussen titel en knoppen
+        var mid = titleB + (H - barH - titleB) / 2;
+        bx = W / 2;
+        by = mid - R * 0.19;
 
         buildSprites();
-        if (!made) makePieces();
+        if (!pieces.length) makePieces();
         floorC = [];
-        placeBowl(true);
         dirty = true;
+        readScroll();
         updateTag();
     }
 
-    function inBowl(x, y) {
-        var dx = (x - bx) / (R * 0.95), dy = (y - (by - R * 0.04)) / (R * 0.58);
-        return dx * dx + dy * dy < 1;
+    function readScroll() {
+        var range = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        var p = clamp(window.scrollY / range, 0, 1);
+        target = p * N;
+        dirty = true;
     }
 
-    function bite(x, y) {
-        flash = 1;
-        var cand = [];
-        for (var i = 0; i < pieces.length; i++) {
-            var p = pieces[i];
-            var dx = bx + p.x * R - x, dy = by + p.y * R - y;
-            var d = Math.sqrt(dx * dx + dy * dy);
-            if (d < BR) cand.push({ i: i, d: d, l: p.layer });
-        }
-        if (!cand.length) return false;
+    /* ---------- Kruimels ---------- */
 
-        cand.sort(function (a, b) { return b.l - a.l || a.d - b.d; });
-        var take = cand.slice(0, PER_BITE);
-        take.sort(function (a, b) { return b.i - a.i; });
-        take.forEach(function (c) { pieces.splice(c.i, 1); });
-        eaten += take.length;
-        started = true;
-
-        residue.push({ t: 0, x: (x - bx) / R, y: (y - by) / R, r: 0.05 + Math.random() * 0.05 });
-        if (residue.length > 90) residue.shift();
-        spawnCrumbs(x, y, 9 + ((Math.random() * 6) | 0));
-
-        var ddx = bx - x, ddy = by - y;
-        var len = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
-        bvx += ddx / len * R * 0.05;
-        bvy += ddy / len * R * 0.012;
-
-        updateTag();
-        return true;
-    }
-
-    function spawnCrumbs(x, y, n) {
+    function spawnCrumbs(p) {
+        var x = bx + p.x * R, y = by + p.y * R;
+        var n = 4 + ((Math.random() * 4) | 0);
         for (var i = 0; i < n; i++) {
             var a = Math.random() * TAU;
-            var sp = 1 + Math.random() * 3.4;
+            var sp = 1 + Math.random() * 3;
             parts.push({
-                x: x + (Math.random() - 0.5) * BR * 0.6,
-                y: y + (Math.random() - 0.5) * BR * 0.4,
-                vx: Math.cos(a) * sp * 1.4,
-                vy: -(2 + Math.random() * 4.2),
-                ty: y + 6 + Math.random() * R * 0.4,
-                s: 1.4 + Math.random() * 2.8,
-                c: ['#8a5d35', '#a0733f', '#b88a55', '#6b4423', '#4f3018'][(Math.random() * 5) | 0]
+                x: x + (Math.random() - 0.5) * S * 0.6,
+                y: y + (Math.random() - 0.5) * S * 0.4,
+                vx: Math.cos(a) * sp * 1.3,
+                vy: -(2 + Math.random() * 3.8),
+                ty: y + 6 + Math.random() * R * 0.35,
+                s: 1.2 + Math.random() * 2.4,
+                c: ['#e2b377', '#c28a4c', '#d9a86a', '#b87d41'][(Math.random() * 4) | 0],
+                at: Math.floor(e) + 1
             });
         }
     }
 
     function land(p) {
         var lx = (p.x - bx) / R, ly = (p.y - by) / R;
-        var ex = lx / 0.86, ey = ly / 0.52;
+        var ex = lx / 0.84, ey = ly / 0.5;
         if (ex * ex + ey * ey < 1) {
-            residue.push({ t: 1, x: lx, y: ly, s: p.s / R, c: p.c });
-            if (residue.length > 600) residue.shift();
-        } else if (Math.random() < 0.7) {
-            floorC.push({ x: p.x, y: p.y, s: p.s, c: p.c });
-            if (floorC.length > 420) floorC.shift();
+            bowlC.push({ x: lx, y: ly, s: p.s / R, c: p.c, at: p.at });
+            if (bowlC.length > 260) bowlC.shift();
+        } else if (Math.random() < 0.75) {
+            floorC.push({ x: lx, y: ly, s: p.s / R, c: p.c, at: p.at });
+            if (floorC.length > 320) floorC.shift();
         }
     }
 
     function updateTag() {
         var txt;
-        if (made && pieces.length === 0) txt = 'all gone';
-        else if (!started) txt = isTouch ? 'press and hold to eat' : 'hold to eat';
-        else txt = Math.floor(eaten / N * 100) + '% eaten';
+        if (N && e >= N - 0.01) txt = 'all gone';
+        else if (e < 0.5) txt = mobile ? 'swipe up to eat' : 'scroll to eat';
+        else txt = Math.floor(e / N * 100) + '% eaten';
         tag.textContent = txt;
     }
 
+    /* ---------- Tekenen ---------- */
+
     function drawBowl() {
         var i, p;
+        var fl = Math.floor(e);
 
+        // Schaduw op de vloer
         ctx.save();
-        ctx.translate(bx, by + 0.9 * R);
+        ctx.translate(bx, by + 0.92 * R);
         ctx.scale(1, 0.22);
         var sg = ctx.createRadialGradient(0, 0, R * 0.2, 0, 0, R * 1.2);
         sg.addColorStop(0, 'rgba(107,68,35,0.30)');
@@ -479,17 +427,20 @@ window.addEventListener('error', function (e) {
         ctx.fill();
         ctx.restore();
 
+        // Kruimels op de vloer
         for (i = 0; i < floorC.length; i++) {
             p = floorC[i];
+            if (p.at > fl + 1) continue;
             ctx.fillStyle = p.c;
             ctx.beginPath();
-            ctx.arc(p.x, p.y, p.s, 0, TAU);
+            ctx.arc(bx + p.x * R, by + p.y * R, Math.max(1, p.s * R), 0, TAU);
             ctx.fill();
         }
 
         ctx.save();
-        ctx.translate(bx, by);
+        ctx.translate(bx, by - jolt * R * 0.012);
 
+        // Bakje zelf
         var body = new Path2D();
         body.moveTo(-R, 0);
         body.bezierCurveTo(-R, 0.5 * R, -0.7 * R, 0.86 * R, -0.52 * R, 0.9 * R);
@@ -512,7 +463,6 @@ window.addEventListener('error', function (e) {
         ctx.beginPath();
         ctx.ellipse(0, 0.12 * R, 1.04 * R, 0.66 * R, 0, 0, Math.PI);
         ctx.stroke();
-
         var sh = ctx.createLinearGradient(-R, 0, R, 0);
         sh.addColorStop(0, 'rgba(255,255,255,0.35)');
         sh.addColorStop(0.3, 'rgba(255,255,255,0)');
@@ -531,6 +481,7 @@ window.addEventListener('error', function (e) {
         ctx.lineWidth = 2;
         ctx.stroke(body);
 
+        // Rand
         var rg = ctx.createLinearGradient(0, -0.62 * R, 0, 0.62 * R);
         rg.addColorStop(0, '#ffffff');
         rg.addColorStop(0.5, '#f1e9de');
@@ -541,6 +492,7 @@ window.addEventListener('error', function (e) {
         ctx.fill();
         ctx.stroke();
 
+        // Binnenkant
         var ix = 0.88 * R, iy = 0.54 * R;
         var ig = ctx.createLinearGradient(0, -iy, 0, iy);
         ig.addColorStop(0, '#cdbda9');
@@ -562,39 +514,44 @@ window.addEventListener('error', function (e) {
         ctx.ellipse(0, 0.1 * R, 0.6 * R, 0.34 * R, 0, 0, TAU);
         ctx.stroke();
 
-        for (i = 0; i < residue.length; i++) {
-            p = residue[i];
-            if (p.t === 0) {
-                var rr = p.r * R;
-                var st = ctx.createRadialGradient(p.x * R, p.y * R, 0, p.x * R, p.y * R, rr);
-                st.addColorStop(0, 'rgba(107,68,35,0.16)');
-                st.addColorStop(1, 'rgba(107,68,35,0)');
-                ctx.fillStyle = st;
+        // Kruimels in de bak: ze blijven liggen als een brokje op is
+        for (i = 0; i < bowlC.length; i++) {
+            p = bowlC[i];
+            if (p.at > fl + 1) continue;
+            ctx.fillStyle = p.c;
+            ctx.beginPath();
+            ctx.arc(p.x * R, p.y * R, Math.max(1, p.s * R), 0, TAU);
+            ctx.fill();
+        }
+        for (i = 0; i < pieces.length; i++) {
+            p = pieces[i];
+            if (p.crumb && p.rank < fl) {
+                ctx.fillStyle = 'rgba(214,166,104,0.9)';
                 ctx.beginPath();
-                ctx.arc(p.x * R, p.y * R, rr, 0, TAU);
-                ctx.fill();
-            } else {
-                ctx.fillStyle = p.c;
-                ctx.beginPath();
-                ctx.arc(p.x * R, p.y * R, Math.max(1, p.s * R), 0, TAU);
+                ctx.arc(p.x * R * 0.96, (p.y + 0.04) * R, Math.max(1, R * 0.006), 0, TAU);
                 ctx.fill();
             }
         }
 
         var wall = ctx.createLinearGradient(0, -iy, 0, iy);
-        wall.addColorStop(0, 'rgba(60,35,15,0.28)');
+        wall.addColorStop(0, 'rgba(60,35,15,0.26)');
         wall.addColorStop(0.35, 'rgba(60,35,15,0)');
         ctx.fillStyle = wall;
         ctx.fillRect(-ix, -iy, 2 * ix, 2 * iy);
         ctx.restore();
 
+        // De brokjes. Wat al opgegeten is, wordt niet meer getekend;
+        // het brokje dat nu wordt opgegeten krimpt en trekt weg.
         for (i = 0; i < pieces.length; i++) {
             p = pieces[i];
+            if (p.rank < fl) continue;
+            var f = (p.rank === fl) ? (e - fl) : 0;
             var sp = sprites[p.sp];
-            var ds = sp.width / dpr * p.sc;
+            var ds = sp.width / dpr * p.sc * (1 - f * 0.85);
             ctx.save();
-            ctx.translate(p.x * R, p.y * R);
-            ctx.rotate(p.ang);
+            ctx.globalAlpha = 1 - f * 0.9;
+            ctx.translate(p.x * R, p.y * R - f * S * 0.7);
+            ctx.rotate(p.ang + f * 0.8);
             ctx.drawImage(sp, -ds / 2, -ds / 2, ds, ds);
             ctx.restore();
         }
@@ -602,7 +559,7 @@ window.addEventListener('error', function (e) {
         ctx.restore();
     }
 
-    function draw(now) {
+    function draw() {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, W, H);
         drawBowl();
@@ -614,118 +571,73 @@ window.addEventListener('error', function (e) {
             ctx.arc(q.x, q.y, q.s, 0, TAU);
             ctx.fill();
         }
-
-        if (ptr.over || ptr.down) {
-            var prog = ptr.down ? Math.min(1, (now - lastBite) / CHEW_MS) : 1;
-            ctx.lineWidth = 2.5;
-            ctx.fillStyle = 'rgba(255,47,168,' + (0.08 + flash * 0.25).toFixed(3) + ')';
-            ctx.beginPath();
-            ctx.arc(ptr.x, ptr.y, BR, 0, TAU);
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(107,68,35,0.35)';
-            ctx.beginPath();
-            ctx.arc(ptr.x, ptr.y, BR, 0, TAU);
-            ctx.stroke();
-            ctx.strokeStyle = '#ff2fa8';
-            ctx.beginPath();
-            ctx.arc(ptr.x, ptr.y, BR, -Math.PI / 2, -Math.PI / 2 + prog * TAU);
-            ctx.stroke();
-        }
     }
+
+    /* ---------- Lus ---------- */
 
     function frame(now) {
         requestAnimationFrame(frame);
-        var dt = Math.min(2, (now - (lastT || now)) / 16.7);
+        var dt = Math.min(0.05, (now - (lastT || now)) / 1000);
         lastT = now;
 
-        ptr.inBowl = (ptr.over || ptr.down) && inBowl(ptr.x, ptr.y);
-
-        if (ptr.down && ptr.inBowl && pieces.length && now - lastBite >= CHEW_MS) {
-            bite(ptr.x, ptr.y);
-            lastBite = now;
-        }
-
-        var moving = Math.abs(bvx) > 0.05 || Math.abs(bvy) > 0.05;
+        // Het eten volgt de scrollpositie, maar nooit sneller dan RATE
+        var diff = target - e;
+        var moving = Math.abs(diff) > 0.001;
         if (moving) {
-            bx += bvx * dt;
-            by += bvy * dt;
-            bvx *= Math.pow(0.86, dt);
-            bvy *= Math.pow(0.86, dt);
-            var B = bounds();
-            if (bx < B.l || bx > B.r) bvx = 0;
-            if (by < B.t || by > B.b) bvy = 0;
-            bx = clamp(bx, B.l, B.r);
-            by = clamp(by, B.t, B.b);
+            var maxStep = (diff > 0 ? RATE : BACK) * dt;
+            e += clamp(diff, -maxStep, maxStep);
+            e = clamp(e, 0, N);
         }
 
+        // Nieuwe happen: kruimels en schudden
+        var fl = Math.floor(e);
+        if (fl > lastFloor) {
+            var from = Math.max(lastFloor, fl - 8);
+            for (var r = from; r < fl; r++) {
+                if (order[r]) spawnCrumbs(order[r]);
+            }
+            jolt = 1;
+        }
+        if (fl !== lastFloor) { lastFloor = fl; updateTag(); }
+        if (moving && Math.abs(target - e) <= 0.001) updateTag();
+
+        // Kruimels vallen
         for (var i = parts.length - 1; i >= 0; i--) {
             var p = parts[i];
-            p.vy += 0.32 * dt;
-            p.x += p.vx * dt;
-            p.y += p.vy * dt;
-            p.vx *= Math.pow(0.985, dt);
+            p.vy += 0.32 * dt * 60;
+            p.x += p.vx * dt * 60;
+            p.y += p.vy * dt * 60;
+            p.vx *= Math.pow(0.985, dt * 60);
             if (p.vy > 0 && p.y >= p.ty) {
                 land(p);
                 parts.splice(i, 1);
             }
         }
 
-        flash *= Math.pow(0.85, dt);
-        if (flash < 0.01) flash = 0;
+        jolt *= Math.pow(0.82, dt * 60);
+        if (jolt < 0.01) jolt = 0;
 
-        if (dirty || moving || parts.length || ptr.over || ptr.down || flash) {
-            draw(now);
+        if (dirty || moving || parts.length || jolt) {
+            draw();
             dirty = false;
         }
     }
 
-    function setPtr(e) {
-        ptr.x = e.clientX;
-        ptr.y = e.clientY;
-        dirty = true;
-    }
+    /* ---------- Invoer ---------- */
 
-    canvas.addEventListener('pointerdown', function (e) {
-        e.preventDefault();
-        try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
-        ptr.down = true;
-        ptr.over = true;
-        setPtr(e);
-    });
-
-    canvas.addEventListener('pointermove', function (e) {
-        ptr.over = true;
-        setPtr(e);
-    });
-
-    function release(e) {
-        ptr.down = false;
-        if (e.pointerType === 'touch') ptr.over = false;
-        dirty = true;
-    }
-    canvas.addEventListener('pointerup', release);
-    canvas.addEventListener('pointercancel', release);
-    canvas.addEventListener('pointerleave', function (e) {
-        if (!ptr.down) { ptr.over = false; dirty = true; }
-    });
-
-    canvas.addEventListener('keydown', function (e) {
-        if (e.key !== ' ' && e.key !== 'Enter') return;
-        e.preventEventDefault();
-        if (!pieces.length) return;
-        var top = pieces[pieces.length - 1];
-        bite(bx + top.x * R, by + top.y * R);
-    });
+    window.addEventListener('scroll', readScroll, { passive: true });
 
     function reset() {
+        window.scrollTo(0, 0);
+        pieces = [];
         makePieces();
-        residue = [];
-        floorC = [];
+        e = 0;
+        target = 0;
+        lastFloor = 0;
         parts = [];
-        started = false;
-        flash = 0;
-        lastBite = -1e9;
-        placeBowl(true);
+        bowlC = [];
+        floorC = [];
+        jolt = 0;
         updateTag();
         dirty = true;
     }
@@ -736,6 +648,8 @@ window.addEventListener('error', function (e) {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(setup, 120);
     });
+
+    /* ---------- Start ---------- */
 
     setup();
     requestAnimationFrame(frame);
