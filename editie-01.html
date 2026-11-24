@@ -24,24 +24,41 @@
         :root {
             --brown: #6b4423;
             --neon: #ff2fa8;
+            --cream: #f3e7cf;
+            --edge: clamp(0.8rem, 2vw, 1.5rem);
+        }
+
+        /* Cursor: neonroze hondenpoot (zelfde vorm als de pootjes in editie 02) */
+        html,
+        body,
+        a,
+        .breed {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 100 100'%3E%3Cg fill='%23ff2fa8'%3E%3Cpath d='M50 44 C28 44 10 64 10 80 C10 93 22 99 36 97 C44 96 56 96 64 97 C78 99 90 93 90 80 C90 64 72 44 50 44 Z'/%3E%3Cellipse cx='10' cy='38' rx='7.5' ry='10' transform='rotate(-25 10 38)'/%3E%3Cellipse cx='32' cy='16' rx='8.5' ry='12' transform='rotate(-8 32 16)'/%3E%3Cellipse cx='68' cy='16' rx='8.5' ry='12' transform='rotate(8 68 16)'/%3E%3Cellipse cx='90' cy='38' rx='7.5' ry='10' transform='rotate(25 90 38)'/%3E%3C/g%3E%3C/svg%3E") 16 16, auto;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
         }
 
         body {
-            height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
+            scrollbar-width: none;
             background-color: #FFFFFF;
             color: var(--brown);
-            padding: clamp(0.8rem, 3vw, 2rem);
+            padding: var(--edge);
             font-family: 'Neue Haas Grotesk', sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
         }
 
         main {
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -51,7 +68,7 @@
         .breeds-list {
             display: flex;
             flex-direction: column;
-            gap: clamp(0.8rem, 2.5vh, 2rem);
+            gap: clamp(0.2rem, 1vh, 0.8rem);
             width: 100%;
             max-width: 96vw;
         }
@@ -63,16 +80,18 @@
             justify-content: center;
         }
 
+        /* Rassen: even groot als de koppen van editie 03 en 04 */
         .breed {
-            font-size: clamp(2.2rem, min(7.2vw, 11vh), 6.5rem);
-            line-height: 1.15;
+            font-size: 14vh;
+            line-height: 0.85;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            text-align: center;
             color: var(--neon);
-            cursor: default;
             font-weight: 400;
-            text-transform: none;
-            letter-spacing: 0;
             display: inline-block;
-            padding: clamp(0.3rem, 0.8vw, 0.8rem) clamp(0.6rem, 1.4vw, 1.2rem);
+            max-width: 100%;
+            padding: clamp(0.15rem, 0.8vh, 0.6rem) clamp(0.3rem, 1vw, 0.9rem);
             border: none;
             outline: none;
             animation: fadeIn 0.6s ease-out backwards;
@@ -126,35 +145,51 @@
             }
         }
 
-        /* Navigation */
+        /* Botje rechtsboven: terug naar de index, zelfde stijl als op de index maar kleiner */
 
-        .nav-link {
+        .defs {
             position: absolute;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            right: clamp(0.8rem, 2vw, 1.5rem);
-            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            font-weight: 400;
-            color: var(--neon);
-            text-decoration: none;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .home {
+            position: fixed;
+            top: var(--edge);
+            right: var(--edge);
+            z-index: 20;
+            display: block;
+            width: clamp(52px, 5.5vw, 78px);
+            aspect-ratio: 200 / 80;
+            transform: rotate(-10deg);
+            transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
             outline: none;
         }
 
-        .nav-link:hover,
-        .nav-link:focus,
-        .nav-link:focus-visible {
-            opacity: 0.7;
-            outline: none;
+        .home svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            fill: var(--cream);
+            filter: drop-shadow(0 2px 4px rgba(60, 35, 15, 0.45));
+            transition: fill 0.25s ease;
         }
 
-        @media (max-width: 500px) {
+        .home:hover,
+        .home:focus-visible {
+            transform: rotate(0deg) scale(1.1);
+        }
+
+        .home:hover svg,
+        .home:focus-visible svg {
+            fill: var(--neon);
+        }
+
+        @media (max-width: 700px) {
             .breed {
-                font-size: clamp(1.8rem, 9vw, 2.8rem);
-            }
-
-            .breeds-list {
-                gap: clamp(0.8rem, 2vh, 1.4rem);
+                font-size: 22vw;
             }
 
             .woof {
@@ -162,10 +197,35 @@
                 max-width: 90vw;
             }
         }
+
+        @media (prefers-reduced-motion: reduce) {
+            .breed,
+            .home {
+                animation: none;
+                transition: none;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <svg class="defs" aria-hidden="true" focusable="false">
+        <defs>
+            <g id="bone-shape">
+                <rect x="40" y="26" width="120" height="28"/>
+                <circle cx="34" cy="26" r="19"/>
+                <circle cx="34" cy="54" r="19"/>
+                <circle cx="166" cy="26" r="19"/>
+                <circle cx="166" cy="54" r="19"/>
+            </g>
+        </defs>
+    </svg>
+
+    <a class="home" href="index.html" aria-label="Back to the index">
+        <svg viewBox="0 0 200 80" aria-hidden="true">
+            <use href="#bone-shape"/>
+        </svg>
+    </a>
 
     <main>
         <div class="breeds-list">
