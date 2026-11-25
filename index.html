@@ -188,31 +188,29 @@
             display: block;
         }
 
-        /* ---------- Onderin ---------- */
+        /* ---------- Onderin: teller of, bij 10/10, de "bury again"-knop. Altijd in het midden ---------- */
 
-        .status {
+        .bottom {
             position: fixed;
             bottom: clamp(0.8rem, 2vw, 1.5rem);
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 6;
-            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            line-height: 1.2;
-            white-space: nowrap;
-            pointer-events: none;
-            color: var(--cream);
-        }
-
-        .nav-links {
-            position: fixed;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            left: clamp(0.8rem, 2vw, 1.5rem);
-            right: clamp(0.8rem, 2vw, 1.5rem);
+            left: 0;
+            right: 0;
             display: flex;
-            justify-content: flex-end;
+            justify-content: center;
             align-items: center;
             z-index: 6;
             pointer-events: none;
+        }
+
+        .status {
+            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+            line-height: 1.2;
+            white-space: nowrap;
+            color: var(--cream);
+        }
+
+        .status[hidden] {
+            display: none;
         }
 
         .nav-link {
@@ -223,7 +221,9 @@
             color: var(--neon);
             text-transform: none;
             letter-spacing: 0;
-            text-decoration: none;
+            text-decoration: underline;
+            text-underline-offset: 0.2em;
+            text-decoration-thickness: 1px;
             white-space: nowrap;
             background: none;
             border: none;
@@ -232,6 +232,10 @@
             transition: opacity 0.25s ease;
             outline: none;
             pointer-events: auto;
+        }
+
+        .nav-link[hidden] {
+            display: none;
         }
 
         .nav-link:hover,
@@ -279,11 +283,10 @@
 
     <h1 class="title" id="title"><span class="l1">Dog Days</span> <span class="l2">Are Not</span> <span class="l3">Over</span></h1>
 
-    <div class="status" id="status" aria-live="polite"></div>
-
-    <nav class="nav-links" aria-label="Controls">
-        <button type="button" class="nav-link" id="bury">↻ Bury again</button>
-    </nav>
+    <div class="bottom">
+        <div class="status" id="status" aria-live="polite"></div>
+        <button type="button" class="nav-link" id="bury" hidden>bury again</button>
+    </div>
 
     <script>
         (function () {
@@ -716,11 +719,18 @@
                 updateStatus(found);
             }
 
+            // Teller tot 10/10, daarna verdwijnt de teller en komt "bury again" op dezelfde plek
             function updateStatus(found) {
+                if (found >= COUNT) {
+                    statusEl.hidden = true;
+                    statusEl.textContent = '';
+                    buryBtn.hidden = false;
+                    return;
+                }
+                buryBtn.hidden = true;
+                statusEl.hidden = false;
                 if (!started && found === 0) {
                     statusEl.textContent = isTouch ? 'Press and hold to dig' : 'Hold still to dig';
-                } else if (found >= COUNT) {
-                    statusEl.textContent = 'All found. Pick an edition';
                 } else {
                     statusEl.textContent = found + ' / ' + COUNT + ' bones found';
                 }
