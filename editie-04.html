@@ -23,7 +23,9 @@
         :root {
             --brown: #6b4423;
             --neon: #ff2fa8;
-            --background: #FFFFFF;
+            --cream: #f3e7cf;
+            --background: #f3e7cf;
+            --edge: clamp(0.8rem, 2vw, 1.5rem);
         }
 
         html,
@@ -31,10 +33,10 @@
             height: 100%;
             overflow: hidden;
             overscroll-behavior: none;
+            background-color: var(--background);
         }
 
         body {
-            background-color: var(--background);
             color: var(--brown);
             font-family: 'Neue Haas Grotesk', sans-serif;
         }
@@ -77,44 +79,15 @@
             display: none;
         }
 
-        /* Onderin: knoppen links en rechts, percentage precies in het midden */
-        .nav-links {
-            position: fixed;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            left: clamp(0.8rem, 2vw, 1.5rem);
-            right: clamp(0.8rem, 2vw, 1.5rem);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 20;
-            pointer-events: none;
-        }
-
-        .nav-link {
-            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            font-weight: 400;
-            color: var(--neon);
-            text-transform: none;
-            letter-spacing: 0;
-            text-decoration: none;
-            white-space: nowrap;
-            transition: opacity 0.25s ease;
-            outline: none;
-            pointer-events: auto;
-        }
-
-        .nav-link:hover,
-        .nav-link:focus,
-        .nav-link:focus-visible {
-            opacity: 0.7;
-            outline: none;
-        }
-
+        /* Onderin: percentage precies in het midden, "again" onderlijnd */
         .center {
             position: fixed;
             bottom: clamp(0.8rem, 2vw, 1.5rem);
-            left: 50%;
-            transform: translateX(-50%);
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             z-index: 20;
             font-size: clamp(0.8rem, 1.5vw, 1.05rem);
             white-space: nowrap;
@@ -123,7 +96,7 @@
 
         .meter {
             color: var(--brown);
-            text-shadow: 0 0 6px rgba(255, 255, 255, 0.95), 0 0 2px rgba(255, 255, 255, 0.95);
+            text-shadow: 0 0 6px rgba(243, 231, 207, 0.95), 0 0 2px rgba(243, 231, 207, 0.95);
         }
 
         .again {
@@ -132,6 +105,9 @@
             font-size: inherit;
             font-weight: 400;
             color: var(--neon);
+            text-decoration: underline;
+            text-underline-offset: 0.2em;
+            text-decoration-thickness: 1px;
             background: none;
             border: none;
             padding: 0;
@@ -152,6 +128,47 @@
 
         .done .again {
             display: inline;
+        }
+
+        /* Botje rechtsboven: terug naar de index. Begint bruin, wordt bij hover neonroze. */
+        .defs {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .home {
+            position: fixed;
+            top: var(--edge);
+            right: var(--edge);
+            z-index: 30;
+            display: block;
+            width: clamp(52px, 5.5vw, 78px);
+            aspect-ratio: 200 / 80;
+            transform: rotate(-10deg);
+            transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+            outline: none;
+        }
+
+        .home svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            fill: var(--brown);
+            filter: drop-shadow(0 2px 3px rgba(60, 35, 15, 0.25));
+            transition: fill 0.25s ease;
+        }
+
+        .home:hover,
+        .home:focus-visible {
+            transform: rotate(0deg) scale(1.1);
+        }
+
+        .home:hover svg,
+        .home:focus-visible svg {
+            fill: var(--neon);
         }
 
         #err {
@@ -181,18 +198,41 @@
                 font-size: 22vw;
             }
 
-            .nav-link,
             .center {
                 font-size: 1rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .home {
+                transition: none;
             }
         }
     </style>
 </head>
 <body>
+    <svg class="defs" aria-hidden="true" focusable="false">
+        <defs>
+            <g id="bone-shape">
+                <rect x="40" y="26" width="120" height="28"/>
+                <circle cx="34" cy="26" r="19"/>
+                <circle cx="34" cy="54" r="19"/>
+                <circle cx="166" cy="26" r="19"/>
+                <circle cx="166" cy="54" r="19"/>
+            </g>
+        </defs>
+    </svg>
+
+    <a class="home" href="index.html" aria-label="Back to the index">
+        <svg viewBox="0 0 200 80" aria-hidden="true">
+            <use href="#bone-shape"/>
+        </svg>
+    </a>
+
     <canvas id="fur"></canvas>
 
     <div class="hint" id="hint">
-        <span class="mouse">CLICK AND DRAG TO GROW FUR</span>
+        <span class="mouse">CLICK AND DRAG TO PET</span>
         <span class="touch">swipe to pet the dog</span>
     </div>
 
@@ -200,11 +240,6 @@
         <span class="meter" id="meter">0%</span>
         <button type="button" class="again" id="again">↻ Again</button>
     </div>
-
-    <nav class="nav-links" aria-label="Edition navigation">
-        <a href="editie-03.html" class="nav-link">← edition 03</a>
-        <a href="editie-05.html" class="nav-link">edition 05 →</a>
-    </nav>
 
     <div id="err"></div>
 
@@ -430,7 +465,7 @@
                 complete = true;
                 drawing = false;
 
-                // Donkerbruine laag ónder de vacht, zodat er nergens wit tussen de haartjes doorschijnt
+                // Donkerbruine laag ónder de vacht, zodat er nergens licht tussen de haartjes doorschijnt
                 ctx.save();
                 ctx.globalCompositeOperation = 'destination-over';
                 ctx.fillStyle = '#442712';
@@ -683,7 +718,7 @@
                     var x = nb[0] + Math.random() * (nb[2] - nb[0]);
                     var y = nb[1] + Math.random() * (nb[3] - nb[1]);
                     if (!c.isPointInPath(np, x, y)) continue;
-                    c.fillStyle = 'rgba(255,255,255,0.09)';
+                    c.fillStyle = 'rgba(243,231,207,0.09)';
                     c.beginPath();
                     c.arc(x, y, (0.003 + Math.random() * 0.003) * s, 0, TAU);
                     c.fill();
@@ -701,7 +736,7 @@
                     c.beginPath();
                     c.ellipse(0, 0, 0.04 * s, 0.02 * s, 0, 0, TAU);
                     c.fill();
-                    c.strokeStyle = 'rgba(255,255,255,0.18)';
+                    c.strokeStyle = 'rgba(243,231,207,0.18)';
                     c.lineWidth = 0.006 * s;
                     c.beginPath();
                     c.ellipse(0, 0, 0.042 * s, 0.022 * s, 0, 0, TAU);
@@ -721,19 +756,19 @@
                 c.translate(cx - 0.065 * s, cy + 0.26 * s);
                 c.scale(1, 0.38);
                 var hg = c.createRadialGradient(0, 0, 0, 0, 0, 0.1 * s);
-                hg.addColorStop(0, 'rgba(255,255,255,0.6)');
-                hg.addColorStop(1, 'rgba(255,255,255,0)');
+                hg.addColorStop(0, 'rgba(243,231,207,0.6)');
+                hg.addColorStop(1, 'rgba(243,231,207,0)');
                 c.fillStyle = hg;
                 c.beginPath();
                 c.arc(0, 0, 0.1 * s, 0, TAU);
                 c.fill();
                 c.restore();
 
-                c.fillStyle = 'rgba(255,255,255,0.85)';
+                c.fillStyle = 'rgba(243,231,207,0.85)';
                 c.beginPath();
                 c.ellipse(cx - 0.08 * s, cy + 0.248 * s, 0.013 * s, 0.006 * s, -0.3, 0, TAU);
                 c.fill();
-                c.fillStyle = 'rgba(255,255,255,0.3)';
+                c.fillStyle = 'rgba(243,231,207,0.3)';
                 c.beginPath();
                 c.ellipse(cx + 0.09 * s, cy + 0.3 * s, 0.01 * s, 0.005 * s, 0.4, 0, TAU);
                 c.fill();
@@ -798,7 +833,7 @@
                 c.moveTo(X(0), Y(0.66));
                 c.lineTo(X(0), Y(0.79));
                 c.stroke();
-                c.fillStyle = 'rgba(255,255,255,0.3)';
+                c.fillStyle = 'rgba(243,231,207,0.3)';
                 c.beginPath();
                 c.ellipse(X(-0.05), Y(0.72), 0.04 * s, 0.016 * s, -0.4, 0, TAU);
                 c.fill();
@@ -824,7 +859,7 @@
 
                 c.save();
                 c.translate(0, 0.012 * s);
-                c.strokeStyle = 'rgba(255,255,255,0.1)';
+                c.strokeStyle = 'rgba(243,231,207,0.1)';
                 c.lineWidth = 0.006 * s;
                 c.stroke(lip);
                 c.restore();
@@ -906,16 +941,16 @@
                     c.fillRect(ex - 0.2 * s, ey - 0.12 * s, 0.4 * s, 0.13 * s);
 
                     var gl = c.createLinearGradient(0, ey - 0.09 * s, 0, ey + 0.09 * s);
-                    gl.addColorStop(0, 'rgba(255,255,255,0.2)');
-                    gl.addColorStop(0.5, 'rgba(255,255,255,0)');
+                    gl.addColorStop(0, 'rgba(243,231,207,0.2)');
+                    gl.addColorStop(0.5, 'rgba(243,231,207,0)');
                     c.fillStyle = gl;
                     c.fillRect(ex - 0.2 * s, ey - 0.1 * s, 0.4 * s, 0.2 * s);
 
-                    c.fillStyle = 'rgba(255,255,255,0.97)';
+                    c.fillStyle = 'rgba(243,231,207,0.97)';
                     c.beginPath();
                     c.ellipse(px - 0.03 * s, py - 0.033 * s, 0.019 * s, 0.016 * s, -0.4, 0, TAU);
                     c.fill();
-                    c.fillStyle = 'rgba(255,255,255,0.55)';
+                    c.fillStyle = 'rgba(243,231,207,0.55)';
                     c.beginPath();
                     c.arc(px + 0.03 * s, py + 0.028 * s, 0.009 * s, 0, TAU);
                     c.fill();
@@ -984,7 +1019,7 @@
                         c.moveTo(rx, ry + 1.5 * k);
                         c.quadraticCurveTo(qx, qy + 1.5 * k, ex, ey + 1.5 * k);
                         c.stroke();
-                        c.strokeStyle = 'rgba(244,234,214,0.6)';
+                        c.strokeStyle = 'rgba(243,231,207,0.6)';
                         c.lineWidth = 1.1 * k;
                         c.beginPath();
                         c.moveTo(rx, ry);
