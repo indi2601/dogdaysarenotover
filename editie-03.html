@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog Days Are Not Over – Edition 03</title>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         @font-face {
             font-family: 'Neue Haas Grotesk';
@@ -20,31 +25,115 @@
             --brown: #6b4423;
             --neon: #ff2fa8;
             --cream: #f3e7cf;
+            --bar: 5.4rem;
             --edge: clamp(0.8rem, 2vw, 1.5rem);
+            --line: 3px;
         }
 
-        html, body {
+        /* Cursor: neonroze hondenpoot */
+        html,
+        body,
+        a,
+        button,
+        .band {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 100 100'%3E%3Cg fill='%23ff2fa8'%3E%3Cpath d='M50 44 C28 44 10 64 10 80 C10 93 22 99 36 97 C44 96 56 96 64 97 C78 99 90 93 90 80 C90 64 72 44 50 44 Z'/%3E%3Cellipse cx='10' cy='38' rx='7.5' ry='10' transform='rotate(-25 10 38)'/%3E%3Cellipse cx='32' cy='16' rx='8.5' ry='12' transform='rotate(-8 32 16)'/%3E%3Cellipse cx='68' cy='16' rx='8.5' ry='12' transform='rotate(8 68 16)'/%3E%3Cellipse cx='90' cy='38' rx='7.5' ry='10' transform='rotate(25 90 38)'/%3E%3C/g%3E%3C/svg%3E") 16 16, auto;
+        }
+
+        html,
+        body {
             width: 100%;
             height: 100%;
             overflow: hidden;
             overscroll-behavior: none;
-            background: var(--brown);
+            background: var(--cream);
         }
 
         body {
-            color: var(--cream);
+            color: var(--brown);
             font-family: 'Neue Haas Grotesk', sans-serif;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
 
         #app {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: var(--bar);
             animation: fadeIn 0.5s ease-out;
         }
 
-        .defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+        #err {
+            position: fixed;
+            top: 0.5rem;
+            left: 0.5rem;
+            right: 0.5rem;
+            z-index: 100;
+            font-size: 0.75rem;
+            color: #b00020;
+            pointer-events: none;
+        }
+
+        /* ---------- Eén combinatie per soort: alleen bruin, crème en roze ---------- */
+
+        .t-sleep { --bg: var(--brown); --fg: var(--cream); }
+        .t-walk  { --bg: var(--cream); --fg: var(--brown); }
+        .t-eat   { --bg: var(--brown); --fg: var(--neon); }
+        .t-play  { --bg: var(--neon);  --fg: var(--brown); }
+        .t-pet   { --bg: var(--neon);  --fg: var(--cream); }
+
+        /* ---------- Onderin: knop altijd onderlijnd en in het midden ---------- */
+
+        .nav-links {
+            position: fixed;
+            bottom: var(--edge);
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .nav-link {
+            font-family: inherit;
+            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+            font-weight: 400;
+            color: var(--neon);
+            text-transform: none;
+            letter-spacing: 0;
+            text-decoration: underline;
+            text-underline-offset: 0.2em;
+            text-decoration-thickness: 1px;
+            white-space: nowrap;
+            background: none;
+            border: none;
+            padding: 0;
+            transition: opacity 0.25s ease;
+            outline: none;
+            pointer-events: auto;
+        }
+
+        .nav-link:hover,
+        .nav-link:focus,
+        .nav-link:focus-visible {
+            opacity: 0.7;
+            outline: none;
+        }
+
+        /* ---------- Botje rechtsboven: terug naar de index ---------- */
+
+        .defs {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
 
         .home {
             position: fixed;
@@ -64,21 +153,25 @@
             width: 100%;
             height: 100%;
             overflow: visible;
-            fill: var(--cream);
-            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+            fill: var(--brown);
+            filter: drop-shadow(0 2px 3px rgba(60, 35, 15, 0.25));
             transition: fill 0.25s ease;
         }
 
-        .home:hover, .home:focus-visible { transform: rotate(0deg) scale(1.1); }
-        .home:hover svg, .home:focus-visible svg { fill: var(--neon); }
+        .home:hover,
+        .home:focus-visible {
+            transform: rotate(0deg) scale(1.1);
+        }
 
-        .t-sleep { --active-bg: var(--cream); --active-fg: var(--brown); }
-        .t-walk  { --active-bg: var(--neon); --active-fg: var(--brown); }
-        .t-eat   { --active-bg: var(--cream); --active-fg: var(--brown); }
-        .t-pet   { --active-bg: var(--neon); --active-fg: var(--cream); }
-        .t-play  { --active-bg: var(--neon); --active-fg: var(--brown); }
+        .home:hover svg,
+        .home:focus-visible svg {
+            fill: var(--neon);
+        }
 
-        /* Telefoon: de actieve activiteit krijgt kleur; alle andere slides blijven bruin. */
+        /* =========================================================
+           LEZING 1: TELEFOON
+           ========================================================= */
+
         .slides {
             display: flex;
             width: 100%;
@@ -88,9 +181,11 @@
             scroll-snap-type: x mandatory;
             overscroll-behavior-x: contain;
             scrollbar-width: none;
-            background: var(--brown);
         }
-        .slides::-webkit-scrollbar { display: none; }
+
+        .slides::-webkit-scrollbar {
+            display: none;
+        }
 
         .slide {
             flex: 0 0 100%;
@@ -101,11 +196,9 @@
             align-items: center;
             text-align: center;
             padding: var(--edge) var(--edge) 1.4rem;
-            background: var(--brown);
-            color: var(--cream);
-            transition: background 0.25s ease, color 0.25s ease;
+            background: var(--bg);
+            color: var(--fg);
         }
-        .slide.current { background: var(--active-bg); color: var(--active-fg); }
 
         .strip {
             display: flex;
@@ -114,8 +207,17 @@
             width: 100%;
             flex: none;
         }
-        .strip i { display: block; min-width: 2px; background: currentColor; opacity: 0.25; }
-        .strip i.on { opacity: 1; }
+
+        .strip i {
+            display: block;
+            background: currentColor;
+            opacity: 0.25;
+            min-width: 2px;
+        }
+
+        .strip i.on {
+            opacity: 1;
+        }
 
         .slide .meta {
             display: flex;
@@ -128,6 +230,7 @@
             text-transform: uppercase;
             letter-spacing: 0.02em;
         }
+
         .slide .word {
             margin-top: auto;
             font-size: 22vw;
@@ -135,22 +238,27 @@
             letter-spacing: -0.045em;
             text-transform: uppercase;
         }
+
         .slide .count {
             margin-top: 0.8rem;
             min-height: 1.3em;
             font-size: 1.3rem;
             line-height: 1.3;
             font-variant-numeric: tabular-nums;
+            text-transform: none;
         }
 
-        /* Laptop: de balken vullen de volledige hoogte; alleen de huidige is gekleurd. */
+        /* =========================================================
+           LEZING 2: LAPTOP
+           ========================================================= */
+
         .board {
             display: flex;
             flex-direction: column;
             width: 100%;
             height: 100%;
-            background: var(--brown);
         }
+
         .top {
             flex: 0 0 auto;
             display: flex;
@@ -158,23 +266,28 @@
             align-items: center;
             text-align: center;
             padding: var(--edge) var(--edge) 1rem;
-            color: var(--cream);
-            background: var(--brown);
+            background: var(--cream);
         }
+
         .top-word {
-            font-size: min(14vh, 14vw);
+            font-size: 14vh;
             line-height: 0.85;
             letter-spacing: -0.05em;
             text-transform: uppercase;
             color: var(--neon);
             white-space: nowrap;
         }
+
         .top-tag {
             margin-top: 0.6rem;
             font-size: clamp(1rem, 1.9vw, 1.4rem);
             line-height: 1.2;
+            text-transform: none;
+            letter-spacing: 0;
+            white-space: nowrap;
             font-variant-numeric: tabular-nums;
         }
+
         .stack {
             position: relative;
             flex: 1;
@@ -182,37 +295,106 @@
             display: flex;
             flex-direction: column;
         }
+
         .band {
-            flex: var(--d) 1 0;
+            flex-grow: var(--d);
+            flex-shrink: 1;
+            flex-basis: 0;
             min-height: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 2rem;
             padding: 0.08em 0 0;
-            background: var(--brown);
-            color: var(--cream);
+            background: var(--bg);
+            color: var(--fg);
             font-size: clamp(0.7rem, 2.6vh, 2rem);
             line-height: 1;
+            letter-spacing: 0;
             text-transform: uppercase;
             font-variant-numeric: tabular-nums;
             white-space: nowrap;
             overflow: hidden;
+            outline: none;
             transition: flex-grow 0.45s ease, background 0.25s ease, color 0.25s ease;
         }
-        .band.current { background: var(--active-bg); color: var(--active-fg); }
-        .band .bt, .band .bw { width: 12ch; text-align: center; }
 
+        .band:focus-visible {
+            outline: 2px solid var(--fg);
+            outline-offset: -4px;
+        }
+
+        /* Tijd en woord: twee even brede vakjes, dus de tekst staat precies in het midden */
+        .band .bt,
+        .band .bw {
+            width: 12ch;
+            text-align: center;
+        }
+
+        .band.editing .bt,
+        .band.editing .bw {
+            width: 9rem;
+        }
+
+        .band input,
+        .band select {
+            width: 100%;
+            height: 1.45em;
+            font-family: inherit;
+            font-size: 0.8em;
+            line-height: 1;
+            text-transform: none;
+            color: inherit;
+            background: transparent;
+            border: 2px solid currentColor;
+            border-radius: 4px;
+            padding: 0 4px;
+            outline: none;
+        }
+
+        .band input:disabled {
+            opacity: 0.55;
+        }
+
+        .band option {
+            color: var(--brown);
+            background: var(--cream);
+        }
+
+        .band .bx {
+            font-family: inherit;
+            font-size: 1em;
+            line-height: 1;
+            color: inherit;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 0.3rem;
+        }
+
+        .band .bx:hover {
+            opacity: 0.7;
+        }
+
+        .t-sleep input::-webkit-calendar-picker-indicator,
+        .t-eat input::-webkit-calendar-picker-indicator,
+        .t-pet input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+
+        /* Tijdbalk: bruin, maar roze als de baan zelf bruin is */
         .nowline {
+            --nl: var(--brown);
             position: absolute;
             left: 0;
             right: 0;
             height: 6px;
             margin-top: -3px;
-            background: var(--neon);
+            background: var(--nl);
             pointer-events: none;
             z-index: 5;
         }
+
         .nowline::before {
             content: "";
             position: absolute;
@@ -222,185 +404,626 @@
             height: 16px;
             margin-top: -8px;
             border-radius: 50%;
-            background: var(--neon);
+            background: var(--nl);
+        }
+
+        /* =========================================================
+           EDITOR-PAGINA
+           ========================================================= */
+
+        .editor {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            background: var(--cream);
+            color: var(--brown);
+            overflow: hidden;
+            padding: var(--edge);
+        }
+
+        .editor[hidden] {
+            display: none;
+        }
+
+        .editor h2 {
+            flex: none;
+            font-size: min(14vh, 16vw);
+            font-weight: 400;
+            line-height: 0.85;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            color: var(--neon);
+        }
+
+        .rows {
+            flex: 1;
+            min-height: 0;
+            margin-top: clamp(2rem, 7vh, 4.5rem);
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+            column-gap: 2rem;
+            align-content: start;
+            border-top: var(--line) solid var(--brown);
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .rows::-webkit-scrollbar {
+            display: none;
+        }
+
+        .erow {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.35rem 0;
+            border-bottom: var(--line) solid var(--brown);
+        }
+
+        .editor input,
+        .editor select {
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--brown);
+            background: var(--cream);
+            border: var(--line) solid var(--brown);
+            border-radius: 4px;
+            padding: 0.3rem 0.5rem;
+            outline: none;
+        }
+
+        .editor input:focus,
+        .editor select:focus {
+            border-color: var(--neon);
+        }
+
+        .editor select {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .editor .x {
+            font-family: inherit;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: var(--neon);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 0.3rem;
+        }
+
+        .editor .x:hover {
+            opacity: 0.7;
+        }
+
+        .editor-actions {
+            flex: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            padding-top: 1rem;
         }
 
         @media (max-width: 899px) {
-            .top-word { font-size: min(14vh, 16vw); }
+            .nav-link {
+                font-size: 1rem;
+            }
         }
+
         @media (prefers-reduced-motion: reduce) {
-            #app, .band, .slide, .home { animation: none; transition: none; }
+            #app,
+            .band,
+            .home {
+                animation: none;
+                transition: none;
+            }
         }
     </style>
 </head>
+
 <body>
     <svg class="defs" aria-hidden="true" focusable="false">
         <defs>
             <g id="bone-shape">
                 <rect x="40" y="26" width="120" height="28"/>
-                <circle cx="34" cy="26" r="19"/><circle cx="34" cy="54" r="19"/>
-                <circle cx="166" cy="26" r="19"/><circle cx="166" cy="54" r="19"/>
+                <circle cx="34" cy="26" r="19"/>
+                <circle cx="34" cy="54" r="19"/>
+                <circle cx="166" cy="26" r="19"/>
+                <circle cx="166" cy="54" r="19"/>
             </g>
         </defs>
     </svg>
+
     <a class="home" href="index.html" aria-label="Back to the index">
-        <svg viewBox="0 0 200 80" aria-hidden="true"><use href="#bone-shape"/></svg>
+        <svg viewBox="0 0 200 80" aria-hidden="true">
+            <use href="#bone-shape"/>
+        </svg>
     </a>
+
     <main id="app"></main>
+
+    <section class="editor" id="editor" hidden aria-label="Edit rhythm">
+        <h2>Your dog's rhythm</h2>
+        <div class="rows" id="rows"></div>
+        <div class="editor-actions">
+            <button type="button" class="nav-link" id="e-add">add</button>
+            <button type="button" class="nav-link" id="e-reset">reset</button>
+            <button type="button" class="nav-link" id="e-save">save</button>
+            <button type="button" class="nav-link" id="e-cancel">cancel</button>
+        </div>
+    </section>
+
+    <nav class="nav-links" aria-label="Rhythm controls">
+        <button type="button" class="nav-link" id="edit">edit rhythm</button>
+    </nav>
+
+    <div id="err"></div>
+
+    <script>
+        window.addEventListener('error', function (e) {
+            var el = document.getElementById('err');
+            if (el) el.textContent = 'Error: ' + e.message + ' (line ' + e.lineno + ')';
+        });
+    </script>
 
     <script>
         (function () {
-            var ACTS = [
-                ['sleep', 'Sleep'], ['walk', 'Walk'], ['eat', 'Eat'],
-                ['pet', 'Pet'], ['play', 'Play']
-            ];
-            var WORD = {};
-            ACTS.forEach(function (a) { WORD[a[0]] = a[1]; });
+            try {
+                var ACTS = [
+                    ['sleep', 'Sleep'], ['walk', 'Walk'], ['eat', 'Eat'],
+                    ['pet', 'Pet'], ['play', 'Play']
+                ];
+                var WORD = {};
+                ACTS.forEach(function (a) { WORD[a[0]] = a[1]; });
 
-            var ENTRIES = [
-                [0, 'sleep'], [390, 'walk'], [435, 'eat'], [465, 'pet'],
-                [540, 'sleep'], [660, 'walk'], [690, 'play'], [720, 'sleep'],
-                [840, 'pet'], [960, 'walk'], [1005, 'play'], [1035, 'eat'],
-                [1065, 'pet'], [1260, 'walk'], [1305, 'sleep']
-            ];
+                // Elke activiteit begint op [minuten sinds middernacht] en loopt tot de volgende begint.
+                // Richtlijn voor een volwassen hond: ongeveer 12 tot 13 uur slaap, de rest wakker en actief.
+                var DEFAULT = [
+                    [0,    'sleep'],   // 00:00
+                    [390,  'walk'],    // 06:30
+                    [435,  'eat'],     // 07:15
+                    [465,  'pet'],     // 07:45
+                    [540,  'sleep'],   // 09:00
+                    [660,  'walk'],    // 11:00
+                    [690,  'play'],    // 11:30
+                    [720,  'sleep'],   // 12:00
+                    [840,  'pet'],     // 14:00
+                    [960,  'walk'],    // 16:00
+                    [1005, 'play'],    // 16:45
+                    [1035, 'eat'],     // 17:15
+                    [1065, 'pet'],     // 17:45
+                    [1260, 'walk'],    // 21:00
+                    [1305, 'sleep']    // 21:45
+                ];
 
-            var app = document.getElementById('app');
-            var mq = window.matchMedia('(min-width: 900px)');
-            var mode = null;
-            var BLOCKS = [];
+                var KEY = 'dogdays-rhythm-v4';
+                var app = document.getElementById('app');
+                var mq = window.matchMedia('(min-width: 900px)');
+                var mode = null;
+                var editIdx = -1;
+                var entries = [];
+                var BLOCKS = [];
 
-            function two(n) { return (n < 10 ? '0' : '') + n; }
-            function hm(m) { return two(Math.floor(m / 60)) + ':' + two(m % 60); }
-            function range(b) { return hm(b.from) + '\u2013' + hm(b.to === 1440 ? 0 : b.to); }
+                function two(n) { return (n < 10 ? '0' : '') + n; }
+                function hm(m) { return two(Math.floor(m / 60)) + ':' + two(m % 60); }
+                function range(b) { return hm(b.from) + '\u2013' + hm(b.to === 1440 ? 0 : b.to); }
 
-            function build() {
-                return ENTRIES.map(function (e, i) {
-                    var to = i + 1 < ENTRIES.length ? ENTRIES[i + 1][0] : 1440;
-                    return {
-                        from: e[0], to: to, type: e[1], word: WORD[e[1]],
-                        w: Math.min(2.5, Math.max(1, (to - e[0]) / 60))
-                    };
-                });
-            }
+                /* ---------- Ritme laden, opschonen en opbouwen ---------- */
 
-            function nowInfo() {
-                var d = new Date();
-                var mins = d.getHours() * 60 + d.getMinutes();
-                var idx = 0;
-                for (var i = 0; i < BLOCKS.length; i++) {
-                    if (mins >= BLOCKS[i].from && mins < BLOCKS[i].to) { idx = i; break; }
+                function norm(list) {
+                    var s = list.map(function (e) { return [e[0], e[1]]; })
+                                .sort(function (a, b) { return a[0] - b[0]; });
+                    var out = [];
+                    s.forEach(function (e) {
+                        if (out.length && out[out.length - 1][0] === e[0]) out[out.length - 1] = e;
+                        else out.push(e);
+                    });
+                    if (!out.length || out[0][0] > 0) {
+                        out.unshift([0, out.length ? out[out.length - 1][1] : 'sleep']);
+                    }
+                    return out;
                 }
-                return { mins: mins, idx: idx, clock: two(d.getHours()) + ':' + two(d.getMinutes()) };
-            }
 
-            function dur(m) {
-                var h = Math.floor(m / 60), r = m % 60;
-                return h === 0 ? r + 'm' : h + 'h ' + two(r) + 'm';
-            }
+                function load() {
+                    try {
+                        var raw = JSON.parse(localStorage.getItem(KEY));
+                        if (Array.isArray(raw) && raw.length) {
+                            var ok = raw.every(function (e) {
+                                return Array.isArray(e) && typeof e[0] === 'number' && e[0] >= 0 && e[0] < 1440 && WORD[e[1]];
+                            });
+                            if (ok) return norm(raw);
+                        }
+                    } catch (err) {}
+                    return norm(DEFAULT);
+                }
 
-            function nextInfo(info) {
-                var cur = BLOCKS[info.idx], n = BLOCKS.length;
-                for (var k = 1; k <= n; k++) {
-                    var j = (info.idx + k) % n;
-                    if (BLOCKS[j].type !== cur.type || n === 1) {
-                        return { word: BLOCKS[j].word, wait: (BLOCKS[j].from - info.mins + 1440) % 1440 };
+                function save() {
+                    try { localStorage.setItem(KEY, JSON.stringify(entries)); } catch (err) {}
+                }
+
+                function build(list) {
+                    var out = [];
+                    list.forEach(function (e, i) {
+                        var to = i + 1 < list.length ? list[i + 1][0] : 1440;
+                        out.push({ from: e[0], to: to, type: e[1] });
+                    });
+                    out.forEach(function (b) {
+                        b.word = WORD[b.type];
+                        b.w = Math.min(2.5, Math.max(1, (b.to - b.from) / 60));
+                    });
+                    return out;
+                }
+
+                function nowInfo() {
+                    var d = new Date();
+                    var mins = d.getHours() * 60 + d.getMinutes();
+                    var idx = 0;
+                    for (var i = 0; i < BLOCKS.length; i++) {
+                        if (mins >= BLOCKS[i].from && mins < BLOCKS[i].to) { idx = i; break; }
+                    }
+                    return { mins: mins, idx: idx, clock: two(d.getHours()) + ':' + two(d.getMinutes()) };
+                }
+
+                function dur(m) {
+                    var h = Math.floor(m / 60), r = m % 60;
+                    if (h === 0) return r + 'm';
+                    return h + 'h ' + two(r) + 'm';
+                }
+
+                // Eerstvolgende blok met een andere activiteit dan nu
+                function nextInfo(info) {
+                    var cur = BLOCKS[info.idx];
+                    var n = BLOCKS.length;
+                    for (var k = 1; k <= n; k++) {
+                        var j = (info.idx + k) % n;
+                        if (BLOCKS[j].type !== cur.type || n === 1) {
+                            return { word: BLOCKS[j].word, wait: (BLOCKS[j].from - info.mins + 1440) % 1440 };
+                        }
+                    }
+                    return { word: cur.word, wait: 0 };
+                }
+
+                function until(i, mins) {
+                    return (BLOCKS[i].from - mins + 1440) % 1440;
+                }
+
+                function nowPercent(info) {
+                    var total = 0, before = 0;
+                    BLOCKS.forEach(function (b, i) {
+                        total += b.w;
+                        if (i < info.idx) before += b.w;
+                    });
+                    var b = BLOCKS[info.idx];
+                    var frac = (info.mins - b.from) / (b.to - b.from);
+                    return (before + frac * b.w) / total * 100;
+                }
+
+                /* ---------- Telefoon ---------- */
+
+                function strip(active) {
+                    var s = '<div class="strip" aria-hidden="true">';
+                    BLOCKS.forEach(function (b, k) {
+                        s += '<i class="' + (k === active ? 'on' : '') + '" style="flex-grow:' + (b.to - b.from) + '"></i>';
+                    });
+                    return s + '</div>';
+                }
+
+                function renderPhone() {
+                    var html = '<div class="slides" id="slides">';
+                    BLOCKS.forEach(function (b, i) {
+                        html +=
+                            '<section class="slide t-' + b.type + '">' +
+                                strip(i) +
+                                '<div class="meta"><span>' + range(b) + '</span><span class="status"></span></div>' +
+                                '<div class="word">' + b.word + '</div>' +
+                                '<div class="count"></div>' +
+                            '</section>';
+                    });
+                    html += '</div>';
+                    app.innerHTML = html;
+
+                    var slides = document.getElementById('slides');
+                    var idx = nowInfo().idx;
+                    slides.scrollLeft = idx * slides.clientWidth;
+                    requestAnimationFrame(function () { slides.scrollLeft = idx * slides.clientWidth; });
+                    slides.addEventListener('dblclick', openEditor);
+                    updatePhone();
+                }
+
+                function updatePhone() {
+                    var info = nowInfo();
+                    var nx = nextInfo(info);
+                    var list = app.querySelectorAll('.slide');
+                    for (var i = 0; i < list.length; i++) {
+                        var st = list[i].querySelector('.status');
+                        var ct = list[i].querySelector('.count');
+                        if (!st || !ct) continue;
+                        if (i === info.idx) {
+                            st.textContent = 'Now ' + info.clock;
+                            ct.textContent = 'next: ' + nx.word.toLowerCase() + ' in ' + dur(nx.wait);
+                        } else {
+                            ct.textContent = '';
+                            st.textContent = BLOCKS[i].from > info.mins ? 'In ' + dur(until(i, info.mins)) : 'Earlier';
+                        }
                     }
                 }
-                return { word: cur.word, wait: 0 };
-            }
 
-            function until(i, mins) { return (BLOCKS[i].from - mins + 1440) % 1440; }
+                /* ---------- Laptop ---------- */
 
-            function nowPercent(info) {
-                var total = 0, before = 0;
-                BLOCKS.forEach(function (b, i) {
-                    total += b.w;
-                    if (i < info.idx) before += b.w;
-                });
-                var b = BLOCKS[info.idx];
-                var frac = (info.mins - b.from) / (b.to - b.from);
-                return (before + frac * b.w) / total * 100;
-            }
-
-            function strip(active) {
-                var html = '<div class="strip" aria-hidden="true">';
-                BLOCKS.forEach(function (b, i) {
-                    html += '<i class="' + (i === active ? 'on' : '') + '" style="flex-grow:' + (b.to - b.from) + '"></i>';
-                });
-                return html + '</div>';
-            }
-
-            function renderPhone() {
-                var html = '<div class="slides" id="slides">';
-                BLOCKS.forEach(function (b, i) {
-                    html += '<section class="slide t-' + b.type + (i === nowInfo().idx ? ' current' : '') + '">' +
-                        strip(i) +
-                        '<div class="meta"><span>' + range(b) + '</span><span class="status"></span></div>' +
-                        '<div class="word">' + b.word + '</div><div class="count"></div></section>';
-                });
-                app.innerHTML = html + '</div>';
-                var slides = document.getElementById('slides');
-                var idx = nowInfo().idx;
-                slides.scrollLeft = idx * slides.clientWidth;
-                requestAnimationFrame(function () { slides.scrollLeft = idx * slides.clientWidth; });
-                updatePhone();
-            }
-
-            function updatePhone() {
-                var info = nowInfo(), nx = nextInfo(info);
-                var list = app.querySelectorAll('.slide');
-                for (var i = 0; i < list.length; i++) {
-                    list[i].classList.toggle('current', i === info.idx);
-                    var status = list[i].querySelector('.status');
-                    var count = list[i].querySelector('.count');
-                    if (i === info.idx) {
-                        status.textContent = 'Now ' + info.clock;
-                        count.textContent = 'next: ' + nx.word.toLowerCase() + ' in ' + dur(nx.wait);
-                    } else {
-                        count.textContent = '';
-                        status.textContent = BLOCKS[i].from > info.mins ? 'In ' + dur(until(i, info.mins)) : 'Earlier';
+                function bandInner(b, i) {
+                    if (editIdx === i) {
+                        var opts = '';
+                        ACTS.forEach(function (a) {
+                            opts += '<option value="' + a[0] + '"' + (a[0] === b.type ? ' selected' : '') + '>' + a[1] + '</option>';
+                        });
+                        return '<span class="bt"><input type="time" value="' + hm(b.from) + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="Start time"></span>' +
+                               '<span class="bw"><select aria-label="Activity">' + opts + '</select></span>' +
+                               (i > 0 ? '<button type="button" class="bx" aria-label="Remove">\u00D7</button>' : '');
                     }
+                    return '<span class="bt">' + range(b) + '</span><span class="bw">' + b.word + '</span>';
                 }
-            }
 
-            function renderLaptop() {
-                var info = nowInfo(), bands = '';
-                BLOCKS.forEach(function (b, i) {
-                    bands += '<div class="band t-' + b.type + (i === info.idx ? ' current' : '') + '" style="--d:' + b.w.toFixed(3) + '">' +
-                        '<span class="bt">' + range(b) + '</span><span class="bw">' + b.word + '</span></div>';
+                function bandOf(target) {
+                    var el = target && target.nodeType === 1 ? target : (target ? target.parentNode : null);
+                    while (el && el !== app) {
+                        if (el.classList && el.classList.contains('band')) return el;
+                        el = el.parentNode;
+                    }
+                    return null;
+                }
+
+                function bandEls() { return app.querySelectorAll('.band'); }
+
+                function renderLaptop() {
+                    editIdx = -1;
+                    var bands = '';
+                    BLOCKS.forEach(function (b, i) {
+                        bands +=
+                            '<div class="band t-' + b.type + '" tabindex="0" data-i="' + i + '" style="--d:' + b.w.toFixed(3) + '">' +
+                                bandInner(b, i) +
+                            '</div>';
+                    });
+
+                    app.innerHTML =
+                        '<div class="board">' +
+                            '<div class="top">' +
+                                '<div class="top-word" id="r-word"></div>' +
+                                '<div class="top-tag" id="r-tag"></div>' +
+                            '</div>' +
+                            '<div class="stack" id="stack">' + bands +
+                                '<div class="nowline" id="nowline"></div>' +
+                            '</div>' +
+                        '</div>';
+
+                    var stack = document.getElementById('stack');
+
+                    // Aanpassen: dubbelklik (of Enter op een gefocust blok)
+                    stack.addEventListener('dblclick', function (e) {
+                        var band = bandOf(e.target);
+                        if (band) startEdit(parseInt(band.getAttribute('data-i'), 10));
+                    });
+
+                    stack.addEventListener('keydown', function (e) {
+                        var band = bandOf(e.target);
+                        if (!band) return;
+                        var i = parseInt(band.getAttribute('data-i'), 10);
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (editIdx === i) commit(); else startEdit(i);
+                        } else if (e.key === 'Escape' && editIdx === i) {
+                            cancel();
+                        }
+                    });
+
+                    // Andere activiteit gekozen: blok krijgt meteen de kleur van die categorie
+                    stack.addEventListener('change', function (e) {
+                        if (e.target.tagName !== 'SELECT' || editIdx < 0) return;
+                        var band = bandOf(e.target);
+                        if (band) band.className = 'band editing t-' + e.target.value;
+                    });
+
+                    stack.addEventListener('click', function (e) {
+                        if (!e.target.classList || !e.target.classList.contains('bx')) return;
+                        var band = bandOf(e.target);
+                        var i = band ? parseInt(band.getAttribute('data-i'), 10) : -1;
+                        editIdx = -1;
+                        if (i > 0) {
+                            entries.splice(i, 1);
+                            entries = norm(entries);
+                            save();
+                        }
+                        refreshLaptop();
+                    });
+
+                    // Klik of tab buiten het blok: opslaan
+                    stack.addEventListener('focusout', function (e) {
+                        if (editIdx < 0) return;
+                        var band = bandOf(e.target);
+                        if (band && e.relatedTarget && band.contains(e.relatedTarget)) return;
+                        commit();
+                    });
+
+                    updateLaptop();
+                }
+
+                function startEdit(i) {
+                    if (editIdx >= 0 && editIdx !== i) commit();
+                    if (editIdx === i) return;
+                    var band = bandEls()[i];
+                    if (!band || !BLOCKS[i]) return;
+                    editIdx = i;
+                    band.classList.add('editing');
+                    band.innerHTML = bandInner(BLOCKS[i], i);
+                    var first = band.querySelector('input:not(:disabled)') || band.querySelector('select');
+                    if (first) first.focus();
+                }
+
+                function commit() {
+                    if (editIdx < 0) return;
+                    var i = editIdx;
+                    var band = bandEls()[i];
+                    editIdx = -1;
+                    if (band && entries[i]) {
+                        var t = band.querySelector('input');
+                        var s = band.querySelector('select');
+                        if (s && WORD[s.value]) entries[i][1] = s.value;
+                        if (t && !t.disabled && t.value) {
+                            var p = t.value.split(':');
+                            var m = parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+                            if (!isNaN(m) && m > 0 && m < 1440) entries[i][0] = m;
+                        }
+                    }
+                    entries = norm(entries);
+                    save();
+                    refreshLaptop();
+                }
+
+                function cancel() {
+                    editIdx = -1;
+                    refreshLaptop();
+                }
+
+                // Bijwerken zonder alles opnieuw te tekenen, zodat de hoogte zacht verandert
+                function refreshLaptop() {
+                    BLOCKS = build(entries);
+                    var bands = bandEls();
+                    if (!bands.length || bands.length !== BLOCKS.length) {
+                        renderLaptop();
+                        return;
+                    }
+                    for (var i = 0; i < bands.length; i++) {
+                        var el = bands[i], b = BLOCKS[i];
+                        el.className = 'band t-' + b.type + (editIdx === i ? ' editing' : '');
+                        el.style.setProperty('--d', b.w.toFixed(3));
+                        el.setAttribute('data-i', i);
+                        if (editIdx !== i) el.innerHTML = bandInner(b, i);
+                    }
+                    updateLaptop();
+                }
+
+                function updateLaptop() {
+                    var info = nowInfo();
+                    var b = BLOCKS[info.idx];
+                    var nx = nextInfo(info);
+
+                    document.getElementById('r-word').textContent = b.word;
+                    document.getElementById('r-tag').textContent =
+                        'next: ' + nx.word.toLowerCase() + ' in ' + dur(nx.wait);
+
+                    // Tijdbalk: bruin, maar roze als de baan zelf bruin is
+                    var nl = document.getElementById('nowline');
+                    var onBrown = (b.type === 'sleep' || b.type === 'eat');
+                    nl.style.setProperty('--nl', onBrown ? '#ff2fa8' : '#6b4423');
+                    nl.style.top = nowPercent(info).toFixed(3) + '%';
+                }
+
+                /* ---------- Kiezen en bijwerken ---------- */
+
+                function render() {
+                    var next = mq.matches ? 'laptop' : 'phone';
+                    if (next === mode) return;
+                    mode = next;
+                    if (mode === 'laptop') renderLaptop(); else renderPhone();
+                }
+
+                function tick() {
+                    try {
+                        if (editIdx >= 0) return;
+                        if (mode === 'laptop') updateLaptop(); else updatePhone();
+                    } catch (err) {}
+                }
+
+                if (mq.addEventListener) mq.addEventListener('change', render);
+                else if (mq.addListener) mq.addListener(render);
+
+                /* ---------- Editor-pagina ---------- */
+
+                var editor = document.getElementById('editor');
+                var rowsEl = document.getElementById('rows');
+                var draft = [];
+
+                function drawRows() {
+                    var html = '';
+                    draft.forEach(function (e, i) {
+                        var opts = '';
+                        ACTS.forEach(function (a) {
+                            opts += '<option value="' + a[0] + '"' + (a[0] === e[1] ? ' selected' : '') + '>' + a[1] + '</option>';
+                        });
+                        html +=
+                            '<div class="erow" data-i="' + i + '">' +
+                                '<input type="time" value="' + hm(e[0]) + '" aria-label="Start time">' +
+                                '<select aria-label="Activity">' + opts + '</select>' +
+                                '<button type="button" class="x" aria-label="Remove">\u00D7</button>' +
+                            '</div>';
+                    });
+                    rowsEl.innerHTML = html;
+                }
+
+                rowsEl.addEventListener('change', function (e) {
+                    var row = e.target.closest ? e.target.closest('.erow') : null;
+                    if (!row) return;
+                    var i = parseInt(row.getAttribute('data-i'), 10);
+                    if (!draft[i]) return;
+                    if (e.target.tagName === 'INPUT') {
+                        var p = e.target.value.split(':');
+                        if (p.length === 2) draft[i][0] = parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+                    } else if (e.target.tagName === 'SELECT') {
+                        draft[i][1] = e.target.value;
+                    }
                 });
-                app.innerHTML = '<div class="board"><header class="top">' +
-                    '<div class="top-word" id="r-word"></div><div class="top-tag" id="r-tag"></div>' +
-                    '</header><div class="stack" id="stack">' + bands + '<div class="nowline" id="nowline"></div></div></div>';
-                updateLaptop();
-            }
 
-            function updateLaptop() {
-                var info = nowInfo(), b = BLOCKS[info.idx], nx = nextInfo(info);
-                document.getElementById('r-word').textContent = b.word;
-                document.getElementById('r-tag').textContent = 'next: ' + nx.word.toLowerCase() + ' in ' + dur(nx.wait);
-                var bands = app.querySelectorAll('.band');
-                for (var i = 0; i < bands.length; i++) bands[i].classList.toggle('current', i === info.idx);
-                document.getElementById('nowline').style.top = nowPercent(info).toFixed(3) + '%';
-            }
+                rowsEl.addEventListener('click', function (e) {
+                    if (!e.target.classList || !e.target.classList.contains('x')) return;
+                    var row = e.target.closest('.erow');
+                    var i = row ? parseInt(row.getAttribute('data-i'), 10) : -1;
+                    if (i >= 0 && draft.length > 1) { draft.splice(i, 1); drawRows(); }
+                });
 
-            function render() {
-                var next = mq.matches ? 'laptop' : 'phone';
-                if (next === mode) return;
-                mode = next;
-                if (mode === 'laptop') renderLaptop(); else renderPhone();
-            }
+                function openEditor() {
+                    draft = entries.map(function (e) { return e.slice(); });
+                    drawRows();
+                    editor.hidden = false;
+                    rowsEl.scrollTop = 0;
+                }
 
-            function tick() {
-                if (mode === 'laptop') updateLaptop();
-                else updatePhone();
-            }
+                function closeEditor() { editor.hidden = true; }
 
-            BLOCKS = build();
-            if (mq.addEventListener) mq.addEventListener('change', render);
-            else if (mq.addListener) mq.addListener(render);
-            render();
-            setInterval(tick, 15000);
+                document.getElementById('edit').addEventListener('click', openEditor);
+                document.getElementById('e-cancel').addEventListener('click', closeEditor);
+                document.getElementById('e-add').addEventListener('click', function () {
+                    draft.push([720, 'walk']);
+                    drawRows();
+                });
+                document.getElementById('e-reset').addEventListener('click', function () {
+                    draft = DEFAULT.map(function (e) { return e.slice(); });
+                    drawRows();
+                });
+                document.getElementById('e-save').addEventListener('click', function () {
+                    var valid = draft.filter(function (e) { return !isNaN(e[0]) && e[0] >= 0 && e[0] < 1440; });
+                    if (!valid.length) return;
+                    entries = norm(valid);
+                    save();
+                    BLOCKS = build(entries);
+                    closeEditor();
+                    mode = null;
+                    render();
+                });
+
+                /* ---------- Start ---------- */
+
+                entries = load();
+                BLOCKS = build(entries);
+                render();
+                setInterval(tick, 15000);
+            } catch (err) {
+                var el = document.getElementById('err');
+                if (el) el.textContent = 'Error: ' + err.message;
+            }
         })();
     </script>
 </body>
