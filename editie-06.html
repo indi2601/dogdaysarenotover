@@ -6,75 +6,405 @@
 <title>Dog Days Are Not Over – Edition 06</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-@font-face{font-family:'Neue Haas Grotesk';src:url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2');font-weight:400;font-display:swap}
-:root{--brown:#6b4423;--pink:#ff2fa8;--cream:#f3e7cf;--edge:clamp(.8rem,2vw,1.5rem)}
-*{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%;overflow:hidden}body{background:var(--cream);color:var(--brown);font-family:'Neue Haas Grotesk',sans-serif}button,a{font:inherit;color:inherit}button{cursor:pointer}.filters,.defs{position:absolute;width:0;height:0;overflow:hidden}
-.layout{height:100vh;height:100dvh;display:grid;grid-template-columns:minmax(300px,38%) minmax(0,1fr);background:var(--cream)}
-.intro{position:relative;z-index:2;min-width:0;padding:clamp(1.4rem,4vh,3rem) clamp(1.25rem,4vw,4rem);display:flex;flex-direction:column;background:var(--cream)}h1{font-size:clamp(5rem,15vw,14rem);line-height:.75;font-weight:400;letter-spacing:-.08em}.place-number{margin-top:clamp(2rem,7vh,5rem);color:var(--pink);font-size:clamp(6rem,15vw,13rem);line-height:.78;letter-spacing:-.08em;font-weight:400}.place-name{margin-top:1.2rem;font-size:clamp(1.8rem,4vw,3.8rem);line-height:.95;letter-spacing:-.045em;font-weight:400;overflow-wrap:anywhere;max-width:12ch}.controls{display:flex;align-items:center;gap:.8rem;margin-top:auto;padding-top:2rem}.arrow{width:3.2rem;height:3.2rem;border:1.5px solid var(--brown);border-radius:50%;background:transparent;color:var(--brown);font-size:1.6rem;line-height:1;transition:background .2s,color .2s}.arrow:hover,.arrow:focus-visible{background:var(--brown);color:var(--cream);outline:none}.arrow:disabled{opacity:.3;cursor:default}.counter{font-size:.9rem;font-variant-numeric:tabular-nums;margin:0 .4rem}.home{position:fixed;top:var(--edge);right:var(--edge);z-index:1000;width:clamp(52px,5.5vw,78px);aspect-ratio:200/80;transform:rotate(-10deg);transition:transform .3s}.home:hover{transform:rotate(0) scale(1.08)}.home svg{width:100%;height:100%;overflow:visible;fill:var(--brown);filter:drop-shadow(0 2px 3px rgba(60,35,15,.25))}
-.map-wrap{min-width:0;min-height:0;padding:clamp(.8rem,2vw,1.5rem) clamp(.8rem,2vw,1.5rem) clamp(.8rem,2vw,1.5rem) 0}.map{width:100%;height:100%;overflow:hidden;background:var(--cream);border:1px solid rgba(107,68,35,.35)}.leaflet-tile-pane{filter:grayscale(1) sepia(.58) saturate(.65) hue-rotate(345deg) brightness(1.04) contrast(.92)}.leaflet-container{background:var(--cream);font-family:'Neue Haas Grotesk',sans-serif}.leaflet-control-attribution{background:rgba(243,231,207,.9)!important;color:var(--brown)!important;font-size:9px!important}.leaflet-control-attribution a{color:var(--brown)!important}.leaflet-control-zoom a{background:var(--cream)!important;color:var(--brown)!important;border-color:rgba(107,68,35,.4)!important}.leaflet-control-zoom{border:1px solid rgba(107,68,35,.4)!important;box-shadow:none!important;border-radius:0!important}.dog-marker{width:17px;height:17px;border-radius:50%;background:var(--pink);border:2px solid var(--cream);box-shadow:0 1px 5px rgba(60,35,15,.38);transition:transform .2s}.dog-marker.active{transform:scale(1.35);box-shadow:0 0 0 4px rgba(255,47,168,.2),0 1px 5px rgba(60,35,15,.38)}
-@media(max-width:800px){.layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(38vh,44vh)}.intro{padding:1.1rem 1.25rem 1rem;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr auto;column-gap:1rem;align-items:start}h1{font-size:clamp(4rem,19vw,8rem)}.place-number{grid-column:1;grid-row:2;align-self:end;margin-top:.3rem;font-size:clamp(5rem,22vw,9rem)}.place-name{grid-column:1;grid-row:3;align-self:end;margin-top:.45rem;margin-bottom:.3rem;font-size:clamp(1.4rem,7vw,2.4rem);max-width:15ch}.controls{grid-column:2;grid-row:3;align-self:end;gap:.45rem;padding:0;margin:0 0 .25rem}.arrow{width:2.55rem;height:2.55rem;font-size:1.35rem}.counter{display:none}.map-wrap{padding:0 .7rem .7rem}.home{width:54px}}
-@media(max-width:380px){.place-name{font-size:1.25rem}.arrow{width:2.3rem;height:2.3rem}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
+@font-face {
+    font-family: 'Neue Haas Grotesk';
+    src: url('https://cdn.jsdelivr.net/npm/fontsource-neue-haas-grotesk@1.0.0/files/neue-haas-grotesk-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+:root {
+    --brown: #6b4423;
+    --neon: #ff2fa8;
+    --cream: #f3e7cf;
+    --edge: clamp(.8rem, 2vw, 1.5rem);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Cursor: neonroze hondenpoot, ook op de kaart */
+html, body, a, button,
+.leaflet-container, .leaflet-grab, .leaflet-dragging .leaflet-grab,
+.leaflet-interactive, .leaflet-marker-icon, .dog-marker, .leaflet-bar a {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 100 100'%3E%3Cg fill='%23ff2fa8'%3E%3Cpath d='M50 44 C28 44 10 64 10 80 C10 93 22 99 36 97 C44 96 56 96 64 97 C78 99 90 93 90 80 C90 64 72 44 50 44 Z'/%3E%3Cellipse cx='10' cy='38' rx='7.5' ry='10' transform='rotate(-25 10 38)'/%3E%3Cellipse cx='32' cy='16' rx='8.5' ry='12' transform='rotate(-8 32 16)'/%3E%3Cellipse cx='68' cy='16' rx='8.5' ry='12' transform='rotate(8 68 16)'/%3E%3Cellipse cx='90' cy='38' rx='7.5' ry='10' transform='rotate(25 90 38)'/%3E%3C/g%3E%3C/svg%3E") 16 16, auto !important;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background: var(--cream);
+    color: var(--brown);
+    font-family: 'Neue Haas Grotesk', sans-serif;
+}
+
+button, a { font: inherit; }
+
+.filters, .defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+/* ---------- Kaart over het hele scherm, alleen crème en bruin ---------- */
+
+#map {
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+}
+
+.leaflet-container {
+    background: var(--cream);
+    font-family: 'Neue Haas Grotesk', sans-serif;
+}
+
+.leaflet-tile-pane {
+    filter: grayscale(1) sepia(1);
+    filter: url(#cream-brown);
+}
+
+.leaflet-control-attribution {
+    font-size: 9px !important;
+    background: rgba(243, 231, 207, .92) !important;
+    color: var(--brown) !important;
+}
+
+.leaflet-control-attribution a { color: var(--brown) !important; }
+
+.leaflet-bar {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.leaflet-bar a {
+    width: 2rem;
+    height: 2rem;
+    line-height: calc(2rem - 4px);
+    background: var(--cream);
+    color: var(--brown);
+    border: 2px solid var(--brown) !important;
+    border-radius: 0 !important;
+}
+
+.leaflet-bar a + a { margin-top: -2px; }
+
+.leaflet-bar a:hover {
+    background: var(--neon);
+    color: var(--cream);
+}
+
+/* ---------- Stippen: allemaal neonroze ---------- */
+
+.dog-marker {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dog-marker i {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--neon);
+    transition: transform .2s ease;
+}
+
+.dog-marker:hover i,
+.leaflet-marker-icon:focus .dog-marker i {
+    transform: scale(1.7);
+}
+
+.leaflet-marker-icon:focus { outline: none; }
+
+/* ---------- Hint bovenin, in het midden ---------- */
+
+.hint {
+    position: fixed;
+    top: var(--edge);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1100;
+    pointer-events: none;
+    font-size: clamp(.8rem, 1.5vw, 1.05rem);
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--brown);
+    text-shadow: 0 0 6px var(--cream), 0 0 3px var(--cream), 0 0 2px var(--cream);
+    transition: opacity .4s ease;
+}
+
+.hint.hide { opacity: 0; }
+
+/* ---------- Schermvullend roze beeld met naam en adres ---------- */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--edge);
+    background: var(--neon);
+    color: #fff;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .2s ease, visibility 0s linear .2s;
+}
+
+.overlay.on {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity .2s ease;
+}
+
+.touch .overlay.on { pointer-events: auto; }
+
+.overlay h2 {
+    max-width: 94vw;
+    font-size: min(14vh, 11vw);
+    line-height: .85;
+    font-weight: 400;
+    letter-spacing: -.05em;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+
+.overlay p {
+    max-width: 90vw;
+    margin-top: 1.4rem;
+    font-size: clamp(1rem, 2vw, 1.6rem);
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+/* ---------- Botje rechtsboven: terug naar de index. Begint bruin, wordt bij hover neonroze. ---------- */
+
+.home {
+    position: fixed;
+    top: var(--edge);
+    right: var(--edge);
+    z-index: 10002;
+    display: block;
+    width: clamp(52px, 5.5vw, 78px);
+    aspect-ratio: 200 / 80;
+    transform: rotate(-10deg);
+    transition: transform .45s cubic-bezier(.2, .8, .2, 1);
+    outline: none;
+}
+
+.home svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: var(--brown);
+    filter: drop-shadow(0 2px 3px rgba(60, 35, 15, .25));
+    transition: fill .25s ease;
+}
+
+.home:hover, .home:focus-visible { transform: rotate(0deg) scale(1.1); }
+.home:hover svg, .home:focus-visible svg { fill: var(--neon); }
+
+@media (max-width: 700px) {
+    .hint { font-size: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; }
+}
 </style>
 </head>
 <body>
-<svg class="defs" aria-hidden="true" focusable="false"><defs><g id="bone-shape"><rect x="40" y="26" width="120" height="28"/><circle cx="34" cy="26" r="19"/><circle cx="34" cy="54" r="19"/><circle cx="166" cy="26" r="19"/><circle cx="166" cy="54" r="19"/></g></defs></svg>
-<a class="home" href="index.html" aria-label="Back to the index"><svg viewBox="0 0 200 80" aria-hidden="true"><use href="#bone-shape"/></svg></a>
-<main class="layout"><section class="intro" aria-label="Walking route locations"><h1>WALK</h1><div class="place-number" id="place-number">01</div><h2 class="place-name" id="place-name"></h2><nav class="controls" aria-label="Browse locations"><button class="arrow" id="prev" aria-label="Previous location">←</button><span class="counter" id="counter" aria-live="polite"></span><button class="arrow" id="next" aria-label="Next location">→</button></nav></section><div class="map-wrap"><div class="map" id="map" role="application" aria-label="Map of dog-friendly locations in Ghent"></div></div></main>
+<!-- Filter: zet de kaart om naar alleen bruin (#6b4423) en crème (#f3e7cf) -->
+<svg class="filters" aria-hidden="true" focusable="false">
+    <defs>
+        <filter id="cream-brown" color-interpolation-filters="sRGB">
+            <feColorMatrix type="matrix"
+                values="0.33 0.59 0.11 0 0
+                        0.33 0.59 0.11 0 0
+                        0.33 0.59 0.11 0 0
+                        0    0    0    1 0"/>
+            <feComponentTransfer>
+                <feFuncR type="linear" slope="2" intercept="-0.8"/>
+                <feFuncG type="linear" slope="2" intercept="-0.8"/>
+                <feFuncB type="linear" slope="2" intercept="-0.8"/>
+            </feComponentTransfer>
+            <feComponentTransfer>
+                <feFuncR type="table" tableValues="0.4196 0.9529"/>
+                <feFuncG type="table" tableValues="0.2667 0.9059"/>
+                <feFuncB type="table" tableValues="0.1373 0.8118"/>
+            </feComponentTransfer>
+        </filter>
+    </defs>
+</svg>
+
+<svg class="defs" aria-hidden="true" focusable="false">
+    <defs>
+        <g id="bone-shape">
+            <rect x="40" y="26" width="120" height="28"/>
+            <circle cx="34" cy="26" r="19"/>
+            <circle cx="34" cy="54" r="19"/>
+            <circle cx="166" cy="26" r="19"/>
+            <circle cx="166" cy="54" r="19"/>
+        </g>
+    </defs>
+</svg>
+
+<a class="home" href="index.html" aria-label="Back to the index">
+    <svg viewBox="0 0 200 80" aria-hidden="true">
+        <use href="#bone-shape"/>
+    </svg>
+</a>
+
+<div id="map" aria-label="Map of dog off-leash areas in Ghent"></div>
+
+<div class="hint" id="hint"></div>
+
+<div class="overlay" id="overlay" aria-live="polite" aria-hidden="true">
+    <h2 id="o-name"></h2>
+    <p id="o-address"></p>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-(()=>{
- const locations=[
-  {name:'Parkbos Dog Area',coords:[51.0060,3.6870]},
-  {name:'Adventure Dog Area, Gentbrugse Meersen',coords:[51.0350,3.7690]},
-  {name:'Rozebroeken Dog Park',coords:[51.0585,3.7565]},
-  {name:'Banierpark Dog Park',coords:[51.0570,3.7430]},
-  {name:'Morekstraat Dog Park',coords:[51.0763,3.7156]},
-  {name:'Diervriendelijk Gent Dog Park',coords:[51.0570,3.7300]},
-  {name:'Watersportbaan Dog Swimming Area — Closed',coords:[51.0430,3.7040]},
-  {name:'Azaleapark Dog Area',coords:[51.0610,3.7460]},
-  {name:'Barkstraat Dog Area',coords:[51.1680,3.8170]},
-  {name:'Bloemekenspark Dog Area',coords:[51.0770,3.7040]},
-  {name:'Delphine-Boelparkje Dog Area',coords:[51.0450,3.7500]},
-  {name:'Dracenastraat Dog Area',coords:[51.0560,3.7300]},
-  {name:'Europalaan Dog Area',coords:[51.0470,3.7060]},
-  {name:'Evarist De Buckstraat Dog Area',coords:[51.0620,3.7520]},
-  {name:'Gebroeders De Smetstraat Dog Area',coords:[51.0670,3.7300]},
-  {name:'Gentbrugse Meersen Dog Area',coords:[51.0350,3.7680]},
-  {name:'Geuzenberg Dog Area',coords:[51.0570,3.6700]},
-  {name:'Groenevalleipark Dog Area',coords:[51.0590,3.7040]},
-  {name:'Wonderwoud Dog Area',coords:[51.1200,3.7900]},
-  {name:'Jan Samijnstraat Dog Area',coords:[51.0390,3.7650]},
-  {name:'Jean Jaureslaan Dog Area',coords:[51.0390,3.7590]},
-  {name:'Kikvorsstraat Dog Area',coords:[51.0570,3.7000]},
-  {name:'Kriekerijstraat Dog Area',coords:[51.0640,3.7510]},
-  {name:'Lange Velden Dog Area',coords:[51.1010,3.7000]},
-  {name:'Ledeberg Dog Area',coords:[51.0380,3.7440]},
-  {name:'Opgeeistenlaan Dog Area',coords:[51.0570,3.7200]},
-  {name:'Papiermolenstraat Dog Area',coords:[51.0570,3.7200]},
-  {name:'Pauwstraat Dog Area',coords:[51.0650,3.7300]},
-  {name:'Scandinaviestraat Dog Area',coords:[51.0800,3.7300]},
-  {name:'Sint-Bernadettestraat Dog Area',coords:[51.0750,3.7500]},
-  {name:'Sint-Gerolfstraat Dog Area',coords:[51.0540,3.6500]},
-  {name:'Trekweg Dog Area',coords:[51.0800,3.6600]},
-  {name:'Voordries Dog Area',coords:[51.0400,3.7600]},
-  {name:'Winston Churchillplein Dog Area',coords:[51.0450,3.7300]},
-  {name:'Wondelgem Dog Area',coords:[51.0900,3.7100]},
-  {name:'Gentbrugse Meersen Puppy Area',coords:[51.0340,3.7710]},
-  {name:'Gentbrugge Puppy Area',coords:[51.0400,3.7600]},
-  {name:'Sleutelbloempark',coords:[51.0740,3.7500]},
-  {name:'Ter Durmenpark',coords:[51.0800,3.7800]},
-  {name:'Ghent Dog Area',coords:[51.0543,3.7174]},
-  {name:'Ghent Dog Area 2',coords:[51.0543,3.7174]},
-  {name:'Ghent Dog Area 3',coords:[51.0543,3.7174]},
-  {name:'Ghent Dog Area 4',coords:[51.0543,3.7174]}
- ];
- const map=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([51.0543,3.7174],12);
- L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
- const markers=locations.map((place,i)=>{const marker=L.marker(place.coords,{icon:L.divIcon({className:'',html:'<div class="dog-marker" id="marker-'+i+'"></div>',iconSize:[17,17],iconAnchor:[8.5,8.5]}),title:place.name,alt:place.name}).addTo(map);marker.on('click',()=>show(i));return marker});
- let current=0;const number=document.getElementById('place-number'),name=document.getElementById('place-name'),counter=document.getElementById('counter'),prev=document.getElementById('prev'),next=document.getElementById('next');
- function show(index,pan=true){current=(index+locations.length)%locations.length;number.textContent=String(current+1).padStart(2,'0');name.textContent=locations[current].name;counter.textContent=(current+1)+' / '+locations.length;prev.disabled=current===0;next.disabled=current===locations.length-1;markers.forEach((marker,i)=>{const dot=marker.getElement()?.querySelector('.dog-marker');if(dot)dot.classList.toggle('active',i===current)});if(pan)map.panTo(locations[current].coords,{animate:true,duration:.35})}
- prev.addEventListener('click',()=>{if(current>0)show(current-1)});next.addEventListener('click',()=>{if(current<locations.length-1)show(current+1)});document.addEventListener('keydown',event=>{if(event.key==='ArrowRight'&&current<locations.length-1)show(current+1);if(event.key==='ArrowLeft'&&current>0)show(current-1)});show(0,false);window.addEventListener('resize',()=>map.invalidateSize());
+(function () {
+    const locations = [
+        { name: "Off-leash zone Parkbos", address: "Duiverstraat (9051), Sint-Denijs-Westrem", coords: [51.0060, 3.6870] },
+        { name: "Adventure dog zone Gentbrugse Meersen", address: "Gentbrugse Meersen, Gentbrugge", coords: [51.0350, 3.7690] },
+        { name: "Dog run meadow Rozebroeken", address: "Rozebroeken", coords: [51.0585, 3.7565] },
+        { name: "Off-leash meadow Banierpark", address: "Banierpark", coords: [51.0570, 3.7430] },
+        { name: "Dog park Morekstraat", address: "Morekstraat", coords: [51.0763, 3.7156] },
+        { name: "Dog play meadow Animal-Friendly Ghent", address: "Animal-Friendly Ghent", coords: [51.0570, 3.7300] },
+        { name: "Dog swimming spot Watersportbaan (closed)", address: "Watersportbaan", coords: [51.0430, 3.7040] },
+        { name: "Off-leash meadow Azaleapark", address: "Azalestraat 36 (9040), Sint-Amandsberg", coords: [51.0610, 3.7460] },
+        { name: "Off-leash meadow Barkstraat", address: "Barkstraat, Sint-Kruis-Winkel", coords: [51.1680, 3.8170] },
+        { name: "Off-leash meadow Bloemekenspark", address: "Bloemekenspark", coords: [51.0770, 3.7040] },
+        { name: "Off-leash meadow Delphine-Boelparkje", address: "Delphine-Boelparkje", coords: [51.0450, 3.7500] },
+        { name: "Off-leash meadow Dracenastraat", address: "Dracenastraat 18 / Hakkeneistraat, Ghent", coords: [51.0560, 3.7300] },
+        { name: "Off-leash meadow Europalaan (at the dog swimming spot)", address: "Europalaan 134, Ghent", coords: [51.0470, 3.7060] },
+        { name: "Off-leash meadow Evarist De Buckstraat", address: "Evarist De Buckstraat 9 (9040), Sint-Amandsberg", coords: [51.0620, 3.7520] },
+        { name: "Off-leash meadow Gebroeders De Smetstraat", address: "Gebroeders De Smetstraat, Ghent", coords: [51.0670, 3.7300] },
+        { name: "Off-leash meadow Gentbrugse Meersen (at the E17 viaduct)", address: "Gentbrugse Meersen, at the E17 viaduct, Gentbrugge", coords: [51.0350, 3.7680] },
+        { name: "Off-leash meadow Geuzenberg", address: "Geuzenberg", coords: [51.0570, 3.6700] },
+        { name: "Off-leash meadow Groenevalleipark (Nieuwewandeling)", address: "Nieuwewandeling 90 / Spinmolenplein, Ghent", coords: [51.0590, 3.7040] },
+        { name: "Off-leash meadow Groenpool Wonderwoud (temporary)", address: "Wonderwoud, Oostakker / Lochristi", coords: [51.1200, 3.7900] },
+        { name: "Off-leash meadow Jan Samijnstraat", address: "Jan Samijnstraat 1 / Frederik Burvenichstraat, Gentbrugge", coords: [51.0390, 3.7650] },
+        { name: "Off-leash meadow Jean Jaureslaan (temporary)", address: "Jean Jaureslaan, Gentbrugge", coords: [51.0390, 3.7590] },
+        { name: "Off-leash meadow Kikvorsstraat", address: "Kikvorsstraat 113, Ghent", coords: [51.0570, 3.7000] },
+        { name: "Off-leash meadow Kriekerijstraat (Pleasant Wilderness)", address: "Kriekerijstraat 48 (9040), Sint-Amandsberg", coords: [51.0640, 3.7510] },
+        { name: "Off-leash meadow Lange Velden", address: "Lange Velden (9032), Wondelgem", coords: [51.1010, 3.7000] },
+        { name: "Off-leash meadow Ledeberg (temporary)", address: "Hundelgemsesteenweg 2A (9050), Ledeberg", coords: [51.0380, 3.7440] },
+        { name: "Off-leash meadow Opgeeistenlaan", address: "Opgeeistenlaan, Ghent", coords: [51.0570, 3.7200] },
+        { name: "Off-leash meadow Papiermolenstraat", address: "Papiermolenstraat, Ghent", coords: [51.0570, 3.7200] },
+        { name: "Off-leash meadow Pauwstraat", address: "Pauwstraat 3, Ghent", coords: [51.0650, 3.7300] },
+        { name: "Off-leash meadow Scandinaviestraat", address: "Scandinaviestraat 228 / Afrikalaan, Ghent", coords: [51.0800, 3.7300] },
+        { name: "Off-leash meadow Sint-Bernadettestraat", address: "Sint-Bernadettestraat (9040), Sint-Amandsberg", coords: [51.0750, 3.7500] },
+        { name: "Off-leash meadow Sint-Gerolfstraat (temporary)", address: "Sint-Gerolfstraat, Drongen", coords: [51.0540, 3.6500] },
+        { name: "Off-leash meadow Trekweg", address: "Trekweg 2 / Kasteeldreef (9030), Mariakerke", coords: [51.0800, 3.6600] },
+        { name: "Off-leash meadow Voordries", address: "Voordries, Gentbrugge", coords: [51.0400, 3.7600] },
+        { name: "Off-leash meadow Winston Churchillplein", address: "Winston Churchillplein 57–84 / Baviaanstraat, Ghent", coords: [51.0450, 3.7300] },
+        { name: "Off-leash meadow Wondelgem (temporary)", address: "9042, Wondelgem", coords: [51.0900, 3.7100] },
+        { name: "Puppy meadow Gentbrugse Meersen", address: "Gentbrugse Meersen, Gentbrugge", coords: [51.0340, 3.7710] },
+        { name: "Puppy zone (Gentbrugge)", address: "Gentbrugge", coords: [51.0400, 3.7600] },
+        { name: "Sleutelbloempark", address: "Sleutelbloempark", coords: [51.0740, 3.7500] },
+        { name: "Ter Durmenpark", address: "Ter Durmenpark", coords: [51.0800, 3.7800] },
+        { name: "Off-leash zone Ghent", address: "Ghent, exact location not specified", coords: [51.0543, 3.7174] },
+        { name: "Off-leash zone Ghent 2", address: "Ghent, exact location not specified", coords: [51.0543, 3.7174] },
+        { name: "Off-leash zone Ghent 3", address: "Ghent, exact location not specified", coords: [51.0543, 3.7174] },
+        { name: "Off-leash zone Ghent 4", address: "Ghent, exact location not specified", coords: [51.0543, 3.7174] }
+    ];
+
+    // Plekken met precies dezelfde coördinaten krijgen een kleine verschuiving,
+    // zodat elke stip apart te bereiken is.
+    const groups = {};
+    locations.forEach(p => {
+        const k = p.coords.join(',');
+        (groups[k] = groups[k] || []).push(p);
+    });
+    Object.keys(groups).forEach(k => {
+        const g = groups[k];
+        if (g.length < 2) return;
+        g.forEach((p, i) => {
+            const a = i / g.length * Math.PI * 2;
+            p.pin = [p.coords[0] + Math.sin(a) * 0.0004, p.coords[1] + Math.cos(a) * 0.00065];
+        });
+    });
+    locations.forEach(p => { if (!p.pin) p.pin = p.coords; });
+
+    const $ = id => document.getElementById(id);
+    const overlay = $("overlay");
+    const hint = $("hint");
+    const canHover = window.matchMedia("(hover: hover)").matches;
+
+    if (!canHover) document.body.classList.add("touch");
+    hint.textContent = canHover ? "hover over a dot" : "tap a dot";
+
+    function show(place) {
+        $("o-name").textContent = place.name;
+        $("o-address").textContent = place.address;
+        overlay.classList.add("on");
+        overlay.setAttribute("aria-hidden", "false");
+        hint.classList.add("hide");
+    }
+
+    function hide() {
+        overlay.classList.remove("on");
+        overlay.setAttribute("aria-hidden", "true");
+    }
+
+    const small = window.innerWidth <= 700;
+    const map = L.map("map", {
+        zoomControl: false,
+        scrollWheelZoom: true
+    }).setView([51.0543, 3.7174], small ? 11 : 12);
+
+    L.control.zoom({ position: "bottomleft" }).addTo(map);
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    locations.forEach(place => {
+        const icon = L.divIcon({
+            className: "",
+            html: '<div class="dog-marker"><i></i></div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        const marker = L.marker(place.pin, { icon: icon, keyboard: true }).addTo(map);
+        const el = marker.getElement();
+
+        if (el) {
+            el.setAttribute("aria-label", place.name + ", " + place.address);
+            el.addEventListener("focus", () => show(place));
+            el.addEventListener("blur", hide);
+        }
+
+        if (canHover) {
+            marker.on("mouseover", () => show(place));
+            marker.on("mouseout", hide);
+        } else {
+            marker.on("click", () => show(place));
+        }
+    });
+
+    // Op telefoon sluit je het roze beeld door erop te tikken
+    overlay.addEventListener("click", hide);
+
+    window.addEventListener("resize", () => map.invalidateSize());
 })();
 </script>
 </body>
