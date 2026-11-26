@@ -32,9 +32,8 @@
         html,
         body,
         a,
-        button,
         .paw {
-            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 100 100'%3E%3Cg fill='%23ff2fa8'%3E%3Cpath d='M50 44 C28 44 10 64 10 80 C10 93 22 99 36 97 C44 96 56 96 64 97 C78 99 90 93 90 80 C90 64 72 44 50 44 Z'/%3E%3Cellipse cx='10' cy='38' rx='7.5' ry='10' transform='rotate(-25 10 38)'/%3E%3Cellipse cx='32' cy='16' rx='8.5' ry='12' transform='rotate(-8 32 16)'/%3E%3Cellipse cx='68' cy='16' rx='8.5' ry='12' transform='rotate(8 68 16)'/%3E%3Cellipse cx='90' cy='38' rx='7.5' ry='10' transform='rotate(25 90 38)'/%3E%3C/g%3E%3C/svg%3E") 16 16, auto;
+            cursor: pointer;
         }
 
         html,
@@ -134,45 +133,6 @@
             }
         }
 
-        /* Onderin: knop altijd onderlijnd en in het midden */
-        .nav-links {
-            position: fixed;
-            bottom: clamp(0.8rem, 2vw, 1.5rem);
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            pointer-events: none;
-        }
-
-        .nav-link {
-            font-family: inherit;
-            font-size: clamp(0.8rem, 1.5vw, 1.05rem);
-            font-weight: 400;
-            color: var(--neon);
-            text-transform: none;
-            letter-spacing: 0;
-            text-decoration: underline;
-            text-underline-offset: 0.2em;
-            text-decoration-thickness: 1px;
-            white-space: nowrap;
-            background: none;
-            border: none;
-            padding: 0;
-            transition: opacity 0.25s ease;
-            outline: none;
-            pointer-events: auto;
-        }
-
-        .nav-link:hover,
-        .nav-link:focus,
-        .nav-link:focus-visible {
-            opacity: 0.7;
-            outline: none;
-        }
-
         /* Botje rechtsboven: terug naar de index. Begint bruin, wordt bij hover neonroze. */
         .home {
             position: fixed;
@@ -205,20 +165,6 @@
         .home:hover svg,
         .home:focus-visible svg {
             fill: var(--neon);
-        }
-
-        @media (max-width: 700px) {
-            .nav-links {
-                position: relative;
-                left: auto;
-                right: auto;
-                bottom: auto;
-                padding: 1.5rem 0 1.5rem;
-            }
-
-            .nav-link {
-                font-size: 1rem;
-            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -263,10 +209,6 @@
     </a>
 
     <main class="stage" id="stage"></main>
-
-    <nav class="nav-links" aria-label="Edition controls">
-        <button type="button" class="nav-link" id="reset">reset</button>
-    </nav>
 
     <script>
         (function () {
@@ -364,23 +306,23 @@
                 var box = Math.min(H * 0.2, W * 0.12);
                 var size = Math.max(20, Math.min(30, W * 0.02));
                 var off = Math.min(W, H) * 0.07;
-                var m = box / 2 + off + 12;             // marge: de zijdelingse verschuiving past er altijd in
+                var m = box / 2 + off + 12;
 
-                var sx = box / 2 + 140;                 // start rechts van de linkerknop
-                var sy = H - m;                         // onderin
+                var sx = box / 2 + 140;
+                var sy = H - m;
                 var ex = W - m;
                 var ey = m;
                 var tx = ex - sx, ty = ey - sy;
                 var L = Math.sqrt(tx * tx + ty * ty);
-                var ux = tx / L, uy = ty / L;           // looprichting
-                var nx = -uy, ny = ux;                  // loodrecht op het pad
+                var ux = tx / L, uy = ty / L;
+                var nx = -uy, ny = ux;
                 var rot = Math.atan2(uy, ux) * 180 / Math.PI + 90;
 
                 // Geen klemmen: elk pootje volgt exact dezelfde spatiering
                 var pts = [];
                 for (i = 0; i < N; i++) {
                     var p = i / (N - 1);
-                    var s = (i % 2 === 0) ? -1 : 1;     // links en rechts van de looplijn
+                    var s = (i % 2 === 0) ? -1 : 1;
                     cx = sx + tx * p + nx * s * off;
                     cy = sy + ty * p + ny * s * off;
                     pts.push([cx, cy]);
@@ -416,7 +358,7 @@
                 paw.addEventListener('click', function () { reveal(i); });
             });
 
-            document.getElementById('reset').addEventListener('click', reset);
+            document.addEventListener('dblclick', reset);
 
             layout();
 
