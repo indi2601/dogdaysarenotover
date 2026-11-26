@@ -17,7 +17,8 @@
 :root {
     --brown: #6b4423;
     --neon: #ff2fa8;
-    --background: #fff;
+    --cream: #f3e7cf;
+    --background: #f3e7cf;
     --edge: clamp(.8rem, 2vw, 1.5rem);
 }
 
@@ -57,29 +58,33 @@ body {
     z-index: 1;
 }
 
-.title {
+/* Kop met het percentage eronder, altijd gecentreerd bovenin */
+.head {
     position: fixed;
     top: var(--edge);
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
     z-index: 2;
     pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.title {
+    width: 92vw;
     color: var(--brown);
-    font-size: 14vh;
+    font-size: min(14vh, 11vw);
     line-height: .85;
     font-weight: 400;
     letter-spacing: -.05em;
     text-transform: uppercase;
     text-align: center;
-    white-space: nowrap;
 }
 
 .tag {
-    position: fixed;
-    top: var(--edge);
-    right: var(--edge);
-    z-index: 3;
-    pointer-events: none;
+    margin-top: .6rem;
     font-size: clamp(.8rem, 1.5vw, 1.05rem);
     line-height: 1.2;
     text-transform: none;
@@ -87,13 +92,14 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
+/* Onderin: knop altijd onderlijnd en in het midden */
 .nav-links {
     position: fixed;
     bottom: clamp(.8rem, 2vw, 1.5rem);
-    left: clamp(.8rem, 2vw, 1.5rem);
-    right: clamp(.8rem, 2vw, 1.5rem);
+    left: 0;
+    right: 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     z-index: 20;
     pointer-events: none;
@@ -104,7 +110,11 @@ body {
     font-size: clamp(.8rem, 1.5vw, 1.05rem);
     font-weight: 400;
     color: var(--neon);
-    text-decoration: none;
+    text-transform: none;
+    letter-spacing: 0;
+    text-decoration: underline;
+    text-underline-offset: .2em;
+    text-decoration-thickness: 1px;
     white-space: nowrap;
     background: none;
     border: 0;
@@ -114,6 +124,40 @@ body {
 }
 
 .nav-link:hover, .nav-link:focus-visible { opacity: .7; outline: none; }
+
+/* Botje rechtsboven: terug naar de index. Begint bruin, wordt bij hover neonroze. */
+.defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.home {
+    position: fixed;
+    top: var(--edge);
+    right: var(--edge);
+    z-index: 30;
+    display: block;
+    width: clamp(52px, 5.5vw, 78px);
+    aspect-ratio: 200 / 80;
+    transform: rotate(-10deg);
+    transition: transform .45s cubic-bezier(.2, .8, .2, 1);
+    outline: none;
+}
+
+.home svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: var(--brown);
+    filter: drop-shadow(0 2px 3px rgba(60, 35, 15, .25));
+    transition: fill .25s ease;
+}
+
+.home:hover, .home:focus-visible { transform: rotate(0deg) scale(1.1); }
+.home:hover svg, .home:focus-visible svg { fill: var(--neon); }
 
 #err {
     position: fixed;
@@ -127,23 +171,46 @@ body {
 }
 
 @media (max-width: 700px) {
-    .title { font-size: 22vw; }
+    .head { padding-top: 2.2rem; }
+    .title { font-size: 16vw; width: 84vw; }
     .nav-link, .tag { font-size: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home { transition: none; }
 }
 </style>
 </head>
 <body>
+<svg class="defs" aria-hidden="true" focusable="false">
+    <defs>
+        <g id="bone-shape">
+            <rect x="40" y="26" width="120" height="28"/>
+            <circle cx="34" cy="26" r="19"/>
+            <circle cx="34" cy="54" r="19"/>
+            <circle cx="166" cy="26" r="19"/>
+            <circle cx="166" cy="54" r="19"/>
+        </g>
+    </defs>
+</svg>
+
+<a class="home" href="index.html" aria-label="Back to the index">
+    <svg viewBox="0 0 200 80" aria-hidden="true">
+        <use href="#bone-shape"/>
+    </svg>
+</a>
+
 <div id="spacer"></div>
 
 <canvas id="game" aria-label="A bowl of dog food. Scroll to eat."></canvas>
 
-<h1 class="title" id="title">EAT</h1>
-<div class="tag" id="tag" aria-live="polite"></div>
+<div class="head">
+    <h1 class="title" id="title">SCROLL TO EAT</h1>
+    <div class="tag" id="tag" aria-live="polite"></div>
+</div>
 
-<nav class="nav-links" aria-label="Edition navigation">
-    <a href="editie-04.html" class="nav-link">← edition 04</a>
+<nav class="nav-links" aria-label="Controls">
     <button type="button" class="nav-link" id="reset">reset</button>
-    <a href="editie-06.html" class="nav-link">edition 06 →</a>
 </nav>
 
 <div id="err"></div>
@@ -159,13 +226,14 @@ window.addEventListener('error', function (e) {
 (function () {
     'use strict';
 
-    var RATE = 9;          // maximaal aantal brokjes dat per seconde opgegeten wordt
-    var BACK = 30;         // hoe snel het eten terugkomt als je omhoog scrolt
+    var RATE = 12;         // maximaal aantal brokjes dat per seconde opgegeten wordt
+    var BACK = 40;         // hoe snel het eten terugkomt als je omhoog scrolt
     var TAU = Math.PI * 2;
 
     var canvas = document.getElementById('game');
     var ctx = canvas.getContext('2d');
     var title = document.getElementById('title');
+    var head = document.querySelector('.head');
     var tag = document.getElementById('tag');
     var resetBtn = document.getElementById('reset');
 
@@ -181,13 +249,15 @@ window.addEventListener('error', function (e) {
 
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-    /* ---------- Brokjes: gestileerd, warm en netjes ---------- */
+    /* ---------- Brokjes: gestileerd, dieper bruin en smakelijker ---------- */
 
     var TONES = [
-        ['#e2b377', '#c28a4c', '#9a6633'],
-        ['#d9a86a', '#b87d41', '#8e5b2c'],
-        ['#e8be86', '#cc9658', '#a56f3a']
+        ['#c27f40', '#93562a', '#5f3417'],
+        ['#b06f35', '#82491f', '#512a12'],
+        ['#cc8a47', '#9f6030', '#6b3b1a']
     ];
+
+    var CRUMB = ['#b9763a', '#93562a', '#a8662f', '#6b3b1a'];
 
     function makeSprite(kind, tone) {
         var size = Math.ceil(S * 2.8 * dpr);
@@ -224,7 +294,7 @@ window.addEventListener('error', function (e) {
                 g.moveTo(cx + r * 0.85 + r * 0.34, cy + r * 0.3);
                 g.arc(cx + r * 0.85, cy + r * 0.3, r * 0.34, 0, TAU);
             } else {
-                // ring
+                // ring (binnenste cirkel de andere kant op, dus een gat)
                 g.ellipse(cx, cy, r, r * 0.94, 0, 0, TAU);
                 g.moveTo(cx + r * 0.36, cy);
                 g.ellipse(cx, cy, r * 0.36, r * 0.33, 0, 0, TAU, true);
@@ -233,7 +303,7 @@ window.addEventListener('error', function (e) {
 
         // Zachte schaduw eronder
         g.save();
-        g.shadowColor = 'rgba(70,42,18,0.38)';
+        g.shadowColor = 'rgba(50,28,10,0.45)';
         g.shadowBlur = r * 0.35;
         g.shadowOffsetY = r * 0.18;
         var grad = g.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.1, cx, cy, r * 1.5);
@@ -242,21 +312,21 @@ window.addEventListener('error', function (e) {
         grad.addColorStop(1, T[2]);
         g.fillStyle = grad;
         shape();
-        g.fill('evenodd');
+        g.fill();
         g.restore();
 
         g.save();
         shape();
-        g.clip('evenodd');
+        g.clip();
 
         // Zachte schaduw aan de onderkant, voor volume
         var vol = g.createLinearGradient(0, cy - r, 0, cy + r);
-        vol.addColorStop(0.45, 'rgba(110,68,30,0)');
-        vol.addColorStop(1, 'rgba(110,68,30,0.32)');
+        vol.addColorStop(0.45, 'rgba(70,38,14,0)');
+        vol.addColorStop(1, 'rgba(70,38,14,0.38)');
         g.fillStyle = vol;
         g.fillRect(0, 0, size, size);
 
-        // Fijne streepjes: net als de haartjes bij de hond
+        // Fijne streepjes en korreltjes
         var seed = kind * 11 + tone * 5 + 3;
         function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
         g.lineCap = 'round';
@@ -265,7 +335,7 @@ window.addEventListener('error', function (e) {
             var y = cy + (rnd() * 2 - 1) * r * 0.9;
             var a = rnd() * TAU;
             var l = r * (0.16 + rnd() * 0.22);
-            g.strokeStyle = rnd() > 0.5 ? 'rgba(255,225,175,0.5)' : 'rgba(120,76,36,0.28)';
+            g.strokeStyle = rnd() > 0.5 ? 'rgba(240,190,130,0.42)' : 'rgba(70,38,14,0.32)';
             g.lineWidth = Math.max(0.8, r * 0.05);
             g.beginPath();
             g.moveTo(x, y);
@@ -275,14 +345,14 @@ window.addEventListener('error', function (e) {
 
         // Glans
         var hl = g.createRadialGradient(cx - r * 0.38, cy - r * 0.45, 0, cx - r * 0.38, cy - r * 0.45, r * 0.75);
-        hl.addColorStop(0, 'rgba(255,240,205,0.55)');
-        hl.addColorStop(1, 'rgba(255,240,205,0)');
+        hl.addColorStop(0, 'rgba(255,224,170,0.5)');
+        hl.addColorStop(1, 'rgba(255,224,170,0)');
         g.fillStyle = hl;
         g.fillRect(0, 0, size, size);
         g.restore();
 
         // Dun randje
-        g.strokeStyle = 'rgba(120,76,36,0.3)';
+        g.strokeStyle = 'rgba(70,38,14,0.38)';
         g.lineWidth = Math.max(1, r * 0.05);
         shape();
         g.stroke();
@@ -299,12 +369,19 @@ window.addEventListener('error', function (e) {
 
     function makePieces() {
         pieces = [];
-        // [aantal, breedte, hoogte] per laag, in bakstralen. Laag 3 ligt bovenop.
-        var layers = [[60, 0.80, 0.46], [44, 0.62, 0.37], [28, 0.44, 0.27], [13, 0.25, 0.16]];
+        // [aantal, halve breedte, halve hoogte, hoogte van de hoop] per laag, in bakstralen.
+        // Laag 4 ligt bovenop; samen vormen ze een hoop die iets boven de rand uitsteekt.
+        var layers = [
+            [120, 0.78, 0.48, 0.02],
+            [90,  0.68, 0.42, 0.08],
+            [60,  0.54, 0.33, 0.15],
+            [34,  0.38, 0.23, 0.22],
+            [14,  0.20, 0.13, 0.29]
+        ];
         layers.forEach(function (L, k) {
             for (var i = 0; i < L[0]; i++) {
                 var a = Math.random() * TAU, d = Math.sqrt(Math.random());
-                var lift = k * 0.05 + (1 - d * d) * 0.03;
+                var lift = L[3] * (1 - d * d);
                 var roll = Math.random();
                 var kind = roll < 0.4 ? 0 : roll < 0.6 ? 1 : roll < 0.8 ? 2 : 3;
                 pieces.push({
@@ -312,7 +389,7 @@ window.addEventListener('error', function (e) {
                     y: Math.sin(a) * d * L[2] - lift,
                     layer: k,
                     ang: Math.random() * TAU,
-                    sc: 0.9 + Math.random() * 0.25,
+                    sc: 0.92 + Math.random() * 0.25,
                     sp: kind * 3 + ((Math.random() * 3) | 0),
                     rank: 0,
                     crumb: Math.random() < 0.4
@@ -341,16 +418,16 @@ window.addEventListener('error', function (e) {
         canvas.height = Math.round(H * dpr);
         mobile = W <= 700;
 
-        titleB = title.getBoundingClientRect().bottom;
+        titleB = head.getBoundingClientRect().bottom;
         barH = mobile ? 72 : 70;
         var avail = H - barH - titleB - 24;
-        R = Math.max(90, Math.min(W * (mobile ? 0.42 : 0.30), avail / 1.7, 430));
+        R = Math.max(90, Math.min(W * (mobile ? 0.42 : 0.30), avail / 1.85, 430));
         S = R * (mobile ? 0.15 : 0.12);
 
-        // Bak midden in de ruimte tussen titel en knoppen
+        // Bak midden in de ruimte tussen kop en knop
         var mid = titleB + (H - barH - titleB) / 2;
         bx = W / 2;
-        by = mid - R * 0.19;
+        by = mid - R * 0.1;
 
         buildSprites();
         if (!pieces.length) makePieces();
@@ -382,7 +459,7 @@ window.addEventListener('error', function (e) {
                 vy: -(2 + Math.random() * 3.8),
                 ty: y + 6 + Math.random() * R * 0.35,
                 s: 1.2 + Math.random() * 2.4,
-                c: ['#e2b377', '#c28a4c', '#d9a86a', '#b87d41'][(Math.random() * 4) | 0],
+                c: CRUMB[(Math.random() * CRUMB.length) | 0],
                 at: Math.floor(e) + 1
             });
         }
@@ -403,7 +480,6 @@ window.addEventListener('error', function (e) {
     function updateTag() {
         var txt;
         if (N && e >= N - 0.01) txt = 'all gone';
-        else if (e < 0.5) txt = mobile ? 'swipe up to eat' : 'scroll to eat';
         else txt = Math.floor(e / N * 100) + '% eaten';
         tag.textContent = txt;
     }
@@ -440,7 +516,7 @@ window.addEventListener('error', function (e) {
         ctx.save();
         ctx.translate(bx, by - jolt * R * 0.012);
 
-        // Bakje zelf
+        // Bakje zelf (crème keramiek)
         var body = new Path2D();
         body.moveTo(-R, 0);
         body.bezierCurveTo(-R, 0.5 * R, -0.7 * R, 0.86 * R, -0.52 * R, 0.9 * R);
@@ -449,10 +525,10 @@ window.addEventListener('error', function (e) {
         body.closePath();
 
         var bg = ctx.createLinearGradient(-R, 0, R, 0);
-        bg.addColorStop(0, '#efe7dc');
-        bg.addColorStop(0.35, '#ffffff');
-        bg.addColorStop(0.75, '#e3d8ca');
-        bg.addColorStop(1, '#bfae98');
+        bg.addColorStop(0, '#e6d6b8');
+        bg.addColorStop(0.35, '#faf2e1');
+        bg.addColorStop(0.75, '#e0cfae');
+        bg.addColorStop(1, '#b9a07c');
         ctx.fillStyle = bg;
         ctx.fill(body);
 
@@ -464,8 +540,8 @@ window.addEventListener('error', function (e) {
         ctx.ellipse(0, 0.12 * R, 1.04 * R, 0.66 * R, 0, 0, Math.PI);
         ctx.stroke();
         var sh = ctx.createLinearGradient(-R, 0, R, 0);
-        sh.addColorStop(0, 'rgba(255,255,255,0.35)');
-        sh.addColorStop(0.3, 'rgba(255,255,255,0)');
+        sh.addColorStop(0, 'rgba(255,250,235,0.35)');
+        sh.addColorStop(0.3, 'rgba(255,250,235,0)');
         sh.addColorStop(0.6, 'rgba(60,35,15,0)');
         sh.addColorStop(1, 'rgba(60,35,15,0.28)');
         ctx.fillStyle = sh;
@@ -483,9 +559,9 @@ window.addEventListener('error', function (e) {
 
         // Rand
         var rg = ctx.createLinearGradient(0, -0.62 * R, 0, 0.62 * R);
-        rg.addColorStop(0, '#ffffff');
-        rg.addColorStop(0.5, '#f1e9de');
-        rg.addColorStop(1, '#d8cab9');
+        rg.addColorStop(0, '#fbf3e3');
+        rg.addColorStop(0.5, '#efe2c8');
+        rg.addColorStop(1, '#d6c3a0');
         ctx.fillStyle = rg;
         ctx.beginPath();
         ctx.ellipse(0, 0, R, 0.62 * R, 0, 0, TAU);
@@ -495,9 +571,9 @@ window.addEventListener('error', function (e) {
         // Binnenkant
         var ix = 0.88 * R, iy = 0.54 * R;
         var ig = ctx.createLinearGradient(0, -iy, 0, iy);
-        ig.addColorStop(0, '#cdbda9');
-        ig.addColorStop(0.35, '#eee5d8');
-        ig.addColorStop(1, '#fbf7f1');
+        ig.addColorStop(0, '#c9b48f');
+        ig.addColorStop(0.35, '#e9dcc0');
+        ig.addColorStop(1, '#f6ecd6');
         ctx.fillStyle = ig;
         ctx.beginPath();
         ctx.ellipse(0, 0.01 * R, ix, iy, 0, 0, TAU);
@@ -526,7 +602,7 @@ window.addEventListener('error', function (e) {
         for (i = 0; i < pieces.length; i++) {
             p = pieces[i];
             if (p.crumb && p.rank < fl) {
-                ctx.fillStyle = 'rgba(214,166,104,0.9)';
+                ctx.fillStyle = 'rgba(166,104,52,0.9)';
                 ctx.beginPath();
                 ctx.arc(p.x * R * 0.96, (p.y + 0.04) * R, Math.max(1, R * 0.006), 0, TAU);
                 ctx.fill();
@@ -540,8 +616,14 @@ window.addEventListener('error', function (e) {
         ctx.fillRect(-ix, -iy, 2 * ix, 2 * iy);
         ctx.restore();
 
-        // De brokjes. Wat al opgegeten is, wordt niet meer getekend;
-        // het brokje dat nu wordt opgegeten krimpt en trekt weg.
+        // De brokjes: een hoop die boven de rand uit mag steken,
+        // maar aan de voorkant netjes achter de rand blijft.
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(-1.05 * R, -1.3 * R, 2.1 * R, 1.3 * R + 0.01 * R);
+        ctx.ellipse(0, 0.01 * R, ix, iy, 0, 0, TAU);
+        ctx.clip();
+
         for (i = 0; i < pieces.length; i++) {
             p = pieces[i];
             if (p.rank < fl) continue;
@@ -555,6 +637,7 @@ window.addEventListener('error', function (e) {
             ctx.drawImage(sp, -ds / 2, -ds / 2, ds, ds);
             ctx.restore();
         }
+        ctx.restore();
 
         ctx.restore();
     }
